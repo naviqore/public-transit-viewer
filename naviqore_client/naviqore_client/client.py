@@ -1,4 +1,4 @@
-from models import (
+from naviqore_client.models import (
     SearchType,
     Stop,
     Coordinate,
@@ -143,11 +143,11 @@ class Client:
         minTransferTime: Optional[int] = None,
     ) -> str:
         queryString = (
-            f"fromStopId={fromStop.id if isinstance(fromStop, Stop) else fromStop}"
+            f"sourceStopId={fromStop.id if isinstance(fromStop, Stop) else fromStop}"
         )
         if toStop is not None:
             queryString += (
-                f"&toStopId={toStop.id if isinstance(toStop, Stop) else toStop}"
+                f"&targetStopId={toStop.id if isinstance(toStop, Stop) else toStop}"
             )
         departure = datetime.now() if departure is None else departure
         queryString += f"&departure={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
@@ -187,7 +187,7 @@ class Client:
 
     @staticmethod
     def _convertJsonTrip(json: dict[str, Any]) -> Trip:
-        json["route"] = Route(**json)
+        json["route"] = Route(**json["route"])
         json["stopTimes"] = [
             Client._convertJsonStopTime(stopTime) for stopTime in json["stopTimes"]
         ]
@@ -200,15 +200,17 @@ class Client:
 
     @staticmethod
     def _convertJsonLeg(json: dict[str, Any]) -> Leg:
-        json["fromCoordinate"] = Coordinate(**json["fromCoordinate"])
+        json["fromCoordinate"] = Coordinate(**json["from"])
         json["fromStop"] = Client._convertJsonStop(json["fromStop"])
-        json["toCoordinate"] = Coordinate(**json["toCoordinate"])
+        json["toCoordinate"] = Coordinate(**json["to"])
         json["toStop"] = Client._convertJsonStop(json["toStop"])
         json["departureTime"] = datetime.fromisoformat(json["departureTime"])
         json["arrivalTime"] = datetime.fromisoformat(json["arrivalTime"])
         json["type"] = LegType(json["type"])
         if json.get("trip") is not None:
             json["trip"] = Client._convertJsonTrip(json["trip"])
+        del json["from"]
+        del json["to"]
         return Leg(**json)
 
     @staticmethod

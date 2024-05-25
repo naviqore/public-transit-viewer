@@ -1,20 +1,20 @@
-from enum import Enum, auto
+from enum import Enum
 from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
 
 class SearchType(Enum):
-    EXACT = auto()
-    FUZZY = auto()
-    CONTAINS = auto()
-    STARTS_WITH = auto()
-    ENDS_WITH = auto()
+    EXACT = "EXACT"
+    FUZZY = "FUZZY"
+    CONTAINS = "CONTAINS"
+    STARTS_WITH = "STARTS_WITH"
+    ENDS_WITH = "ENDS_WITH"
 
 
 class LegType(Enum):
-    WALK = auto()
-    ROUTE = auto()
+    WALK = "WALK"
+    ROUTE = "ROUTE"
 
 
 class Coordinate(BaseModel):
