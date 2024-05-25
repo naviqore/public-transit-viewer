@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "naviqore-viewer"
+version = "0.1.0"
+description = ""
+authors = ["Lukas Connolly <lukas@connolly.ch>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = "^1.35.0"
+pandas = "^2.2.2"
+pydantic = "^2.7.1"
+python-dotenv = "^1.0.1"
+streamlit-searchbox = "^0.1.12"
+naviqore-client = {path = "../naviqore_client"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
