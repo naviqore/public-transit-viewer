@@ -14,7 +14,7 @@ from naviqore_client.models import (
 )
 from typing import Union, Optional, Any
 from datetime import datetime
-from requests import get
+from requests import get, Response
 
 
 class Client:
@@ -29,7 +29,7 @@ class Client:
             f"{self.host}/schedule/stops/autocomplete"
             f"?query={query}&limit={limit}&searchType={searchType.name}"
         )
-        response = get(url)
+        response: Response = get(url)
         if response.status_code == 200:
             return [self._convertJsonStop(stop) for stop in response.json()]
         else:
