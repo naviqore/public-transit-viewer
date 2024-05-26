@@ -66,9 +66,9 @@ class Client:
         stopId = stop.id if isinstance(stop, Stop) else stop
         url = f"{self.host}/schedule/departures/{stopId}?limit={limit}"
         if departure is not None:
-            url += f"&departure={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
+            url += f"&departureDateTime={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
         if until is not None:
-            url += f"&until={until.strftime('%Y-%m-%dT%H:%M:%S')}"
+            url += f"&untilDateTime={until.strftime('%Y-%m-%dT%H:%M:%S')}"
         response = get(url)
         if response.status_code == 200:
             return [
@@ -150,7 +150,7 @@ class Client:
                 f"&targetStopId={toStop.id if isinstance(toStop, Stop) else toStop}"
             )
         departure = datetime.now() if departure is None else departure
-        queryString += f"&departure={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
+        queryString += f"&departureDateTime={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
         if maxWalkingDuration is not None:
             queryString += f"&maxWalkingDuration={maxWalkingDuration}"
         if maxTransferNumber is not None:
