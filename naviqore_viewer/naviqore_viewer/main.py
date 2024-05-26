@@ -12,7 +12,7 @@ st.write("A simple viewer for the Naviqore API")  # type: ignore
 
 column1, column2 = st.columns(2)
 
-stops = getStops()  # type: ignore
+stops = getStops()
 
 with column1:
     fromStopId: str = st.selectbox(  # type: ignore

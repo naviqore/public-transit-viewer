@@ -186,4 +186,4 @@ def showMap(connection: Connection, key: str):
 
     with st.expander("Show map"):  # type: ignore
         st.write("Map of the connection")  # type: ignore
-        folium_static(m)
+        folium_static(m, width=600, height=400)  # type: ignore
