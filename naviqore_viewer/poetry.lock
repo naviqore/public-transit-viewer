@@ -555,7 +555,7 @@ description = ""
 optional = false
 python-versions = "^3.12"
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 geopy = "^2.4.1"
@@ -1462,4 +1462,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "78bff690a9b2e04609795a90a67862bb35572e6a936037e928a131dd63471389"
+content-hash = "3f807e446e4c4235a65eb08544c140606c9cc9dbd51e916ea5cf9fd338ddab02"

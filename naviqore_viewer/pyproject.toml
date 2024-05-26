@@ -14,7 +14,7 @@ python-dotenv = "^1.0.1"
 streamlit-searchbox = "^0.1.12"
 folium = "^0.16.0"
 streamlit-folium = "^0.20.0"
-naviqore_client = {path = "../naviqore_client", develop = true}
+naviqore-client = {path = "../naviqore_client", develop = true}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
