@@ -74,15 +74,7 @@ filteredDf = isolinesDf[  # type: ignore
 
 # get max distance from source
 
-colors = [
-    "darkgreen",
-    "green",
-    "lightgreen",
-    "yellow",
-    "orange",
-    "red",
-    "darkred",
-]
+colors = ["darkgreen", "green", "lightgreen", "yellow", "lightred" "red", "darkred"]
 
 # random, may have to be adjusted
 zoom = 10
