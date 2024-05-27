@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 from typing import Union
 from dotenv import dotenv_values
 from pathlib import Path
@@ -17,6 +18,8 @@ def getClient() -> Client:
     config = dotenv_values(rootDir / ".env")
 
     if "NAVIQORE_HOST_URL" not in config:
+        if "NAVIQORE_HOST_URL" in os.environ:
+            return Client(str(os.environ["NAVIQORE_HOST_URL"]))
         raise ValueError("NAVIQORE_HOST_URL not found in .env file")
 
     return Client(str(config["NAVIQORE_HOST_URL"]))
