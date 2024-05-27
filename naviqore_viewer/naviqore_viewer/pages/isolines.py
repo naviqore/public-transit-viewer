@@ -69,7 +69,7 @@ showMarkers: bool = optionColumns[2].toggle(  # type: ignore
 )
 
 filteredDf = isolinesDf[  # type: ignore
-    (isolinesDf[filterBy] >= filterValue[0]) & (isolinesDf[filterBy] <= filterValue[1])  # type: ignore
+    (isolinesDf[filterBy] >= filterValue[0]) & (isolinesDf[filterBy] <= filterValue[1])
 ]
 
 # get max distance from source
@@ -104,7 +104,7 @@ m = folium.Map(location=sourceCoordinates.toTuple(), zoom_start=zoom)  # type: i
 
 # add marker to source coordinate
 folium.Marker(  # type: ignore
-    sourceCoordinates.toTuple(), popup=stops[fromStopId], tooltip="Source"  # type: ignore
+    sourceCoordinates.toTuple(), popup=stops[fromStopId], tooltip="Source"
 ).add_to(m)
 
 for index, row in filteredDf.iterrows():  # type: ignore
