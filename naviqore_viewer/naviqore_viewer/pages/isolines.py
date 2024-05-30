@@ -1,5 +1,6 @@
 import streamlit as st
 from naviqore_viewer.client import getIsoLines, getStops
+from naviqore_viewer.utils import getColorMapHexValue
 from naviqore_client.models import Coordinate
 from datetime import date, time
 import pandas as pd
@@ -74,10 +75,6 @@ filteredDf = isolinesDf[  # type: ignore
     (isolinesDf[filterBy] >= filterValue[0]) & (isolinesDf[filterBy] <= filterValue[1])
 ]
 
-# get max distance from source
-
-colors = ["darkgreen", "green", "lightgreen", "yellow", "lightred" "red", "darkred"]
-
 # random, may have to be adjusted
 zoom = 10
 zoomFactors = {
@@ -123,19 +120,18 @@ def showMarkerAndLines(
     # get color key based on filterValue
     filterRange = filterValue[1] - filterValue[0]
     if filterRange == 0:
-        colorKey = 0
+        color = getColorMapHexValue(1.0, 0.0, 1.0)
     else:
-        colorKey = int(
-            (row[filterBy] - filterValue[0]) / filterRange * len(colors)  # type: ignore
+        color = getColorMapHexValue(
+            row[filterBy], filterValue[0], filterValue[1]  # type: ignore
         )
-        colorKey = min(colorKey, len(colors) - 1)
 
     if showMarkers:
         folium.Marker(  # type: ignore
             location=[row["toLat"], row["toLon"]],  # type: ignore
             popup=row["toStop"],  # type: ignore
             tooltip=row["toStop"],  # type: ignore
-            icon=folium.Icon(color=colors[colorKey]),
+            icon=folium.Icon(color=color),
         ).add_to(map)
 
     folium.PolyLine(  # type: ignore
@@ -149,7 +145,7 @@ def showMarkerAndLines(
                 row["toLon"],
             ],
         ],
-        color=colors[colorKey],
+        color=color,
         opacity=0.5 if row["type"] == "WALK" else 1.0,
     ).add_to(map)
 
@@ -162,6 +158,9 @@ def showRemainingDistanceCircles(
 ) -> None:
 
     arrivalTime = row["arrivalTimeFromStartInMinutes"]  # type: ignore
+    color = getColorMapHexValue(
+        arrivalTime, 0, filterValue[1], colorMap="autumn"  # type: ignore
+    )
 
     timeLeft = filterValue[1] - arrivalTime  # type: ignore
     radius = timeLeft * walkingSpeed  # type: ignore
@@ -170,9 +169,9 @@ def showRemainingDistanceCircles(
     folium.Circle(  # type: ignore
         location=[row["toLat"], row["toLon"]],  # type: ignore
         radius=radius,  # type: ignore
-        color=colors[0],
+        color=color,
         fill=True,
-        fill_color=colors[0],
+        fill_color=color,
         fill_opacity=0.3,
         popup=f"{row['toStop']} - Arrival after {arrivalTime} minutes",  # type: ignore
     ).add_to(map)
