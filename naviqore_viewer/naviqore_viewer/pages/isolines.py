@@ -6,6 +6,8 @@ import pandas as pd
 from typing import Optional
 from streamlit_folium import st_folium  # type: ignore
 import folium  # type: ignore
+from dotenv import dotenv_values
+from pathlib import Path
 
 stops = getStops()
 
@@ -107,8 +109,17 @@ folium.Marker(  # type: ignore
     sourceCoordinates.toTuple(), popup=stops[fromStopId], tooltip="Source"
 ).add_to(m)
 
-for index, row in filteredDf.iterrows():  # type: ignore
 
+scriptDir = Path(__file__).parent
+envVariables = dotenv_values(scriptDir / ".." / ".." / ".env")
+
+# get walking speed in m/min (environment variable is in km/h)
+walkingSpeed = float(envVariables.get("WALKING_SPEED", 4)) * 1000 / 60  # type: ignore
+
+
+def showMarkerAndLines(
+    map: folium.Map, row: pd.Series, filterValue: tuple[int, int]  # type: ignore
+) -> None:
     # get color key based on filterValue
     filterRange = filterValue[1] - filterValue[0]
     if filterRange == 0:
@@ -125,7 +136,7 @@ for index, row in filteredDf.iterrows():  # type: ignore
             popup=row["toStop"],  # type: ignore
             tooltip=row["toStop"],  # type: ignore
             icon=folium.Icon(color=colors[colorKey]),
-        ).add_to(m)
+        ).add_to(map)
 
     folium.PolyLine(  # type: ignore
         locations=[
@@ -140,6 +151,38 @@ for index, row in filteredDf.iterrows():  # type: ignore
         ],
         color=colors[colorKey],
         opacity=0.5 if row["type"] == "WALK" else 1.0,
-    ).add_to(m)
+    ).add_to(map)
+
+
+def showRemainingDistanceCircles(
+    map: folium.Map,
+    row: pd.Series,  # type: ignore
+    filterValue: tuple[int, int],
+    walkingSpeed: float,
+) -> None:
+
+    arrivalTime = row["arrivalTimeFromStartInMinutes"]  # type: ignore
+
+    timeLeft = filterValue[1] - arrivalTime  # type: ignore
+    radius = timeLeft * walkingSpeed  # type: ignore
+
+    # create a circle with the radius of the remaining distance
+    folium.Circle(  # type: ignore
+        location=[row["toLat"], row["toLon"]],  # type: ignore
+        radius=radius,  # type: ignore
+        color=colors[0],
+        fill=True,
+        fill_color=colors[0],
+        fill_opacity=0.3,
+        popup=f"{row['toStop']} - Arrival after {arrivalTime} minutes",  # type: ignore
+    ).add_to(map)
+
+
+for _, row in filteredDf.iterrows():  # type: ignore
+    if filterBy == "connectionRound":
+        showMarkerAndLines(m, row, filterValue)  # type: ignore
+    else:
+        showRemainingDistanceCircles(m, row, filterValue, walkingSpeed)  # type: ignore
+
 
 st_folium(m, use_container_width=True)  # type: ignore
