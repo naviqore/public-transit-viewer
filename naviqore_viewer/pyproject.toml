@@ -15,6 +15,7 @@ streamlit-searchbox = "^0.1.12"
 folium = "^0.16.0"
 streamlit-folium = "^0.20.0"
 naviqore-client = {path = "../naviqore_client", develop = true}
+matplotlib = "^3.9.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
