@@ -39,8 +39,14 @@ def getConnections(
 @st.cache_data
 def getStops() -> dict[str, str]:
     client = getClient()
-    stops = client.searchStops("", limit=INFINITY)
-    return {stop.id: stop.name for stop in stops}
+    stops = client.nearestStops(
+        Coordinate(latitude=47.5, longitude=8.5), limit=INFINITY, maxDistance=100000
+    )
+    return {
+        stop_distance.stop.id: stop_distance.stop.name
+        for stop_distance in stops
+        if not stop_distance.stop.id.startswith("Parent")
+    }
 
 
 @st.cache_data
