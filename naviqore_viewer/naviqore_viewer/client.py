@@ -40,7 +40,7 @@ def getConnections(
 def getStops() -> dict[str, str]:
     client = getClient()
     stops = client.nearestStops(
-        Coordinate(latitude=47.5, longitude=8.5), limit=INFINITY, maxDistance=100000
+        Coordinate(latitude=47.5, longitude=8.5), limit=INFINITY, maxDistance=INFINITY
     )
     return {
         stop_distance.stop.id: stop_distance.stop.name
