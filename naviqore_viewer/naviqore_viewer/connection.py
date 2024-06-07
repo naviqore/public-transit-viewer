@@ -170,7 +170,19 @@ def showMap(connection: Connection, key: str):
         ).add_to(m)
 
         # now plot leg
-        coords = [leg.fromCoordinate.toTuple(), leg.toCoordinate.toTuple()]
+        coords: list[tuple[float, float]] = []
+        if leg.trip is not None:
+            stopTimes = sorted(leg.trip.stopTimes, key=lambda x: x.departureTime)
+            for stopTime in stopTimes:
+                if (
+                    stopTime.departureTime < leg.departureTime
+                    or stopTime.arrivalTime > leg.arrivalTime
+                ):
+                    continue
+                coords.append(stopTime.stop.coordinate.toTuple())
+        else:
+            coords = [leg.fromCoordinate.toTuple(), leg.toCoordinate.toTuple()]
+
         color = next(colors)
 
         walkDuration = leg.duration // 60
