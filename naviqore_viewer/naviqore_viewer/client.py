@@ -102,10 +102,4 @@ def getIsoLines(
                 }
             )
 
-    # do some dataframe cleanup
-    # keep only the earliest arrival for each toStop
-    legsDf = pd.DataFrame(legs)
-    legsDf = legsDf.sort_values("arrivalTimeFromStartInMinutes")  # type: ignore
-    legsDf = legsDf.drop_duplicates(subset=["toStop"], keep="first")  # type: ignore
-
     return fromCoordinate, pd.DataFrame(legs)

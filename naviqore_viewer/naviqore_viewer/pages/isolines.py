@@ -41,6 +41,9 @@ isolinesDf = isolines[1]
 maxDuration = int(isolinesDf["arrivalTimeFromStartInMinutes"].max())  # type: ignore
 maxRound = int(isolinesDf["connectionRound"].max())  # type: ignore
 
+isolinesDf = isolinesDf.sort_values("arrivalTimeFromStartInMinutes")  # type: ignore
+isolinesDf = isolinesDf.drop_duplicates(subset=["toStop"], keep="first")  # type: ignore
+
 options = {
     "connectionRound": "By round",
     "arrivalTimeFromStartInMinutes": "By time in minutes",
@@ -70,6 +73,12 @@ filterValue = optionColumns[1].slider(  # type: ignore
 showMarkers: bool = optionColumns[2].toggle(  # type: ignore
     label="Show markers", value=False  # type: ignore
 )
+showFootpathRadius: bool = False
+if filterBy != "connectionRound":
+    showFootpathRadius: bool = optionColumns[2].toggle(  # type: ignore
+        label="Show Footpath Radius on Arrival", value=showFootpathRadius
+    )
+
 
 filteredDf = isolinesDf[  # type: ignore
     (isolinesDf[filterBy] >= filterValue[0]) & (isolinesDf[filterBy] <= filterValue[1])
@@ -127,12 +136,28 @@ def showMarkerAndLines(
         )
 
     if showMarkers:
-        folium.Marker(  # type: ignore
+
+        if filterBy == "connectionRound":
+            popup = f"{row['toStop']} - Round {row['connectionRound']}"
+        else:
+            popup = (
+                f"{row['toStop']} - Arrival after "
+                f"{row['arrivalTimeFromStartInMinutes']} minutes"
+            )
+
+        folium.Circle(  # type: ignore
             location=[row["toLat"], row["toLon"]],  # type: ignore
-            popup=row["toStop"],  # type: ignore
-            tooltip=row["toStop"],  # type: ignore
-            icon=folium.Icon(color=color),
+            radius=30,  # type: ignore
+            color=color,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.8,
+            popup=popup,
         ).add_to(map)
+
+    lineArgs = {}
+    if row["type"] == "WALK":
+        lineArgs["dash_array"] = "5"
 
     folium.PolyLine(  # type: ignore
         locations=[
@@ -145,8 +170,9 @@ def showMarkerAndLines(
                 row["toLon"],
             ],
         ],
+        toolTip=f"{row['fromStop']} to {row['toStop']}",  # type: ignore
         color=color,
-        opacity=0.5 if row["type"] == "WALK" else 1.0,
+        **lineArgs,
     ).add_to(map)
 
 
@@ -158,9 +184,7 @@ def showRemainingDistanceCircles(
 ) -> None:
 
     arrivalTime = row["arrivalTimeFromStartInMinutes"]  # type: ignore
-    color = getColorMapHexValue(
-        arrivalTime, 0, filterValue[1], colorMap="autumn"  # type: ignore
-    )
+    color = getColorMapHexValue(arrivalTime, 0, filterValue[1])  # type: ignore
 
     timeLeft = filterValue[1] - arrivalTime  # type: ignore
     radius = timeLeft * walkingSpeed  # type: ignore
@@ -178,7 +202,7 @@ def showRemainingDistanceCircles(
 
 
 for _, row in filteredDf.iterrows():  # type: ignore
-    if filterBy == "connectionRound":
+    if not showFootpathRadius:
         showMarkerAndLines(m, row, filterValue)  # type: ignore
     else:
         showRemainingDistanceCircles(m, row, filterValue, walkingSpeed)  # type: ignore
