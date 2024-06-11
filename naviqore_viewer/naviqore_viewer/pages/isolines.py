@@ -1,4 +1,5 @@
 import streamlit as st
+from naviqore_viewer import LOGO_PATH
 from naviqore_viewer.client import getIsoLines, getStops
 from naviqore_viewer.utils import getColorMapHexValue
 from naviqore_client.models import Coordinate
@@ -10,9 +11,18 @@ import folium  # type: ignore
 from dotenv import dotenv_values
 from pathlib import Path
 
+st.set_page_config(
+    page_title="Naviqore - Iso Lines",
+    page_icon=str(LOGO_PATH),
+)
+
 stops = getStops()
 
-st.title("Naviqore Isolines")
+headerCol1, headerCol2 = st.columns([1, 4])
+
+headerCol1.image(str(LOGO_PATH), use_column_width=True)
+headerCol2.title("Naviqore")
+headerCol2.write("Visualize Iso Lines from Source Stop")  # type: ignore
 
 column1, column2, column3 = st.columns(3)
 
