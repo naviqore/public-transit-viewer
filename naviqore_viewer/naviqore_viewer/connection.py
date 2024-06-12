@@ -4,6 +4,11 @@ from streamlit_folium import folium_static  # type: ignore
 import folium  # type: ignore
 from itertools import cycle
 
+stopIconArgs = {
+    "prefix": "fa",
+    "icon": "location-crosshairs",
+}
+
 
 @st.experimental_fragment
 def outputConnection(connection: Connection, key: str):
@@ -137,13 +142,14 @@ def showMap(connection: Connection, key: str):
     )
 
     folium.Marker(  # type: ignore
-        connection.fromCoordinate.toTuple(), popup=markerLabel, tooltip=markerLabel
+        connection.fromCoordinate.toTuple(),
+        popup=markerLabel,
+        tooltip=markerLabel,
+        icon=folium.Icon(color="blue", **stopIconArgs),
     ).add_to(m)
 
     colors = cycle(
         [
-            "blue",
-            "green",
             "red",
             "purple",
             "orange",
@@ -158,19 +164,26 @@ def showMap(connection: Connection, key: str):
             "gray",
             "black",
             "lightgray",
+            "green",
         ]
     )
 
     for leg in connection.legs:
+        color = next(colors)
         markerLabel = (
             leg.toStop.name if leg.toStop is not None else str(leg.toCoordinate)
         )
+
         folium.Marker(  # type: ignore
-            leg.toCoordinate.toTuple(), popup=markerLabel, tooltip=markerLabel
+            leg.toCoordinate.toTuple(),
+            popup=markerLabel,
+            tooltip=markerLabel,
+            icon=folium.Icon(color=color, **stopIconArgs),
         ).add_to(m)
 
         # now plot leg
         coords: list[tuple[float, float]] = []
+        lineArgs = {}
         if leg.trip is not None:
             stopTimes = sorted(leg.trip.stopTimes, key=lambda x: x.departureTime)
             for stopTime in stopTimes:
@@ -180,10 +193,19 @@ def showMap(connection: Connection, key: str):
                 ):
                     continue
                 coords.append(stopTime.stop.coordinate.toTuple())
+
+                folium.Circle(  # type: ignore
+                    location=stopTime.stop.coordinate.toTuple(),
+                    radius=30,
+                    color=color,
+                    fill=True,
+                    fill_color=color,
+                    fill_opacity=0.6,
+                    popup=stopTime.stop.name,
+                ).add_to(m)
         else:
             coords = [leg.fromCoordinate.toTuple(), leg.toCoordinate.toTuple()]
-
-        color = next(colors)
+            lineArgs["dash_array"] = "5"
 
         walkDuration = leg.duration // 60
         label = f"{walkDuration}' Walk"
@@ -193,7 +215,7 @@ def showMap(connection: Connection, key: str):
             label = f"{trip.route.shortName} in direction {trip.headSign}"
 
         folium.PolyLine(  # type: ignore
-            coords, color=color, weight=2.5, opacity=1, popup=label
+            coords, color=color, weight=2.5, opacity=1, popup=label, **lineArgs
         ).add_to(m)
 
     with st.expander("Show map"):  # type: ignore

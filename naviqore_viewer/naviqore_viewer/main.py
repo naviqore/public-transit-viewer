@@ -1,4 +1,5 @@
 import streamlit as st
+from naviqore_viewer import LOGO_PATH
 from naviqore_viewer.client import getConnections, getStops
 from naviqore_viewer.connection import outputConnection
 from naviqore_client.models import Connection
@@ -7,8 +8,16 @@ from typing import Optional
 
 connections: Optional[list[Connection]] = None
 
-st.title("Naviqore")
-st.write("A simple viewer for the Naviqore API")  # type: ignore
+st.set_page_config(
+    page_title="Naviqore - Router",
+    page_icon=str(LOGO_PATH),
+)
+
+headerCol1, headerCol2 = st.columns([1, 4])
+
+headerCol1.image(str(LOGO_PATH), use_column_width=True)
+headerCol2.title("Naviqore")
+headerCol2.write("A simple viewer for the Naviqore API")  # type: ignore
 
 column1, column2 = st.columns(2)
 

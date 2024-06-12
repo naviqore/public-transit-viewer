@@ -7,7 +7,7 @@ def getColorMapHexValue(
     min: float,
     max: float,
     numColorSteps: int = 32,
-    colorMap: str = "seismic",
+    colorMap: str = "hsv",
 ) -> str:
     """Get hexadecimal color value based on value and color map.
 
