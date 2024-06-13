@@ -75,7 +75,7 @@ with column2:
     maxTravelTime: Optional[int] = getNumberValue(
         st.number_input(  # type: ignore
             label="Max Travel Time (in minutes)",
-            value=-1,
+            value=60,
             min_value=-1,
             step=1,
             help="To deactivate, set to -1 or leave empty",
@@ -94,8 +94,6 @@ with column3:
     )
 
 isolines: Optional[tuple[Coordinate, pd.DataFrame]] = None
-
-print(f"Max Walking Duration: {maxWalkingDuration}")
 
 if fromStopId and departureDate and departureTime:
     isolines = getIsoLines(
