@@ -25,6 +25,12 @@ def getClient() -> Client:
     return Client(str(config["NAVIQORE_HOST_URL"]))
 
 
+def _convertToSeconds(value: Optional[int]) -> Optional[int]:
+    if value is None:
+        return None
+    return value * 60
+
+
 @st.cache_data
 def getConnections(
     fromStop: str,
@@ -43,10 +49,10 @@ def getConnections(
         fromStop,
         toStop,
         departureDateTime,
-        maxWalkingDuration=maxWalkingDuration * 60 if maxWalkingDuration else None,
-        maxTransferNumber=maxTransfers * 60 if maxTransfers else None,
-        maxTravelTime=maxTravelTime * 60 if maxTravelTime else None,
-        minTransferTime=minTransferTime * 60 if minTransferTime else None,
+        maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
+        maxTransferNumber=maxTransfers,
+        maxTravelTime=_convertToSeconds(maxTravelTime),
+        minTransferTime=_convertToSeconds(minTransferTime),
     )
 
 
@@ -63,11 +69,24 @@ def getStops() -> dict[str, str]:
 
 @st.cache_data
 def getIsoLines(
-    fromStop: str, departureDate: date, departureTime: time
+    fromStop: str,
+    departureDate: date,
+    departureTime: time,
+    maxTransfers: Optional[int] = None,
+    maxTravelTime: Optional[int] = None,
+    maxWalkingDuration: Optional[int] = None,
+    minTransferTime: Optional[int] = None,
 ) -> tuple[Coordinate, pd.DataFrame]:
     client = getClient()
     departureDateTime = datetime.combine(departureDate, departureTime)
-    earliestArrivals = client.getIsoLines(fromStop, departureDateTime)
+    earliestArrivals = client.getIsoLines(
+        fromStop,
+        departureDateTime,
+        maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
+        maxTransferNumber=maxTransfers,
+        maxTravelTime=_convertToSeconds(maxTravelTime),
+        minTransferTime=_convertToSeconds(minTransferTime),
+    )
 
     legs: list[dict[str, Union[datetime, int, str, float]]] = []
 
