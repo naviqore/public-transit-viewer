@@ -4,7 +4,7 @@ from naviqore_viewer.client import getConnections, getStops
 from naviqore_viewer.connection import outputConnection
 from naviqore_client.models import Connection
 from datetime import date, time
-from typing import Optional
+from typing import Optional, Any
 
 connections: Optional[list[Connection]] = None
 
@@ -44,11 +44,73 @@ with column1:
 with column2:
     departureTime: time = st.time_input(label="Departure Time")
 
+
+def getNumberValue(inputValue: Any) -> Optional[int]:
+    if inputValue == -1 or inputValue == "":
+        return None
+    return int(inputValue)
+
+
 with column3:
-    clicked: bool = st.button("Search", use_container_width=True)
+    maxTransfers: Optional[int] = getNumberValue(
+        st.number_input(  # type: ignore
+            label="Max Transfers",
+            value=-1,
+            min_value=-1,
+            step=1,
+            help="To deactivate, set to -1.",
+        )
+    )
+
+column1, column2, column3 = st.columns(3)
+
+with column1:
+    maxWalkingDuration: Optional[int] = getNumberValue(
+        st.number_input(  # type: ignore
+            label="Max Walking Duration (in minutes)",
+            value=-1,
+            min_value=-1,
+            step=1,
+            help="To deactivate, set to -1.",
+        )
+    )
+with column2:
+    maxTravelTime: Optional[int] = getNumberValue(
+        st.number_input(  # type: ignore
+            label="Max Travel Time (in minutes)",
+            value=-1,
+            min_value=-1,
+            step=1,
+            help="To deactivate, set to -1 or leave empty",
+        )
+    )
+
+
+with column3:
+    minTransferTime: Optional[int] = getNumberValue(
+        st.number_input(  # type: ignore
+            label="Min Transfer Time (in minutes)",
+            value=-1,
+            min_value=-1,
+            step=1,
+            help="To deactivate, set to -1 or leave empty",
+        )
+    )
+
+
+clicked: bool = st.button("Search", use_container_width=True)
 
 if clicked:
-    connections = getConnections(fromStopId, toStopId, departureDate, departureTime)
+    connections = getConnections(
+        fromStopId,
+        toStopId,
+        departureDate,
+        departureTime,
+        maxTransfers,
+        maxTravelTime,
+        maxWalkingDuration,
+        minTransferTime,
+    )
 
 if connections is not None:
     for key, connection in enumerate(connections):

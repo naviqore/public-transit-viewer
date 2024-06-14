@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from typing import Union
+from typing import Union, Optional
 from dotenv import dotenv_values
 from pathlib import Path
 from datetime import datetime, date, time
@@ -25,13 +25,35 @@ def getClient() -> Client:
     return Client(str(config["NAVIQORE_HOST_URL"]))
 
 
+def _convertToSeconds(value: Optional[int]) -> Optional[int]:
+    if value is None:
+        return None
+    return value * 60
+
+
 @st.cache_data
 def getConnections(
-    fromStop: str, toStop: str, departureDate: date, departureTime: time
+    fromStop: str,
+    toStop: str,
+    departureDate: date,
+    departureTime: time,
+    maxTransfers: Optional[int] = None,
+    maxTravelTime: Optional[int] = None,
+    maxWalkingDuration: Optional[int] = None,
+    minTransferTime: Optional[int] = None,
 ) -> list[Connection]:
     departureDateTime = datetime.combine(departureDate, departureTime)
     client = getClient()
-    return client.getConnections(fromStop, toStop, departureDateTime)
+
+    return client.getConnections(
+        fromStop,
+        toStop,
+        departureDateTime,
+        maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
+        maxTransferNumber=maxTransfers,
+        maxTravelTime=_convertToSeconds(maxTravelTime),
+        minTransferTime=_convertToSeconds(minTransferTime),
+    )
 
 
 # ugly solution but streamlit does not have a robust way of adding autocomplete
@@ -47,11 +69,24 @@ def getStops() -> dict[str, str]:
 
 @st.cache_data
 def getIsoLines(
-    fromStop: str, departureDate: date, departureTime: time
+    fromStop: str,
+    departureDate: date,
+    departureTime: time,
+    maxTransfers: Optional[int] = None,
+    maxTravelTime: Optional[int] = None,
+    maxWalkingDuration: Optional[int] = None,
+    minTransferTime: Optional[int] = None,
 ) -> tuple[Coordinate, pd.DataFrame]:
     client = getClient()
     departureDateTime = datetime.combine(departureDate, departureTime)
-    earliestArrivals = client.getIsoLines(fromStop, departureDateTime)
+    earliestArrivals = client.getIsoLines(
+        fromStop,
+        departureDateTime,
+        maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
+        maxTransferNumber=maxTransfers,
+        maxTravelTime=_convertToSeconds(maxTravelTime),
+        minTransferTime=_convertToSeconds(minTransferTime),
+    )
 
     legs: list[dict[str, Union[datetime, int, str, float]]] = []
 
