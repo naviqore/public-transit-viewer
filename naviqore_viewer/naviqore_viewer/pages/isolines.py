@@ -119,8 +119,8 @@ isolinesDf = isolinesDf.sort_values("arrivalTimeFromStartInMinutes")  # type: ig
 isolinesDf = isolinesDf.drop_duplicates(subset=["toStop"], keep="first")  # type: ignore
 
 options = {
-    "connectionRound": "By round",
     "arrivalTimeFromStartInMinutes": "By time in minutes",
+    "connectionRound": "By round",
 }
 
 optionColumns = st.columns(3)
