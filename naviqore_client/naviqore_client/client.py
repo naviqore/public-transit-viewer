@@ -11,6 +11,7 @@ from naviqore_client.models import (
     Trip,
     Leg,
     LegType,
+    TimeType,
 )
 from typing import Union, Optional, Any
 from datetime import datetime
@@ -81,7 +82,8 @@ class Client:
         self,
         fromStop: Union[str, Stop],
         toStop: Union[str, Stop],
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: TimeType = TimeType.DEPARTURE,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -90,7 +92,8 @@ class Client:
         queryString = self._buildQueryString(
             fromStop,
             toStop,
-            departure=departure,
+            time=time,
+            timeType=timeType,
             maxWalkingDuration=maxWalkingDuration,
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
@@ -109,7 +112,8 @@ class Client:
     def getIsoLines(
         self,
         fromStop: Union[str, Stop],
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: TimeType = TimeType.DEPARTURE,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -117,7 +121,8 @@ class Client:
     ) -> list[EarliestArrival]:
         queryString = self._buildQueryString(
             fromStop,
-            departure=departure,
+            time=time,
+            timeType=timeType,
             maxWalkingDuration=maxWalkingDuration,
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
@@ -136,7 +141,8 @@ class Client:
     def _buildQueryString(
         fromStop: Union[str, Stop],
         toStop: Optional[Union[str, Stop]] = None,
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: TimeType = TimeType.DEPARTURE,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -149,8 +155,9 @@ class Client:
             queryString += (
                 f"&targetStopId={toStop.id if isinstance(toStop, Stop) else toStop}"
             )
-        departure = datetime.now() if departure is None else departure
-        queryString += f"&departureDateTime={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
+        dateTime = datetime.now() if time is None else time
+        queryString += f"&dateTime={dateTime.strftime('%Y-%m-%dT%H:%M:%S')}"
+        queryString += f"&timeType={timeType.name}"
         if maxWalkingDuration is not None:
             queryString += f"&maxWalkingDuration={maxWalkingDuration}"
         if maxTransferNumber is not None:

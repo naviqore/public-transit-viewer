@@ -18,6 +18,11 @@ class LegType(Enum):
     ROUTE = "ROUTE"
 
 
+class TimeType(Enum):
+    ARRIVAL = "ARRIVAL"
+    DEPARTURE = "DEPARTURE"
+
+
 class Coordinate(BaseModel):
     latitude: float
     longitude: float
