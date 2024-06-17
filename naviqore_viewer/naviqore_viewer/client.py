@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 from pathlib import Path
 from datetime import datetime, date, time
 from naviqore_client.client import Client
-from naviqore_client.models import Connection, Coordinate
+from naviqore_client.models import Connection, Coordinate, TimeType
 
 INFINITY = int(2**31 - 1)
 
@@ -35,20 +35,22 @@ def _convertToSeconds(value: Optional[int]) -> Optional[int]:
 def getConnections(
     fromStop: str,
     toStop: str,
-    departureDate: date,
-    departureTime: time,
+    travelDate: date,
+    travelTime: time,
+    timeType: TimeType,
     maxTransfers: Optional[int] = None,
     maxTravelTime: Optional[int] = None,
     maxWalkingDuration: Optional[int] = None,
     minTransferTime: Optional[int] = None,
 ) -> list[Connection]:
-    departureDateTime = datetime.combine(departureDate, departureTime)
+    travelDateTime = datetime.combine(travelDate, travelTime)
     client = getClient()
 
     return client.getConnections(
         fromStop,
         toStop,
-        departureDateTime,
+        travelDateTime,
+        timeType=timeType,
         maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
         maxTransferNumber=maxTransfers,
         maxTravelTime=_convertToSeconds(maxTravelTime),
@@ -70,18 +72,20 @@ def getStops() -> dict[str, str]:
 @st.cache_data
 def getIsoLines(
     fromStop: str,
-    departureDate: date,
-    departureTime: time,
+    travelDate: date,
+    travelTime: time,
+    timeType: TimeType,
     maxTransfers: Optional[int] = None,
     maxTravelTime: Optional[int] = None,
     maxWalkingDuration: Optional[int] = None,
     minTransferTime: Optional[int] = None,
-) -> tuple[Coordinate, pd.DataFrame]:
+) -> Optional[tuple[Coordinate, pd.DataFrame]]:
     client = getClient()
-    departureDateTime = datetime.combine(departureDate, departureTime)
+    travelDateTime = datetime.combine(travelDate, travelTime)
     earliestArrivals = client.getIsoLines(
         fromStop,
-        departureDateTime,
+        travelDateTime,
+        timeType=timeType,
         maxWalkingDuration=_convertToSeconds(maxWalkingDuration),
         maxTransferNumber=maxTransfers,
         maxTravelTime=_convertToSeconds(maxTravelTime),
@@ -90,10 +94,10 @@ def getIsoLines(
 
     legs: list[dict[str, Union[datetime, int, str, float]]] = []
 
-    try:
-        fromCoordinate = earliestArrivals[0].connection.fromCoordinate
-    except AttributeError:
-        raise ValueError("No connections found")
+    if not earliestArrivals:
+        return None
+
+    fromCoordinate = earliestArrivals[0].connection.fromCoordinate
 
     for earliestArrival in earliestArrivals:
         connection = earliestArrival.connection
@@ -128,7 +132,7 @@ def getIsoLines(
                     "toLat": leg.toStop.coordinate.latitude,
                     "toLon": leg.toStop.coordinate.longitude,
                     "arrivalTimeFromStartInMinutes": int(
-                        (leg.arrivalTime - departureDateTime).total_seconds() // 60
+                        abs(leg.arrivalTime - travelDateTime).total_seconds() // 60
                     ),
                     "distanceFromOrigin": leg.toStop.coordinate.distance_to(
                         fromCoordinate

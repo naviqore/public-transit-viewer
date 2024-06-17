@@ -2,10 +2,13 @@ import streamlit as st
 from naviqore_viewer import LOGO_PATH
 from naviqore_viewer.client import getIsoLines, getStops
 from naviqore_viewer.utils import getColorMapHexValue
+from naviqore_viewer.components.form_components import (
+    query_config_expandable,
+    time_form_row,
+)
 from naviqore_client.models import Coordinate
-from datetime import date, time
 import pandas as pd
-from typing import Optional, Any
+from typing import Optional
 from streamlit_folium import st_folium  # type: ignore
 import folium  # type: ignore
 from dotenv import dotenv_values
@@ -32,79 +35,28 @@ fromStopId: str = st.selectbox(  # type: ignore
     index=None,
 )
 
-column1, column2, column3 = st.columns(3)
-
-with column1:
-    departureDate: date = st.date_input(label="Departure Date")  # type: ignore
-
-with column2:
-    departureTime: time = st.time_input(label="Departure Time")
+travelDate, travelTime, timeType = time_form_row()
 
 
-def getNumberValue(inputValue: Any) -> Optional[int]:
-    if inputValue == -1 or inputValue == "":
-        return None
-    return int(inputValue)
-
-
-with column3:
-    maxTransfers: Optional[int] = getNumberValue(
-        st.number_input(  # type: ignore
-            label="Max Transfers",
-            value=-1,
-            min_value=-1,
-            step=1,
-            help="To deactivate, set to -1.",
-        )
-    )
-
-column1, column2, column3 = st.columns(3)
-
-with column1:
-    maxWalkingDuration: Optional[int] = getNumberValue(
-        st.number_input(  # type: ignore
-            label="Max Walking Duration (in minutes)",
-            value=-1,
-            min_value=-1,
-            step=1,
-            help="To deactivate, set to -1.",
-        )
-    )
-
-with column2:
-    maxTravelTime: Optional[int] = getNumberValue(
-        st.number_input(  # type: ignore
-            label="Max Travel Time (in minutes)",
-            value=60,
-            min_value=-1,
-            step=1,
-            help="To deactivate, set to -1 or leave empty",
-        )
-    )
-
-with column3:
-    minTransferTime: Optional[int] = getNumberValue(
-        st.number_input(  # type: ignore
-            label="Min Transfer Time (in minutes)",
-            value=-1,
-            min_value=-1,
-            step=1,
-            help="To deactivate, set to -1 or leave empty",
-        )
-    )
+maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
+    query_config_expandable()
+)
 
 isolines: Optional[tuple[Coordinate, pd.DataFrame]] = None
 
-if fromStopId and departureDate and departureTime:
+if fromStopId and travelDate and travelTime:
     isolines = getIsoLines(
         fromStopId,
-        departureDate,
-        departureTime,
+        travelDate,
+        travelTime,
+        timeType,
         maxTransfers,
         maxTravelTime,
         maxWalkingDuration,
         minTransferTime,
     )
+    if isolines is None:
+        st.error("No Iso Lines found")
 
 if isolines is None:
     st.stop()

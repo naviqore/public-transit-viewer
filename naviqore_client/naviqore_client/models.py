@@ -19,8 +19,8 @@ class LegType(Enum):
 
 
 class TimeType(Enum):
-    ARRIVAL = "ARRIVAL"
     DEPARTURE = "DEPARTURE"
+    ARRIVAL = "ARRIVAL"
 
 
 class Coordinate(BaseModel):

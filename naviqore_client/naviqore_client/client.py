@@ -142,7 +142,7 @@ class Client:
         fromStop: Union[str, Stop],
         toStop: Optional[Union[str, Stop]] = None,
         time: Optional[datetime] = None,
-        timeType: TimeType = TimeType.DEPARTURE,
+        timeType: Optional[TimeType] = None,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -157,7 +157,8 @@ class Client:
             )
         dateTime = datetime.now() if time is None else time
         queryString += f"&dateTime={dateTime.strftime('%Y-%m-%dT%H:%M:%S')}"
-        queryString += f"&timeType={timeType.name}"
+        if timeType is not None:
+            queryString += f"&timeType={timeType.value}"
         if maxWalkingDuration is not None:
             queryString += f"&maxWalkingDuration={maxWalkingDuration}"
         if maxTransferNumber is not None:
@@ -166,6 +167,7 @@ class Client:
             queryString += f"&maxTravelTime={maxTravelTime}"
         if minTransferTime is not None:
             queryString += f"&minTransferTime={minTransferTime}"
+
         return queryString
 
     @staticmethod
