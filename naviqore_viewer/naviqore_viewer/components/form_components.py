@@ -11,7 +11,6 @@ def _get_number_value(inputValue: Any) -> Optional[int]:
     return int(inputValue)
 
 
-@st.experimental_fragment
 def query_config_expandable() -> (
     tuple[Optional[int], Optional[int], Optional[int], Optional[int]]
 ):
@@ -74,7 +73,6 @@ def query_config_expandable() -> (
     return maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime
 
 
-@st.experimental_fragment
 def time_form_row() -> tuple[date, time, TimeType]:
     """
     Create a form row for time input.

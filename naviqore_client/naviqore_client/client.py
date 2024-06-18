@@ -4,7 +4,7 @@ from naviqore_client.models import (
     Coordinate,
     Departure,
     Connection,
-    EarliestArrival,
+    StopConnection,
     DistanceToStop,
     StopTime,
     Route,
@@ -118,7 +118,7 @@ class Client:
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
         minTransferTime: Optional[int] = None,
-    ) -> list[EarliestArrival]:
+    ) -> list[StopConnection]:
         queryString = self._buildQueryString(
             fromStop,
             time=time,
@@ -132,7 +132,7 @@ class Client:
         response = get(url)
         if response.status_code == 200:
             return [
-                self._convertJsonEarliestArrival(arrival) for arrival in response.json()
+                self._convertJsonStopConnection(arrival) for arrival in response.json()
             ]
         else:
             return []
@@ -223,8 +223,8 @@ class Client:
         return Leg(**json)
 
     @staticmethod
-    def _convertJsonEarliestArrival(json: dict[str, Any]) -> EarliestArrival:
+    def _convertJsonStopConnection(json: dict[str, Any]) -> StopConnection:
         json["stop"] = Client._convertJsonStop(json["stop"])
-        json["arrivalTime"] = datetime.fromisoformat(json["arrivalTime"])
+        json["referenceTime"] = datetime.fromisoformat(json["arrivalTime"])
         json["connection"] = Client._convertJsonConnection(json["connection"])
-        return EarliestArrival(**json)
+        return StopConnection(**json)

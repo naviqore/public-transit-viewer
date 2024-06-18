@@ -6,7 +6,7 @@ from naviqore_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
 )
-from naviqore_client.models import Coordinate
+from naviqore_client.models import Coordinate, TimeType
 import pandas as pd
 from typing import Optional
 from streamlit_folium import st_folium  # type: ignore
@@ -36,7 +36,6 @@ fromStopId: str = st.selectbox(  # type: ignore
 )
 
 travelDate, travelTime, timeType = time_form_row()
-
 
 maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
     query_config_expandable()
@@ -84,10 +83,11 @@ filterBy: str = optionColumns[0].selectbox(  # type: ignore
     index=0,
 )
 
-if filterBy == "connectionRound":
-    sliderRange: tuple[int, int] = (0, maxRound)  # type: ignore
-else:
-    sliderRange: tuple[int, int] = (0, maxDuration)  # type: ignore
+sliderRange = (0, 1)
+if filterBy == "connectionRound" and maxRound > 0:
+    sliderRange = (0, maxRound)  # type: ignore
+elif filterBy == "arrivalTimeFromStartInMinutes" and maxDuration > 0:
+    sliderRange = (0, maxDuration)  # type: ignore
 
 filterValue = optionColumns[1].slider(  # type: ignore
     label=options[filterBy],
@@ -161,18 +161,31 @@ def showMarkerAndLines(
             row[filterBy], filterValue[0], filterValue[1]  # type: ignore
         )
 
+    if timeType == TimeType.DEPARTURE:
+        fromCoordinates = [row["fromLat"], row["fromLon"]]  # type: ignore
+        toCoordinates = [row["toLat"], row["toLon"]]  # type: ignore
+    else:
+        fromCoordinates = [row["toLat"], row["toLon"]]
+        toCoordinates = [row["fromLat"], row["fromLon"]]
+
     if showMarkers:
 
         if filterBy == "connectionRound":
             popup = f"{row['toStop']} - Round {row['connectionRound']}"
         else:
-            popup = (
-                f"{row['toStop']} - Arrival after "
-                f"{row['arrivalTimeFromStartInMinutes']} minutes"
-            )
+            if timeType == TimeType.DEPARTURE:
+                popup = (
+                    f"{row['toStop']} - Arrival after "
+                    f"{row['arrivalTimeFromStartInMinutes']} minutes"
+                )
+            else:
+                popup = (
+                    f"{row['fromStop']} - Departure "
+                    f"{row['arrivalTimeFromStartInMinutes']} minutes before"
+                )
 
         folium.Circle(  # type: ignore
-            location=[row["toLat"], row["toLon"]],  # type: ignore
+            location=fromCoordinates,  # type: ignore
             radius=30,  # type: ignore
             color=color,
             fill=True,
@@ -186,16 +199,7 @@ def showMarkerAndLines(
         lineArgs["dash_array"] = "5"
 
     folium.PolyLine(  # type: ignore
-        locations=[
-            [
-                row["fromLat"],  # type: ignore
-                row["fromLon"],
-            ],
-            [
-                row["toLat"],
-                row["toLon"],
-            ],
-        ],
+        locations=[fromCoordinates, toCoordinates],
         toolTip=f"{row['fromStop']} to {row['toStop']}",  # type: ignore
         color=color,
         **lineArgs,

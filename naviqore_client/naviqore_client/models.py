@@ -230,9 +230,9 @@ class Connection(BaseModel):
         return sum(leg.numStops for leg in self.legs if leg.isRoute)
 
 
-class EarliestArrival(BaseModel):
+class StopConnection(BaseModel):
     stop: Stop
-    arrivalTime: datetime
+    referenceTime: datetime
     connection: Connection
 
 
