@@ -24,7 +24,7 @@ class Client:
         self.host = host
 
     def searchStops(
-        self, query: str, limit: int = 10, searchType: SearchType = SearchType.FUZZY
+        self, query: str, limit: int = 10, searchType: SearchType = SearchType.CONTAINS
     ) -> list[Stop]:
         url = (
             f"{self.host}/schedule/stops/autocomplete"

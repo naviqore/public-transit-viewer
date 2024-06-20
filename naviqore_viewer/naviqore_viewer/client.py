@@ -6,7 +6,12 @@ from dotenv import dotenv_values
 from pathlib import Path
 from datetime import datetime, date, time
 from naviqore_client.client import Client
-from naviqore_client.models import Connection, Coordinate, TimeType, StopConnection
+from naviqore_client.models import (
+    Connection,
+    Coordinate,
+    TimeType,
+    StopConnection,
+)
 
 INFINITY = int(2**31 - 1)
 
@@ -29,6 +34,13 @@ def _convertToSeconds(value: Optional[int]) -> Optional[int]:
     if value is None:
         return None
     return value * 60
+
+
+@st.cache_data
+def getStopSuggestions(searchterm: str) -> list[tuple[str, str]]:
+    client = getClient()
+    stops = client.searchStops(searchterm, limit=10)
+    return [(stop.name, stop.id) for stop in stops]
 
 
 @st.cache_data

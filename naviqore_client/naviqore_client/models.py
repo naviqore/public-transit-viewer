@@ -7,10 +7,8 @@ from geopy import distance  # type: ignore
 
 class SearchType(Enum):
     EXACT = "EXACT"
-    FUZZY = "FUZZY"
     CONTAINS = "CONTAINS"
     STARTS_WITH = "STARTS_WITH"
-    ENDS_WITH = "ENDS_WITH"
 
 
 class LegType(Enum):

@@ -1,6 +1,7 @@
 import streamlit as st
+from streamlit_searchbox import st_searchbox  # type: ignore
 from naviqore_viewer import LOGO_PATH
-from naviqore_viewer.client import getIsoLines, getStops
+from naviqore_viewer.client import getIsoLines, getStopSuggestions
 from naviqore_viewer.utils import getColorMapHexValue
 from naviqore_viewer.components.form_components import (
     query_config_expandable,
@@ -19,7 +20,6 @@ st.set_page_config(
     page_icon=str(LOGO_PATH),
 )
 
-stops = getStops()
 
 headerCol1, headerCol2 = st.columns([1, 4])
 
@@ -28,11 +28,11 @@ headerCol2.title("Naviqore")
 headerCol2.write("Visualize Iso Lines from Source Stop")  # type: ignore
 
 
-fromStopId: str = st.selectbox(  # type: ignore
+fromStopId: str = st_searchbox(
+    search_function=getStopSuggestions,
     label="From",
-    options=stops.keys(),
-    format_func=lambda key: stops[key],
-    index=None,
+    key="fromStopId",
+    rerun_on_update=False,
 )
 
 travelDate, travelTime, timeType = time_form_row()
@@ -137,9 +137,7 @@ for distanceThreshold in zoomFactors:
 m = folium.Map(location=sourceCoordinates.toTuple(), zoom_start=zoom)  # type: ignore
 
 # add marker to source coordinate
-folium.Marker(  # type: ignore
-    sourceCoordinates.toTuple(), popup=stops[fromStopId], tooltip="Source"
-).add_to(m)
+folium.Marker(sourceCoordinates.toTuple(), tooltip="Source").add_to(m)  # type: ignore
 
 
 scriptDir = Path(__file__).parent
@@ -160,6 +158,9 @@ def showMarkerAndLines(
         color = getColorMapHexValue(
             row[filterBy], filterValue[0], filterValue[1]  # type: ignore
         )
+
+    fromCoordinates: list[float]
+    toCoordinates: list[float]
 
     if timeType == TimeType.DEPARTURE:
         fromCoordinates = [row["fromLat"], row["fromLon"]]  # type: ignore
