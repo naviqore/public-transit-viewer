@@ -11,9 +11,12 @@ def _get_number_value(inputValue: Any) -> Optional[int]:
     return int(inputValue)
 
 
-def query_config_expandable() -> (
-    tuple[Optional[int], Optional[int], Optional[int], Optional[int]]
-):
+def query_config_expandable(
+    defaultMaxTransfers: int = -1,
+    defaultMaxWalkingDuration: int = -1,
+    defaultMaxTravelTime: int = -1,
+    defaultMinTransferTime: int = -1,
+) -> tuple[Optional[int], Optional[int], Optional[int], Optional[int]]:
     """
     Create an expandable query configuration.
 
@@ -31,7 +34,7 @@ def query_config_expandable() -> (
         maxTransfers = _get_number_value(
             columns1.number_input(  # type: ignore
                 label="Max Transfers",
-                value=-1,
+                value=defaultMaxTransfers,
                 min_value=-1,
                 step=1,
                 help="To deactivate, set to -1.",
@@ -41,7 +44,7 @@ def query_config_expandable() -> (
         maxWalkingDuration = _get_number_value(
             columns2.number_input(  # type: ignore
                 label="Max Walking Duration (in minutes)",
-                value=-1,
+                value=defaultMaxWalkingDuration,
                 min_value=-1,
                 step=1,
                 help="To deactivate, set to -1.",
@@ -53,7 +56,7 @@ def query_config_expandable() -> (
         maxTravelTime = _get_number_value(
             column3.number_input(  # type: ignore
                 label="Max Travel Time (in minutes)",
-                value=60,
+                value=defaultMaxTravelTime,
                 min_value=-1,
                 step=1,
                 help="To deactivate, set to -1 or leave empty",
@@ -63,7 +66,7 @@ def query_config_expandable() -> (
         minTransferTime = _get_number_value(
             column4.number_input(  # type: ignore
                 label="Min Transfer Time (in minutes)",
-                value=-1,
+                value=defaultMinTransferTime,
                 min_value=-1,
                 step=1,
                 help="To deactivate, set to -1 or leave empty",

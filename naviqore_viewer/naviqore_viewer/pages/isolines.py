@@ -38,7 +38,7 @@ fromStopId: str = st.selectbox(  # type: ignore
 travelDate, travelTime, timeType = time_form_row()
 
 maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
-    query_config_expandable()
+    query_config_expandable(defaultMaxTravelTime=60)
 )
 
 isolines: Optional[tuple[Coordinate, pd.DataFrame]] = None
