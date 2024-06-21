@@ -4,13 +4,14 @@ from naviqore_client.models import (
     Coordinate,
     Departure,
     Connection,
-    EarliestArrival,
+    StopConnection,
     DistanceToStop,
     StopTime,
     Route,
     Trip,
     Leg,
     LegType,
+    TimeType,
 )
 from typing import Union, Optional, Any
 from datetime import datetime
@@ -23,7 +24,7 @@ class Client:
         self.host = host
 
     def searchStops(
-        self, query: str, limit: int = 10, searchType: SearchType = SearchType.FUZZY
+        self, query: str, limit: int = 10, searchType: SearchType = SearchType.CONTAINS
     ) -> list[Stop]:
         url = (
             f"{self.host}/schedule/stops/autocomplete"
@@ -81,7 +82,8 @@ class Client:
         self,
         fromStop: Union[str, Stop],
         toStop: Union[str, Stop],
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: TimeType = TimeType.DEPARTURE,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -90,7 +92,8 @@ class Client:
         queryString = self._buildQueryString(
             fromStop,
             toStop,
-            departure=departure,
+            time=time,
+            timeType=timeType,
             maxWalkingDuration=maxWalkingDuration,
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
@@ -109,15 +112,17 @@ class Client:
     def getIsoLines(
         self,
         fromStop: Union[str, Stop],
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: TimeType = TimeType.DEPARTURE,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
         minTransferTime: Optional[int] = None,
-    ) -> list[EarliestArrival]:
+    ) -> list[StopConnection]:
         queryString = self._buildQueryString(
             fromStop,
-            departure=departure,
+            time=time,
+            timeType=timeType,
             maxWalkingDuration=maxWalkingDuration,
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
@@ -127,7 +132,7 @@ class Client:
         response = get(url)
         if response.status_code == 200:
             return [
-                self._convertJsonEarliestArrival(arrival) for arrival in response.json()
+                self._convertJsonStopConnection(arrival) for arrival in response.json()
             ]
         else:
             return []
@@ -136,7 +141,8 @@ class Client:
     def _buildQueryString(
         fromStop: Union[str, Stop],
         toStop: Optional[Union[str, Stop]] = None,
-        departure: Optional[datetime] = None,
+        time: Optional[datetime] = None,
+        timeType: Optional[TimeType] = None,
         maxWalkingDuration: Optional[int] = None,
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
@@ -149,8 +155,10 @@ class Client:
             queryString += (
                 f"&targetStopId={toStop.id if isinstance(toStop, Stop) else toStop}"
             )
-        departure = datetime.now() if departure is None else departure
-        queryString += f"&departureDateTime={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
+        dateTime = datetime.now() if time is None else time
+        queryString += f"&dateTime={dateTime.strftime('%Y-%m-%dT%H:%M:%S')}"
+        if timeType is not None:
+            queryString += f"&timeType={timeType.value}"
         if maxWalkingDuration is not None:
             queryString += f"&maxWalkingDuration={maxWalkingDuration}"
         if maxTransferNumber is not None:
@@ -159,6 +167,7 @@ class Client:
             queryString += f"&maxTravelTime={maxTravelTime}"
         if minTransferTime is not None:
             queryString += f"&minTransferTime={minTransferTime}"
+
         return queryString
 
     @staticmethod
@@ -214,8 +223,8 @@ class Client:
         return Leg(**json)
 
     @staticmethod
-    def _convertJsonEarliestArrival(json: dict[str, Any]) -> EarliestArrival:
+    def _convertJsonStopConnection(json: dict[str, Any]) -> StopConnection:
         json["stop"] = Client._convertJsonStop(json["stop"])
-        json["arrivalTime"] = datetime.fromisoformat(json["arrivalTime"])
+        json["referenceTime"] = datetime.fromisoformat(json["arrivalTime"])
         json["connection"] = Client._convertJsonConnection(json["connection"])
-        return EarliestArrival(**json)
+        return StopConnection(**json)

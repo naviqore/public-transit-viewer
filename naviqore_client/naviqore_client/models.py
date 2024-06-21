@@ -7,15 +7,18 @@ from geopy import distance  # type: ignore
 
 class SearchType(Enum):
     EXACT = "EXACT"
-    FUZZY = "FUZZY"
     CONTAINS = "CONTAINS"
     STARTS_WITH = "STARTS_WITH"
-    ENDS_WITH = "ENDS_WITH"
 
 
 class LegType(Enum):
     WALK = "WALK"
     ROUTE = "ROUTE"
+
+
+class TimeType(Enum):
+    DEPARTURE = "DEPARTURE"
+    ARRIVAL = "ARRIVAL"
 
 
 class Coordinate(BaseModel):
@@ -225,9 +228,9 @@ class Connection(BaseModel):
         return sum(leg.numStops for leg in self.legs if leg.isRoute)
 
 
-class EarliestArrival(BaseModel):
+class StopConnection(BaseModel):
     stop: Stop
-    arrivalTime: datetime
+    referenceTime: datetime
     connection: Connection
 
 
