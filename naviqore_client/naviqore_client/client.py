@@ -104,7 +104,7 @@ class Client:
         if response.status_code == 200:
             return [
                 self._convertJsonConnection(connection)
-                for connection in response.json()
+                for connection in response.json()  # type: ignore
             ]
         else:
             return []
@@ -203,9 +203,11 @@ class Client:
     @staticmethod
     def _convertJsonTrip(json: dict[str, Any]) -> Trip:
         json["route"] = Route(**json["route"])
-        json["stopTimes"] = [
-            Client._convertJsonStopTime(stopTime) for stopTime in json["stopTimes"]
-        ]
+        json["stopTimes"] = (
+            [Client._convertJsonStopTime(stopTime) for stopTime in json["stopTimes"]]
+            if json["stopTimes"]
+            else []
+        )
         return Trip(**json)
 
     @staticmethod
@@ -231,6 +233,10 @@ class Client:
     @staticmethod
     def _convertJsonStopConnection(json: dict[str, Any]) -> StopConnection:
         json["stop"] = Client._convertJsonStop(json["stop"])
-        json["referenceTime"] = datetime.fromisoformat(json["arrivalTime"])
-        json["connection"] = Client._convertJsonConnection(json["connection"])
+        json["connectingLeg"] = Client._convertJsonLeg(json["connectingLeg"])
+        json["connection"] = (
+            Client._convertJsonConnection(json["connection"])
+            if json.get("connection")
+            else None
+        )
         return StopConnection(**json)
