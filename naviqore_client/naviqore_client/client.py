@@ -118,6 +118,7 @@ class Client:
         maxTransferNumber: Optional[int] = None,
         maxTravelTime: Optional[int] = None,
         minTransferTime: Optional[int] = None,
+        returnConnections: bool = False,
     ) -> list[StopConnection]:
         queryString = self._buildQueryString(
             fromStop,
@@ -128,7 +129,12 @@ class Client:
             maxTravelTime=maxTravelTime,
             minTransferTime=minTransferTime,
         )
+
         url = f"{self.host}/routing/isolines?{queryString}"
+
+        if returnConnections:
+            url += "&returnConnections=true"
+
         response = get(url)
         if response.status_code == 200:
             return [

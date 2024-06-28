@@ -9,6 +9,7 @@ class SearchType(Enum):
     EXACT = "EXACT"
     CONTAINS = "CONTAINS"
     STARTS_WITH = "STARTS_WITH"
+    ENDS_WITH = "ENDS_WITH"
 
 
 class LegType(Enum):
@@ -230,8 +231,8 @@ class Connection(BaseModel):
 
 class StopConnection(BaseModel):
     stop: Stop
-    referenceTime: datetime
-    connection: Connection
+    connectingLeg: Leg
+    connection: Optional[Connection] = None
 
 
 class DistanceToStop(BaseModel):
