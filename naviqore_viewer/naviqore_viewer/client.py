@@ -11,6 +11,7 @@ from naviqore_client.models import (
     Coordinate,
     TimeType,
     StopConnection,
+    Stop,
 )
 
 INFINITY = int(2**31 - 1)
@@ -91,7 +92,7 @@ def getIsoLines(
     maxTravelTime: Optional[int] = None,
     maxWalkingDuration: Optional[int] = None,
     minTransferTime: Optional[int] = None,
-) -> Optional[tuple[Coordinate, pd.DataFrame]]:
+) -> Optional[tuple[Stop, pd.DataFrame]]:
     client = getClient()
     travelDateTime = datetime.combine(travelDate, travelTime)
     stopConnections = client.getIsoLines(
@@ -104,117 +105,131 @@ def getIsoLines(
         minTransferTime=_convertToSeconds(minTransferTime),
     )
 
+    sourceStop = client.getStop(fromStop)
+
+    if sourceStop is None:
+        print("No source stop found")
+        return None
+
     if not stopConnections:
+        print("No stop connections found")
         return None
 
     if timeType == TimeType.DEPARTURE:
-        return _get_earliest_arrivals_dataframe(stopConnections, travelDateTime)
+        return _get_earliest_arrivals_dataframe(
+            stopConnections, travelDateTime, sourceStop
+        )
     else:
-        return _get_latest_departures_dataframe(stopConnections, travelDateTime)
+        return _get_latest_departures_dataframe(
+            stopConnections, travelDateTime, sourceStop
+        )
 
 
 def _get_earliest_arrivals_dataframe(
-    stopConnections: list[StopConnection], travelDateTime: datetime
-) -> tuple[Coordinate, pd.DataFrame]:
-
-    fromCoordinate = stopConnections[0].connection.fromCoordinate
+    stopConnections: list[StopConnection], travelDateTime: datetime, sourceStop: Stop
+) -> Optional[tuple[Stop, pd.DataFrame]]:
 
     legs: list[dict[str, Union[datetime, int, str, float]]] = []
 
-    for earliestArrival in stopConnections:
-        connection = earliestArrival.connection
-        connectionRoundCounter = 0
-        for leg in connection.legs:
-            if leg.isRoute:
-                connectionRoundCounter += 1
+    for stopConnection in stopConnections:
 
-            if leg.toStop is None or leg.fromStop is None:
-                continue
+        fromStop = stopConnection.connectingLeg.fromStop
+        toStop = stopConnection.connectingLeg.toStop
 
-            # get stop before the toStop in trip
-            # get index of toStop in trip
-            if leg.trip:
-                i = 0
-                for i, stopTime in enumerate(leg.trip.stopTimes):
-                    if stopTime.stop == leg.toStop:
-                        break
-                legFromStop = leg.trip.stopTimes[i - 1].stop
-            else:
-                legFromStop = leg.fromStop
+        if fromStop is None or toStop is None:
+            continue
 
-            legs.append(
-                {
-                    "connectionRound": connectionRoundCounter,
-                    "departureTime": leg.departureTime,
-                    "arrivalTime": leg.arrivalTime,
-                    "fromStop": legFromStop.name,
-                    "fromLat": legFromStop.coordinate.latitude,
-                    "fromLon": legFromStop.coordinate.longitude,
-                    "toStop": leg.toStop.name,
-                    "toLat": leg.toStop.coordinate.latitude,
-                    "toLon": leg.toStop.coordinate.longitude,
-                    "arrivalTimeFromStartInMinutes": int(
-                        (leg.arrivalTime - travelDateTime).total_seconds() // 60
-                    ),
-                    "distanceFromOrigin": leg.toStop.coordinate.distance_to(
-                        fromCoordinate
-                    ),
-                    "type": leg.type.value,
-                }
-            )
+        legs.append(
+            {
+                "connectionRound": 0,  # TODO: implement connection round
+                "targetTime": stopConnection.connectingLeg.arrivalTime,
+                "sourceTime": stopConnection.connectingLeg.departureTime,
+                "sourceStop": fromStop.name,
+                "sourceLat": fromStop.coordinate.latitude,
+                "sourceLon": fromStop.coordinate.longitude,
+                "targetStop": toStop.name,
+                "targetLat": toStop.coordinate.latitude,
+                "targetLon": toStop.coordinate.longitude,
+                "durationFromSourceInMinutes": abs(
+                    int(
+                        (
+                            stopConnection.connectingLeg.arrivalTime - travelDateTime
+                        ).total_seconds()
+                        // 60
+                    )
+                ),
+                "distanceFromOrigin": toStop.coordinate.distance_to(
+                    sourceStop.coordinate
+                ),
+                "type": stopConnection.connectingLeg.type.value,
+                "travelMode": _get_travel_mode_from_leg(stopConnection),
+            }
+        )
 
-    return fromCoordinate, pd.DataFrame(legs)
+    return sourceStop, pd.DataFrame(legs)
 
 
 def _get_latest_departures_dataframe(
-    stopConnections: list[StopConnection], travelDateTime: datetime
-) -> tuple[Coordinate, pd.DataFrame]:
+    stopConnections: list[StopConnection], travelDateTime: datetime, sourceStop: Stop
+) -> Optional[tuple[Stop, pd.DataFrame]]:
 
     legs: list[dict[str, Union[datetime, int, str, float]]] = []
 
-    fromCoordinate = stopConnections[0].connection.toCoordinate
+    for stopConnection in stopConnections:
 
-    for latestDeparture in stopConnections:
-        connection = latestDeparture.connection
-        connectionRoundCounter = sum([1 for leg in connection.legs if leg.isRoute])
+        fromStop = stopConnection.connectingLeg.fromStop
+        toStop = stopConnection.connectingLeg.toStop
 
-        for leg in connection.legs:
-            if leg.toStop is None or leg.fromStop is None:
-                continue
+        if fromStop is None or toStop is None:
+            continue
 
-            # get stop before the toStop in trip
-            # get index of toStop in trip
-            if leg.trip:
-                i = 0
-                for i, stopTime in enumerate(leg.trip.stopTimes):
-                    if stopTime.stop == leg.fromStop:
-                        break
-                legToStop = leg.trip.stopTimes[i + 1].stop
-            else:
-                legToStop = leg.toStop
+        legs.append(
+            {
+                "connectionRound": 0,  # TODO: implement connection round
+                "targetTime": stopConnection.connectingLeg.departureTime,
+                "sourceTime": stopConnection.connectingLeg.arrivalTime,
+                "sourceStop": toStop.name,
+                "sourceLat": toStop.coordinate.latitude,
+                "sourceLon": toStop.coordinate.longitude,
+                "targetStop": fromStop.name,
+                "targetLat": fromStop.coordinate.latitude,
+                "targetLon": fromStop.coordinate.longitude,
+                "durationFromSourceInMinutes": int(
+                    abs(
+                        (
+                            stopConnection.connectingLeg.departureTime - travelDateTime
+                        ).total_seconds()
+                        // 60
+                    )
+                ),
+                "distanceFromOrigin": fromStop.coordinate.distance_to(
+                    sourceStop.coordinate
+                ),
+                "type": stopConnection.connectingLeg.type.value,
+                "travelMode": _get_travel_mode_from_leg(stopConnection),
+            }
+        )
 
-            legs.append(
-                {
-                    "connectionRound": connectionRoundCounter,
-                    "departureTime": leg.departureTime,
-                    "arrivalTime": leg.arrivalTime,
-                    "fromStop": leg.fromStop.name,
-                    "fromLat": leg.fromStop.coordinate.latitude,
-                    "fromLon": leg.fromStop.coordinate.longitude,
-                    "toStop": legToStop.name,
-                    "toLat": legToStop.coordinate.latitude,
-                    "toLon": legToStop.coordinate.longitude,
-                    "arrivalTimeFromStartInMinutes": int(
-                        (travelDateTime - leg.departureTime).total_seconds() // 60
-                    ),
-                    "distanceFromOrigin": leg.fromStop.coordinate.distance_to(
-                        fromCoordinate
-                    ),
-                    "type": leg.type.value,
-                }
-            )
+    return sourceStop, pd.DataFrame(legs)
 
-            if leg.isRoute:
-                connectionRoundCounter -= 1
 
-    return fromCoordinate, pd.DataFrame(legs)
+def _get_travel_mode_from_leg(stopConnection: StopConnection) -> str:
+    trip = stopConnection.connectingLeg.trip
+    if trip is not None:
+        route = trip.route
+        headSign = trip.headSign
+        descriptionPieces: list[str] = []
+        if route.transportMode:
+            descriptionPieces.append(route.transportMode)
+        if route.shortName:
+            descriptionPieces.append(route.shortName)
+        elif route.name:
+            descriptionPieces.append(headSign)
+        elif route.id:
+            descriptionPieces.append(route.id)
+
+        routeDescription = ": ".join(descriptionPieces)
+        if headSign:
+            return f"{routeDescription} - {headSign}"
+        return routeDescription
+    return stopConnection.connectingLeg.type.value
