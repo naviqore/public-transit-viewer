@@ -164,21 +164,3 @@ class Client:
             queryString += f"&minTransferTime={minTransferTime}"
 
         return queryString
-
-
-if __name__ == "__main__":
-    client = Client("http://localhost:8080")
-    print(client.searchStops("Roswiesen"))
-    print(
-        client.nearestStops(
-            Coordinate(latitude=48.5, longitude=9.5), maxDistance=100000000
-        )
-    )
-    print("Get Stop: 8591325")
-    print(client.getStop("8591325"))
-    print("Get Next Departures: 8591325")
-    print(client.getNextDepartures("8591325"))
-    print("Get Connections: 8591325 -> 8591325")
-    print(client.getConnections("8591325", "8591106"))
-    print("Get Iso Lines: 8591325")
-    print(client.getIsoLines("8591325"))
