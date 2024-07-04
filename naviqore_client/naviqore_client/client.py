@@ -65,7 +65,7 @@ class Client:
         until: datetime | None = None,
     ) -> list[Departure]:
         stopId = stop.id if isinstance(stop, Stop) else stop
-        url = f"{self.host}/schedule/departures/{stopId}?limit={limit}"
+        url = f"{self.host}/schedule/stops/{stopId}/departures?limit={limit}"
         if departure is not None:
             url += f"&departureDateTime={departure.strftime('%Y-%m-%dT%H:%M:%S')}"
         if until is not None:
