@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from geopy import distance  # type: ignore
 
@@ -40,7 +40,7 @@ class Coordinate(BaseModel):
 class Stop(BaseModel):
     id: str
     name: str
-    coordinate: Coordinate
+    coordinate: Coordinate = Field(alias="coordinates")
 
 
 class Route(BaseModel):
@@ -61,6 +61,10 @@ class Trip(BaseModel):
     route: Route
     stopTimes: list[StopTime]
 
+    @field_validator("stopTimes", mode="before")
+    def set_stop_times_not_none(cls, v: list[StopTime] | None) -> list[StopTime]:
+        return v or []
+
 
 class Departure(BaseModel):
     stopTime: StopTime
@@ -68,9 +72,9 @@ class Departure(BaseModel):
 
 
 class Leg(BaseModel):
-    fromCoordinate: Coordinate
-    toCoordinate: Coordinate
+    fromCoordinate: Coordinate = Field(alias="from")
     fromStop: Stop | None = None
+    toCoordinate: Coordinate = Field(alias="to")
     toStop: Stop | None = None
     type: LegType
     departureTime: datetime
