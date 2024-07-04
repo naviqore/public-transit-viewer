@@ -49,7 +49,7 @@ class Client:
         else:
             return []
 
-    def getStop(self, stopId: str) -> Optional[Stop]:
+    def getStop(self, stopId: str) -> Stop | None:
         url = f"{self.host}/schedule/stops/{stopId}"
         response = get(url)
         if response.status_code == 200:
@@ -59,10 +59,10 @@ class Client:
 
     def getNextDepartures(
         self,
-        stop: Union[str, Stop],
-        departure: Optional[datetime] = None,
+        stop: str | Stop,
+        departure: datetime | None = None,
         limit: int = 10,
-        until: Optional[datetime] = None,
+        until: datetime | None = None,
     ) -> list[Departure]:
         stopId = stop.id if isinstance(stop, Stop) else stop
         url = f"{self.host}/schedule/departures/{stopId}?limit={limit}"
@@ -80,14 +80,14 @@ class Client:
 
     def getConnections(
         self,
-        fromStop: Union[str, Stop],
-        toStop: Union[str, Stop],
-        time: Optional[datetime] = None,
+        fromStop: str | Stop,
+        toStop: str | Stop,
+        time: datetime | None = None,
         timeType: TimeType = TimeType.DEPARTURE,
-        maxWalkingDuration: Optional[int] = None,
-        maxTransferNumber: Optional[int] = None,
-        maxTravelTime: Optional[int] = None,
-        minTransferTime: Optional[int] = None,
+        maxWalkingDuration: int | None = None,
+        maxTransferNumber: int | None = None,
+        maxTravelTime: int | None = None,
+        minTransferTime: int | None = None,
     ) -> list[Connection]:
         queryString = self._buildQueryString(
             fromStop,
@@ -111,13 +111,13 @@ class Client:
 
     def getIsoLines(
         self,
-        fromStop: Union[str, Stop],
-        time: Optional[datetime] = None,
+        fromStop: str | Stop,
+        time: datetime | None = None,
         timeType: TimeType = TimeType.DEPARTURE,
-        maxWalkingDuration: Optional[int] = None,
-        maxTransferNumber: Optional[int] = None,
-        maxTravelTime: Optional[int] = None,
-        minTransferTime: Optional[int] = None,
+        maxWalkingDuration: int | None = None,
+        maxTransferNumber: int | None = None,
+        maxTravelTime: int | None = None,
+        minTransferTime: int | None = None,
         returnConnections: bool = False,
     ) -> list[StopConnection]:
         queryString = self._buildQueryString(
@@ -145,14 +145,14 @@ class Client:
 
     @staticmethod
     def _buildQueryString(
-        fromStop: Union[str, Stop],
-        toStop: Optional[Union[str, Stop]] = None,
-        time: Optional[datetime] = None,
-        timeType: Optional[TimeType] = None,
-        maxWalkingDuration: Optional[int] = None,
-        maxTransferNumber: Optional[int] = None,
-        maxTravelTime: Optional[int] = None,
-        minTransferTime: Optional[int] = None,
+        fromStop: str | Stop,
+        toStop: str | Stop | None = None,
+        time: datetime | None = None,
+        timeType: TimeType | None = None,
+        maxWalkingDuration: int | None = None,
+        maxTransferNumber: int | None = None,
+        maxTravelTime: int | None = None,
+        minTransferTime: int | None = None,
     ) -> str:
         queryString = (
             f"sourceStopId={fromStop.id if isinstance(fromStop, Stop) else fromStop}"

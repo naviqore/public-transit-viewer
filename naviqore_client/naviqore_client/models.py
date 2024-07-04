@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 from geopy import distance  # type: ignore
@@ -70,13 +69,13 @@ class Departure(BaseModel):
 
 class Leg(BaseModel):
     fromCoordinate: Coordinate
-    fromStop: Optional[Stop] = None
     toCoordinate: Coordinate
-    toStop: Optional[Stop] = None
+    fromStop: Stop | None = None
+    toStop: Stop | None = None
     type: LegType
     departureTime: datetime
     arrivalTime: datetime
-    trip: Optional[Trip] = None
+    trip: Trip | None = None
 
     @property
     def duration(self) -> int:
@@ -126,24 +125,24 @@ class Connection(BaseModel):
         return self.legs[-1]
 
     @property
-    def firstRouteLeg(self) -> Optional[Leg]:
+    def firstRouteLeg(self) -> Leg | None:
         for leg in self.legs:
             if leg.isRoute:
                 return leg
 
     @property
-    def lastRouteLeg(self) -> Optional[Leg]:
+    def lastRouteLeg(self) -> Leg | None:
         for leg in reversed(self.legs):
             if leg.isRoute:
                 return leg
 
     @property
-    def firstStop(self) -> Optional[Stop]:
+    def firstStop(self) -> Stop | None:
         firstRouteLeg = self.firstRouteLeg
         return firstRouteLeg.fromStop if firstRouteLeg else None
 
     @property
-    def lastStop(self) -> Optional[Stop]:
+    def lastStop(self) -> Stop | None:
         lastRouteLeg = self.lastRouteLeg
         return lastRouteLeg.toStop if lastRouteLeg else None
 
@@ -164,11 +163,11 @@ class Connection(BaseModel):
         return self.lastLeg.toCoordinate
 
     @property
-    def fromStop(self) -> Optional[Stop]:
+    def fromStop(self) -> Stop | None:
         return self.firstLeg.fromStop
 
     @property
-    def toStop(self) -> Optional[Stop]:
+    def toStop(self) -> Stop | None:
         return self.lastLeg.toStop
 
     @property
@@ -232,7 +231,7 @@ class Connection(BaseModel):
 class StopConnection(BaseModel):
     stop: Stop
     connectingLeg: Leg
-    connection: Optional[Connection] = None
+    connection: Connection | None = None
 
 
 class DistanceToStop(BaseModel):
