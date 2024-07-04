@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-from typing import Union, Optional
 from dotenv import dotenv_values
 from pathlib import Path
 from datetime import datetime, date, time
@@ -31,7 +30,7 @@ def getClient() -> Client:
     return Client(str(config["NAVIQORE_HOST_URL"]))
 
 
-def _convertToSeconds(value: Optional[int]) -> Optional[int]:
+def _convertToSeconds(value: int | None) -> int | None:
     if value is None:
         return None
     return value * 60
@@ -51,10 +50,10 @@ def getConnections(
     travelDate: date,
     travelTime: time,
     timeType: TimeType,
-    maxTransfers: Optional[int] = None,
-    maxTravelTime: Optional[int] = None,
-    maxWalkingDuration: Optional[int] = None,
-    minTransferTime: Optional[int] = None,
+    maxTransfers: int | None = None,
+    maxTravelTime: int | None = None,
+    maxWalkingDuration: int | None = None,
+    minTransferTime: int | None = None,
 ) -> list[Connection]:
     travelDateTime = datetime.combine(travelDate, travelTime)
     client = getClient()
@@ -88,11 +87,11 @@ def getIsoLines(
     travelDate: date,
     travelTime: time,
     timeType: TimeType,
-    maxTransfers: Optional[int] = None,
-    maxTravelTime: Optional[int] = None,
-    maxWalkingDuration: Optional[int] = None,
-    minTransferTime: Optional[int] = None,
-) -> Optional[tuple[Stop, pd.DataFrame]]:
+    maxTransfers: int | None = None,
+    maxTravelTime: int | None = None,
+    maxWalkingDuration: int | None = None,
+    minTransferTime: int | None = None,
+) -> tuple[Stop, pd.DataFrame] | None:
     client = getClient()
     travelDateTime = datetime.combine(travelDate, travelTime)
     stopConnections = client.getIsoLines(
@@ -127,9 +126,9 @@ def getIsoLines(
 
 def _get_earliest_arrivals_dataframe(
     stopConnections: list[StopConnection], travelDateTime: datetime, sourceStop: Stop
-) -> Optional[tuple[Stop, pd.DataFrame]]:
+) -> tuple[Stop, pd.DataFrame] | None:
 
-    legs: list[dict[str, Union[datetime, int, str, float]]] = []
+    legs: list[dict[str, datetime | int | str | float]] = []
 
     for stopConnection in stopConnections:
 
@@ -171,9 +170,9 @@ def _get_earliest_arrivals_dataframe(
 
 def _get_latest_departures_dataframe(
     stopConnections: list[StopConnection], travelDateTime: datetime, sourceStop: Stop
-) -> Optional[tuple[Stop, pd.DataFrame]]:
+) -> tuple[Stop, pd.DataFrame] | None:
 
-    legs: list[dict[str, Union[datetime, int, str, float]]] = []
+    legs: list[dict[str, datetime | int | str | float]] = []
 
     for stopConnection in stopConnections:
 

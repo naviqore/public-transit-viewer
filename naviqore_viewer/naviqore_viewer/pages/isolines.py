@@ -9,7 +9,6 @@ from naviqore_viewer.components.form_components import (
 )
 from naviqore_client.models import Stop
 import pandas as pd
-from typing import Optional
 from streamlit_folium import st_folium  # type: ignore
 import folium  # type: ignore
 from dotenv import dotenv_values
@@ -41,7 +40,7 @@ maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
     query_config_expandable(defaultMaxTravelTime=60)
 )
 
-isolines: Optional[tuple[Stop, pd.DataFrame]] = None
+isolines: tuple[Stop, pd.DataFrame] | None = None
 
 if fromStopId and travelDate and travelTime:
     isolines = getIsoLines(

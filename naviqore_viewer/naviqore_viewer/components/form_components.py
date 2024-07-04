@@ -1,11 +1,11 @@
 import streamlit as st
-from typing import Optional, Any
+from typing import Any
 from datetime import date, time
 
 from naviqore_client.models import TimeType
 
 
-def _get_number_value(inputValue: Any) -> Optional[int]:
+def _get_number_value(inputValue: Any) -> int | None:
     if inputValue == -1 or inputValue == "":
         return None
     return int(inputValue)
@@ -16,7 +16,7 @@ def query_config_expandable(
     defaultMaxWalkingDuration: int = -1,
     defaultMaxTravelTime: int = -1,
     defaultMinTransferTime: int = -1,
-) -> tuple[Optional[int], Optional[int], Optional[int], Optional[int]]:
+) -> tuple[int | None, int | None, int | None, int | None]:
     """
     Create an expandable query configuration.
 
