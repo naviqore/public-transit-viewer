@@ -107,11 +107,9 @@ def getIsoLines(
     sourceStop = client.getStop(fromStop)
 
     if sourceStop is None:
-        print("No source stop found")
         return None
 
     if not stopConnections:
-        print("No stop connections found")
         return None
 
     if timeType == TimeType.DEPARTURE:

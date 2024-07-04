@@ -62,8 +62,6 @@ if isolines is None:
 sourceStop = isolines[0]
 isolinesDf = isolines[1]
 
-print(isolinesDf)
-
 maxDuration = int(isolinesDf["durationFromSourceInMinutes"].max())  # type: ignore
 maxRound = int(isolinesDf["connectionRound"].max())  # type: ignore
 
