@@ -1,6 +1,5 @@
 from enum import Enum
-from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from geopy import distance  # type: ignore
 
@@ -9,6 +8,7 @@ class SearchType(Enum):
     EXACT = "EXACT"
     CONTAINS = "CONTAINS"
     STARTS_WITH = "STARTS_WITH"
+    ENDS_WITH = "ENDS_WITH"
 
 
 class LegType(Enum):
@@ -40,7 +40,7 @@ class Coordinate(BaseModel):
 class Stop(BaseModel):
     id: str
     name: str
-    coordinate: Coordinate
+    coordinate: Coordinate = Field(alias="coordinates")
 
 
 class Route(BaseModel):
@@ -61,6 +61,10 @@ class Trip(BaseModel):
     route: Route
     stopTimes: list[StopTime]
 
+    @field_validator("stopTimes", mode="before")
+    def set_stop_times_not_none(cls, v: list[StopTime] | None) -> list[StopTime]:
+        return v or []
+
 
 class Departure(BaseModel):
     stopTime: StopTime
@@ -68,14 +72,14 @@ class Departure(BaseModel):
 
 
 class Leg(BaseModel):
-    fromCoordinate: Coordinate
-    fromStop: Optional[Stop] = None
-    toCoordinate: Coordinate
-    toStop: Optional[Stop] = None
+    fromCoordinate: Coordinate = Field(alias="from")
+    fromStop: Stop | None = None
+    toCoordinate: Coordinate = Field(alias="to")
+    toStop: Stop | None = None
     type: LegType
     departureTime: datetime
     arrivalTime: datetime
-    trip: Optional[Trip] = None
+    trip: Trip | None = None
 
     @property
     def duration(self) -> int:
@@ -125,24 +129,24 @@ class Connection(BaseModel):
         return self.legs[-1]
 
     @property
-    def firstRouteLeg(self) -> Optional[Leg]:
+    def firstRouteLeg(self) -> Leg | None:
         for leg in self.legs:
             if leg.isRoute:
                 return leg
 
     @property
-    def lastRouteLeg(self) -> Optional[Leg]:
+    def lastRouteLeg(self) -> Leg | None:
         for leg in reversed(self.legs):
             if leg.isRoute:
                 return leg
 
     @property
-    def firstStop(self) -> Optional[Stop]:
+    def firstStop(self) -> Stop | None:
         firstRouteLeg = self.firstRouteLeg
         return firstRouteLeg.fromStop if firstRouteLeg else None
 
     @property
-    def lastStop(self) -> Optional[Stop]:
+    def lastStop(self) -> Stop | None:
         lastRouteLeg = self.lastRouteLeg
         return lastRouteLeg.toStop if lastRouteLeg else None
 
@@ -163,11 +167,11 @@ class Connection(BaseModel):
         return self.lastLeg.toCoordinate
 
     @property
-    def fromStop(self) -> Optional[Stop]:
+    def fromStop(self) -> Stop | None:
         return self.firstLeg.fromStop
 
     @property
-    def toStop(self) -> Optional[Stop]:
+    def toStop(self) -> Stop | None:
         return self.lastLeg.toStop
 
     @property
@@ -230,8 +234,8 @@ class Connection(BaseModel):
 
 class StopConnection(BaseModel):
     stop: Stop
-    referenceTime: datetime
-    connection: Connection
+    connectingLeg: Leg
+    connection: Connection | None = None
 
 
 class DistanceToStop(BaseModel):

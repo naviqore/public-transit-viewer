@@ -8,9 +8,8 @@ from naviqore_viewer.components.form_components import (
     query_config_expandable,
 )
 from naviqore_client.models import Connection
-from typing import Optional
 
-connections: Optional[list[Connection]] = None
+connections: list[Connection] | None = None
 
 st.set_page_config(
     page_title="Naviqore - Router",
