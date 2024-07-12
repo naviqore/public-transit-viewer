@@ -120,6 +120,12 @@ class Leg(BaseModel):
 class Connection(BaseModel):
     legs: list[Leg]
 
+    @field_validator("legs")
+    def legs_not_empty(cls, v: list[Leg]) -> list[Leg]:
+        if not v:
+            raise ValueError("legs must not be empty")
+        return v
+
     @property
     def firstLeg(self) -> Leg:
         return self.legs[0]
@@ -214,7 +220,8 @@ class Connection(BaseModel):
             if leg.isRoute:
                 if betweenTrips:
                     counter += 1
-                betweenTrips = not betweenTrips
+                else:
+                    betweenTrips = True
         return counter
 
     @property
