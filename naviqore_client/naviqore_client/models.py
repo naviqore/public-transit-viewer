@@ -238,6 +238,10 @@ class Connection(BaseModel):
     def numStops(self) -> int:
         return sum(leg.numStops for leg in self.legs if leg.isRoute)
 
+    @property
+    def multiDate(self) -> bool:
+        return self.departureTime.date() != self.arrivalTime.date()
+
 
 class StopConnection(BaseModel):
     stop: Stop
