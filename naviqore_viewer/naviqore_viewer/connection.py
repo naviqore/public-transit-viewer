@@ -176,20 +176,18 @@ def showMap(connection: Connection, key: str):
     colors = cycle(
         [
             "red",
+            "darkgreen",
             "purple",
             "orange",
             "darkblue",
-            "darkgreen",
-            "cadetblue",
-            "darkpurple",
-            "white",
             "pink",
+            "green",
             "lightblue",
+            "black",
             "lightgreen",
             "gray",
-            "black",
-            "lightgray",
-            "green",
+            "cadetblue",
+            "white",
         ]
     )
 
