@@ -3,6 +3,7 @@ from naviqore_client.models import Connection, Leg
 from streamlit_folium import folium_static  # type: ignore
 import folium  # type: ignore
 from itertools import cycle
+from datetime import datetime
 
 stopIconArgs = {
     "prefix": "fa",
@@ -68,8 +69,20 @@ def getConnectionHeader(connection: Connection):
 
 def showLegs(connection: Connection):
     with st.expander("Show legs"):
+        refDate = connection.departureTime.date()
+        if connection.multiDate:
+            printDate(connection.departureTime, False)
         for leg in connection.legs:
+            if connection.multiDate and leg.arrivalTime.date() != refDate:
+                refDate = leg.arrivalTime.date()
+                printDate(leg.arrivalTime)
             showLeg(leg)
+
+
+def printDate(date: datetime, divider: bool = True) -> None:
+    if divider:
+        st.divider()  # type: ignore
+    st.subheader(date.strftime("%d.%m.%Y"))  # type: ignore
 
 
 def showLeg(leg: Leg):
@@ -83,7 +96,13 @@ def showLeg(leg: Leg):
 
         with legColumns[0]:
             st.metric(  # type: ignore
-                label=legStart, value=leg.departureTime.strftime("%H:%M")
+                label=legStart,
+                value=leg.departureTime.strftime("%H:%M"),
+                help=(
+                    leg.departureTime.strftime("%d.%m.%Y")
+                    if leg.departureTime.date() != leg.arrivalTime.date()
+                    else None
+                ),
             )
 
         with legColumns[1]:
@@ -99,7 +118,13 @@ def showLeg(leg: Leg):
 
         with legColumns[2]:
             st.metric(  # type: ignore
-                label=legEnd, value=leg.arrivalTime.strftime("%H:%M")
+                label=legEnd,
+                value=leg.arrivalTime.strftime("%H:%M"),
+                help=(
+                    leg.arrivalTime.strftime("%d.%m.%Y")
+                    if leg.departureTime.date() != leg.arrivalTime.date()
+                    else None
+                ),
             )
 
 
@@ -151,20 +176,18 @@ def showMap(connection: Connection, key: str):
     colors = cycle(
         [
             "red",
+            "darkgreen",
             "purple",
             "orange",
             "darkblue",
-            "darkgreen",
-            "cadetblue",
-            "darkpurple",
-            "white",
             "pink",
+            "green",
             "lightblue",
+            "black",
             "lightgreen",
             "gray",
-            "black",
-            "lightgray",
-            "green",
+            "cadetblue",
+            "white",
         ]
     )
 
