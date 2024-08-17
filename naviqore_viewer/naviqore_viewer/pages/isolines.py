@@ -36,9 +36,15 @@ fromStopId: str = st_searchbox(
 
 travelDate, travelTime, timeType = time_form_row()
 
-maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
-    query_config_expandable(defaultMaxTravelTime=60)
-)
+(
+    maxTransfers,
+    maxWalkingDuration,
+    maxTravelTime,
+    minTransferTime,
+    wheelchairAccessible,
+    bikesAllowed,
+    travelModes,
+) = query_config_expandable(defaultMaxTravelTime=60)
 
 isolines: tuple[Stop, pd.DataFrame] | None = None
 
@@ -52,6 +58,9 @@ if fromStopId and travelDate and travelTime:
         maxTravelTime,
         maxWalkingDuration,
         minTransferTime,
+        wheelchairAccessible,
+        bikesAllowed,
+        travelModes,
     )
     if isolines is None:
         st.error("No Iso Lines found")

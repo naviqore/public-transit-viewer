@@ -11,6 +11,8 @@ from naviqore_client.models import (
     TimeType,
     StopConnection,
     Stop,
+    QueryFeatures,
+    TransportMode,
 )
 
 INFINITY = int(2**31 - 1)
@@ -37,6 +39,12 @@ def _convertToSeconds(value: int | None) -> int | None:
 
 
 @st.cache_data
+def getQueryFeatures() -> QueryFeatures:
+    client = getClient()
+    return client.getQueryFeatures()
+
+
+@st.cache_data
 def getStopSuggestions(searchterm: str) -> list[tuple[str, str]]:
     client = getClient()
     stops = client.searchStops(searchterm, limit=10)
@@ -54,9 +62,17 @@ def getConnections(
     maxTravelTime: int | None = None,
     maxWalkingDuration: int | None = None,
     minTransferTime: int | None = None,
+    wheelchairAccessible: bool = False,
+    bikesAllowed: bool = False,
+    travelModes: list[str] | None = None,
 ) -> list[Connection]:
     travelDateTime = datetime.combine(travelDate, travelTime)
     client = getClient()
+
+    if travelModes is not None:
+        travelModeEnums = [TransportMode[mode] for mode in travelModes]
+    else:
+        travelModeEnums = None
 
     return client.getConnections(
         fromStop,
@@ -67,6 +83,9 @@ def getConnections(
         maxTransferNumber=maxTransfers,
         maxTravelTime=_convertToSeconds(maxTravelTime),
         minTransferTime=_convertToSeconds(minTransferTime),
+        wheelchairAccessible=wheelchairAccessible,
+        bikesAllowed=bikesAllowed,
+        transportModes=travelModeEnums,
     )
 
 
@@ -91,9 +110,18 @@ def getIsoLines(
     maxTravelTime: int | None = None,
     maxWalkingDuration: int | None = None,
     minTransferTime: int | None = None,
+    wheelchairAccessible: bool = False,
+    bikesAllowed: bool = False,
+    travelModes: list[str] | None = None,
 ) -> tuple[Stop, pd.DataFrame] | None:
     client = getClient()
     travelDateTime = datetime.combine(travelDate, travelTime)
+
+    if travelModes is not None:
+        travelModeEnums = [TransportMode[mode] for mode in travelModes]
+    else:
+        travelModeEnums = None
+
     stopConnections = client.getIsoLines(
         fromStop,
         travelDateTime,
@@ -102,6 +130,9 @@ def getIsoLines(
         maxTransferNumber=maxTransfers,
         maxTravelTime=_convertToSeconds(maxTravelTime),
         minTransferTime=_convertToSeconds(minTransferTime),
+        wheelchairAccessible=wheelchairAccessible,
+        bikesAllowed=bikesAllowed,
+        transportModes=travelModeEnums,
     )
 
     sourceStop = client.getStop(fromStop)
