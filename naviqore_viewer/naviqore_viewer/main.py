@@ -41,9 +41,15 @@ with column2:
     )
 
 travelDate, travelTime, timeType = time_form_row()
-maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime = (
-    query_config_expandable()
-)
+(
+    maxTransfers,
+    maxWalkingDuration,
+    maxTravelTime,
+    minTransferTime,
+    wheelchairAccessible,
+    bikesAllowed,
+    travelModes,
+) = query_config_expandable()
 
 clicked: bool = st.button("Search", use_container_width=True)
 
@@ -58,6 +64,9 @@ if clicked:
         maxTravelTime,
         maxWalkingDuration,
         minTransferTime,
+        wheelchairAccessible,
+        bikesAllowed,
+        travelModes,
     )
 else:
     st.stop()

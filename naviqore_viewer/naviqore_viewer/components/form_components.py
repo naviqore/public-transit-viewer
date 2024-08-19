@@ -1,8 +1,8 @@
 import streamlit as st
 from typing import Any
 from datetime import date, time
-
-from naviqore_client.models import TimeType
+from naviqore_viewer.client import getQueryFeatures
+from naviqore_client.models import TimeType, TransportMode
 
 
 def _get_number_value(inputValue: Any) -> int | None:
@@ -16,7 +16,18 @@ def query_config_expandable(
     defaultMaxWalkingDuration: int = -1,
     defaultMaxTravelTime: int = -1,
     defaultMinTransferTime: int = -1,
-) -> tuple[int | None, int | None, int | None, int | None]:
+    wheelchairAccessible: bool = False,
+    bikesAllowed: bool = False,
+    travelModes: list[str] | None = None,
+) -> tuple[
+    int | None,
+    int | None,
+    int | None,
+    int | None,
+    bool,
+    bool,
+    list[str] | None,
+]:
     """
     Create an expandable query configuration.
 
@@ -26,6 +37,9 @@ def query_config_expandable(
             - maxWalkingDuration: Maximum walking duration.
             - maxTravelTime: Maximum travel time.
             - minTransferTime: Minimum transfer time.
+            - wheelchairAccessible: Whether the route should be wheelchair accessible.
+            - bikesAllowed: Whether bikes are allowed.
+            - travelModes: List of allowed travel modes.
     """
     with st.expander("Query Configuration"):
 
@@ -73,7 +87,39 @@ def query_config_expandable(
             )
         )
 
-    return maxTransfers, maxWalkingDuration, maxTravelTime, minTransferTime
+        queryFeatures = getQueryFeatures()
+
+        if queryFeatures.supportsAccessibility or queryFeatures.supportsBikes:
+            column5, column6 = st.columns(2)
+
+            if queryFeatures.supportsAccessibility:
+                wheelchairAccessible = column5.toggle(
+                    label="Wheelchair Accessible", value=wheelchairAccessible
+                )
+
+            if queryFeatures.supportsBikes:
+                bikesAllowed = column6.toggle(label="Bikes Allowed", value=bikesAllowed)
+
+        if queryFeatures.supportsTravelModes:
+            if travelModes is None:
+                travelModes = [m.value for m in TransportMode.__members__.values()]
+            travelModes = st.multiselect(
+                label="Travel Modes",
+                options=travelModes,
+                default=travelModes,
+            )
+        else:
+            travelModes = None
+
+    return (
+        maxTransfers,
+        maxWalkingDuration,
+        maxTravelTime,
+        minTransferTime,
+        wheelchairAccessible,
+        bikesAllowed,
+        travelModes,
+    )
 
 
 def time_form_row() -> tuple[date, time, TimeType]:

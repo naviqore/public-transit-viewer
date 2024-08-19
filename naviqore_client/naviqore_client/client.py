@@ -7,6 +7,8 @@ from naviqore_client.models import (
     StopConnection,
     DistanceToStop,
     TimeType,
+    TransportMode,
+    QueryFeatures,
 )
 from datetime import datetime
 from requests import get, Response
@@ -70,6 +72,18 @@ class Client:
         else:
             return []
 
+    def getQueryFeatures(self) -> QueryFeatures:
+        url = f"{self.host}/routing/"
+        response = get(url)
+        if response.status_code == 200:
+            return QueryFeatures(**response.json())
+        else:
+            return QueryFeatures(
+                supportsAccessibility=False,
+                supportsBikes=False,
+                supportsTravelModes=False,
+            )
+
     def getConnections(
         self,
         fromStop: str | Stop,
@@ -80,6 +94,9 @@ class Client:
         maxTransferNumber: int | None = None,
         maxTravelTime: int | None = None,
         minTransferTime: int | None = None,
+        wheelchairAccessible: bool = False,
+        bikesAllowed: bool = False,
+        transportModes: list[TransportMode] | None = None,
     ) -> list[Connection]:
         queryString = self._buildQueryString(
             fromStop,
@@ -90,6 +107,9 @@ class Client:
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
             minTransferTime=minTransferTime,
+            wheelchairAccessible=wheelchairAccessible,
+            bikesAllowed=bikesAllowed,
+            transportModes=transportModes,
         )
         url = f"{self.host}/routing/connections?{queryString}"
         response = get(url)
@@ -107,6 +127,9 @@ class Client:
         maxTransferNumber: int | None = None,
         maxTravelTime: int | None = None,
         minTransferTime: int | None = None,
+        wheelchairAccessible: bool = False,
+        bikesAllowed: bool = False,
+        transportModes: list[TransportMode] | None = None,
         returnConnections: bool = False,
     ) -> list[StopConnection]:
         queryString = self._buildQueryString(
@@ -117,10 +140,12 @@ class Client:
             maxTransferNumber=maxTransferNumber,
             maxTravelTime=maxTravelTime,
             minTransferTime=minTransferTime,
+            wheelchairAccessible=wheelchairAccessible,
+            bikesAllowed=bikesAllowed,
+            transportModes=transportModes,
         )
 
         url = f"{self.host}/routing/isolines?{queryString}"
-
         if returnConnections:
             url += "&returnConnections=true"
 
@@ -142,6 +167,9 @@ class Client:
         maxTransferNumber: int | None = None,
         maxTravelTime: int | None = None,
         minTransferTime: int | None = None,
+        wheelchairAccessible: bool = False,
+        bikesAllowed: bool = False,
+        transportModes: list[TransportMode] | None = None,
     ) -> str:
         queryString = (
             f"sourceStopId={fromStop.id if isinstance(fromStop, Stop) else fromStop}"
@@ -162,5 +190,12 @@ class Client:
             queryString += f"&maxTravelTime={maxTravelTime}"
         if minTransferTime is not None:
             queryString += f"&minTransferTime={minTransferTime}"
+        if wheelchairAccessible:
+            queryString += "&wheelchairAccessible=true"
+        if bikesAllowed:
+            queryString += "&bikeAllowed=true"
+        if transportModes is not None:
+            for transportMode in transportModes:
+                queryString += f"&travelModes={transportMode.value}"
 
         return queryString

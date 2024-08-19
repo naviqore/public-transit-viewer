@@ -22,6 +22,22 @@ class TimeType(Enum):
     ARRIVAL = "ARRIVAL"
 
 
+class TransportMode(Enum):
+    BUS = "BUS"
+    TRAM = "TRAM"
+    RAIL = "RAIL"
+    SHIP = "SHIP"
+    SUBWAY = "SUBWAY"
+    AERIAL_LIFT = "AERIAL_LIFT"
+    FUNICULAR = "FUNICULAR"
+
+
+class QueryFeatures(BaseModel):
+    supportsAccessibility: bool
+    supportsBikes: bool
+    supportsTravelModes: bool
+
+
 class Coordinate(BaseModel):
     latitude: float
     longitude: float
