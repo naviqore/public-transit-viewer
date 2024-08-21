@@ -15,7 +15,7 @@ streamlit = "^1.37.1"
 streamlit-searchbox = "^0.1.14"
 folium = "^0.17.0"
 streamlit-folium = "^0.22.0"
-public-transit-client = { path = "../public-transit-client", develop = true }
+public-transit-client = "^0.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
