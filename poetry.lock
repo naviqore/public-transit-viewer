@@ -1259,13 +1259,13 @@ files = [
 
 [[package]]
 name = "public-transit-client"
-version = "0.1.1"
+version = "0.1.2"
 description = "Client to access the public transit service API endpoints."
 optional = false
 python-versions = "<4.0,>=3.12"
 files = [
-    { file = "public_transit_client-0.1.1-py3-none-any.whl", hash = "sha256:87bf2b6e0f9ebaa3bd1128368992370014cdbb13d11f1d03e7a26fd52b143ddf" },
-    { file = "public_transit_client-0.1.1.tar.gz", hash = "sha256:2058dd37c6744c7c8907b5e6b0d5dcb780e59fe8f14fda9ce773aa7f7053f59a" },
+    { file = "public_transit_client-0.1.2-py3-none-any.whl", hash = "sha256:d912acb6582c5fd364ef2ec22f4a8bc78181f30c13aaa497417b8db981d0b6ad" },
+    { file = "public_transit_client-0.1.2.tar.gz", hash = "sha256:74c798fe111935fcb1601a117556391f869503d9808ecd305b46c3ee88b00313" },
 ]
 
 [package.dependencies]
@@ -1968,4 +1968,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "166daff26d149b078ab410b2afbf0065d4360b7f30880bebe4de50b695221344"
+content-hash = "fe433fdbb7f7f3d1d8881d8d9def0ed65053e6fd502dee04baca883e97acce9e"

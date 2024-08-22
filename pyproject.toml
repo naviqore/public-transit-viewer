@@ -2,7 +2,11 @@
 name = "public-transit-viewer"
 version = "0.1.0"
 description = "Viewer to interact with the public transit service."
-authors = ["Lukas Connolly <lukas@connolly.ch>", "Merlin Unterfinger <info@munterfinger.ch>"]
+authors = [
+    "Lukas Connolly <lukas@connolly.ch>",
+    "Merlin Unterfinger <info@munterfinger.ch>",
+    "Michael Brunner"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -16,7 +20,7 @@ streamlit-searchbox = "^0.1.14"
 folium = "^0.17.0"
 streamlit-folium = "^0.22.0"
 watchdog = "^4.0.2"
-public-transit-client = "^0.1.1"
+public-transit-client = "^0.1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
