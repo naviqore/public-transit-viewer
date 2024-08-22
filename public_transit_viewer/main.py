@@ -5,9 +5,7 @@ from streamlit_searchbox import st_searchbox
 from public_transit_viewer import LOGO_PATH
 from public_transit_viewer.client import get_connections, get_stop_suggestions
 from public_transit_viewer.components.form_components import (
-    query_config_expandable,
-    time_form_row,
-)
+    query_config_expandable, time_form_row)
 from public_transit_viewer.connection import output_connection
 
 connections: list[Connection] | None = None
@@ -29,16 +27,16 @@ with column1:
     from_stop_id: str = st_searchbox(
         search_function=get_stop_suggestions,
         label="From",
-        key="fromStopId",
-        rerun_on_update=False,
+        key="from_stop_id",
+        rerun_on_update=True,
     )
 
 with column2:
     to_stop_id: str = st_searchbox(
         search_function=get_stop_suggestions,
         label="To",
-        key="toStopId",
-        rerun_on_update=False,
+        key="to_stop_id",
+        rerun_on_update=True,
     )
 
 travel_date, travel_time, time_type = time_form_row()

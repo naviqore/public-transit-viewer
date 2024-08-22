@@ -10,9 +10,15 @@ def main():
     main_py_path = os.path.join(script_dir, "public_transit_viewer", "main.py")
 
     subprocess.run(
-        ["streamlit", "run", main_py_path, f"--server.port={SERVER_PORT}", f"--server.address={SERVER_ADDRESS}",
-         "--browser.gatherUsageStats=false"],
-        cwd=script_dir
+        [
+            "streamlit",
+            "run",
+            main_py_path,
+            f"--server.port={SERVER_PORT}",
+            f"--server.address={SERVER_ADDRESS}",
+            "--browser.gatherUsageStats=false",
+        ],
+        cwd=script_dir,
     )
 
 

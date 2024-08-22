@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import date, datetime, time
 from pathlib import Path
@@ -7,13 +8,9 @@ import streamlit as st
 from dotenv import dotenv_values
 from public_transit_client.client import PublicTransitClient
 from public_transit_client.model import (  # # QueryFeatures,; # TransportMode,
-    Connection,
-    Coordinate,
-    Stop,
-    StopConnection,
-    TimeType,
-)
+    Connection, Coordinate, Stop, StopConnection, TimeType)
 
+LOG = logging.getLogger(__name__)
 INFINITY = int(2 ** 31 - 1)
 
 
@@ -22,12 +19,15 @@ def get_client() -> PublicTransitClient:
     root_dir = Path(__file__).parent.parent
     config = dotenv_values(root_dir / ".env")
 
-    if "NAVIQORE_HOST_URL" not in config:
-        if "NAVIQORE_HOST_URL" in os.environ:
-            return PublicTransitClient(str(os.environ["NAVIQORE_HOST_URL"]))
-        raise ValueError("NAVIQORE_HOST_URL not found in .env file")
+    if "NAVIQORE_HOST_URL" in config:
+        service_host = config["NAVIQORE_HOST_URL"]
+    elif "NAVIQORE_HOST_URL" in os.environ:
+        service_host = os.environ["NAVIQORE_HOST_URL"]
+    else:
+        raise ValueError("NAVIQORE_HOST_URL not found in .env file or env")
 
-    return PublicTransitClient(str(config["NAVIQORE_HOST_URL"]))
+    LOG.info("Binding client to service at %s", service_host)
+    return PublicTransitClient(service_host)
 
 
 def _convert_to_seconds(value: int | None) -> int | None:

@@ -11,9 +11,7 @@ from streamlit_searchbox import st_searchbox  # type: ignore
 from public_transit_viewer import LOGO_PATH
 from public_transit_viewer.client import get_isolines, get_stop_suggestions
 from public_transit_viewer.components.form_components import (
-    query_config_expandable,
-    time_form_row,
-)
+    query_config_expandable, time_form_row)
 from public_transit_viewer.utils import get_color_map_hex_value
 
 st.set_page_config(
@@ -27,40 +25,40 @@ header_col1.image(str(LOGO_PATH), use_column_width=True)
 header_col2.title("Naviqore")
 header_col2.write("Visualize Iso Lines from Source Stop")  # type: ignore
 
-fromStopId: str = st_searchbox(
+from_stop_id: str = st_searchbox(
     search_function=get_stop_suggestions,
     label="From",
-    key="fromStopId",
-    rerun_on_update=False,
+    key="from_stop_id",
+    rerun_on_update=True,
 )
 
-travelDate, travelTime, timeType = time_form_row()
+travel_date, travel_time, time_type = time_form_row()
 
 (
-    maxTransfers,
-    maxWalkingDuration,
-    maxTravelTime,
-    minTransferTime,
-    wheelchairAccessible,
-    bikesAllowed,
-    travelModes,
+    max_transfers,
+    max_walking_duration,
+    max_travel_time,
+    min_transfer_time,
+    wheelchair_accessible,
+    bikes_allowed,
+    travel_modes,
 ) = query_config_expandable(default_max_travel_time=60)
 
 isolines: tuple[Stop, pd.DataFrame] | None = None
 
-if fromStopId and travelDate and travelTime:
+if from_stop_id and travel_date and travel_time:
     isolines = get_isolines(
-        fromStopId,
-        travelDate,
-        travelTime,
-        timeType,
-        maxTransfers,
-        maxTravelTime,
-        maxWalkingDuration,
-        minTransferTime,
-        wheelchairAccessible,
-        bikesAllowed,
-        travelModes,
+        from_stop_id,
+        travel_date,
+        travel_time,
+        time_type,
+        max_transfers,
+        max_travel_time,
+        max_walking_duration,
+        min_transfer_time,
+        wheelchair_accessible,
+        bikes_allowed,
+        travel_modes,
     )
     if isolines is None:
         st.error("No Iso Lines found")
@@ -68,11 +66,11 @@ if fromStopId and travelDate and travelTime:
 if isolines is None:
     st.stop()
 
-sourceStop = isolines[0]
+source_stop = isolines[0]
 isolines_df = isolines[1]
 
-maxDuration = int(isolines_df["durationFromSourceInMinutes"].max())  # type: ignore
-maxRound = int(isolines_df["connectionRound"].max())  # type: ignore
+max_duration = int(isolines_df["durationFromSourceInMinutes"].max())  # type: ignore
+max_round = int(isolines_df["connectionRound"].max())  # type: ignore
 
 options = {
     "durationFromSourceInMinutes": "By time in minutes",
@@ -89,10 +87,10 @@ filter_by: str = option_columns[0].selectbox(  # type: ignore
 )
 
 slider_range = (0, 1)
-if filter_by == "connectionRound" and maxRound > 0:
-    slider_range = (0, maxRound)  # type: ignore
-elif filter_by == "durationFromSourceInMinutes" and maxDuration > 0:
-    slider_range = (0, maxDuration)  # type: ignore
+if filter_by == "connectionRound" and max_round > 0:
+    slider_range = (0, max_round)  # type: ignore
+elif filter_by == "durationFromSourceInMinutes" and max_duration > 0:
+    slider_range = (0, max_duration)  # type: ignore
 
 filter_value = option_columns[1].slider(  # type: ignore
     label=options[filter_by],
@@ -117,7 +115,7 @@ filtered_df = isolines_df[  # type: ignore
 
 # random, may have to be adjusted
 zoom = 10
-zoomFactors = {
+zoom_factors = {
     1000000: 4,
     500000: 5,
     200000: 6,
@@ -131,24 +129,24 @@ zoomFactors = {
     500: 14,
 }
 
-maxDistanceToOrigin = filtered_df["distanceFromOrigin"].max()  # type: ignore
+max_distance_to_origin = filtered_df["distanceFromOrigin"].max()  # type: ignore
 
-for distanceThreshold in zoomFactors:
-    if maxDistanceToOrigin > distanceThreshold:
-        zoom = zoomFactors[distanceThreshold]
+for distance_threshold in zoom_factors:
+    if max_distance_to_origin > distance_threshold:
+        zoom = zoom_factors[distance_threshold]
         break
 
-sourceCoordinates = sourceStop.coordinate.toTuple()
-m = folium.Map(location=sourceCoordinates, zoom_start=zoom)  # type: ignore
+source_coordinates = source_stop.coordinate.to_tuple()
+m = folium.Map(location=source_coordinates, zoom_start=zoom)  # type: ignore
 
 # add marker to source coordinate
-folium.Marker(sourceCoordinates, tooltip="Source").add_to(m)  # type: ignore
+folium.Marker(source_coordinates, tooltip="Source").add_to(m)  # type: ignore
 
-scriptDir = Path(__file__).parent
-envVariables = dotenv_values(scriptDir / ".." / ".." / ".env")
+script_dir = Path(__file__).parent
+env_variables = dotenv_values(script_dir / ".." / ".." / ".env")
 
 # get walking speed in m/min (environment variable is in km/h)
-walking_speed = float(envVariables.get("WALKING_SPEED", 4)) * 1000 / 60  # type: ignore
+walking_speed = float(env_variables.get("WALKING_SPEED", 4)) * 1000 / 60  # type: ignore
 
 
 def show_marker_and_lines(

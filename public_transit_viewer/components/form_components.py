@@ -1,7 +1,8 @@
-from datetime import date, time
+from datetime import date, datetime, time
 from typing import Any
 
 import streamlit as st
+from dateutil.relativedelta import relativedelta
 from public_transit_client.model import TimeType  # , TransportMode
 
 
@@ -141,7 +142,10 @@ def time_form_row() -> tuple[date, time, TimeType]:
 
     date_time_label = time_type.value.capitalize()
 
-    travel_date: date = column1.date_input(label=f"{date_time_label} Date")  # type: ignore
+    travel_date: date = column1.date_input(
+        label=f"{date_time_label} Date",
+        min_value=datetime.now() - relativedelta(years=30),
+    )  # type: ignore
     travel_time: time = column2.time_input(label=f"{date_time_label} Time")
 
     return travel_date, travel_time, time_type
