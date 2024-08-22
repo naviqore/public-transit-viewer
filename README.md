@@ -7,17 +7,24 @@ stop. The application supports the query parameters of the service to search spe
 
 ## Installation
 
-Get the current release from pypi:
+Get the current release from pypi and start the viewer:
 
 ```sh
 pip install public-transit-viewer
+
+export NAVIQORE_HOST_URL=<SERVER:PORT>
+ptv-deploy
 ```
 
-Or run the viewer inside a Docker container, pull the image:
+Or run the viewer inside a Docker container:
 
-TODO: Add instructions.
+```sh
+docker run -p 8501:8501 -e NAVIQORE_HOST_URL=<SERVER:PORT> ghcr.io/naviqore/public-transit-client:latest
+```
 
-## Usage
+Access the viewer on `http://localhost:8501`.
+
+## Development
 
 ### Configuration
 
@@ -28,7 +35,7 @@ The required line in the `.env` file will then be: `NAVIQORE_HOST_URL=http://loc
 
 **Note**: you can also specify the `NAVIQORE_HOST_URL` in your operating system environment.
 
-## Starting the App
+### Starting the App
 
 To start the app run following command in your terminal from the root directory:
 
@@ -38,4 +45,5 @@ To start the app run following command in your terminal from the root directory:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see
+the [LICENSE](https://github.com/naviqore/public-transit-viewer/blob/main/LICENSE) file for details.
