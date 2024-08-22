@@ -42,7 +42,7 @@ jobs:
           poetry install --no-interaction --no-root
 
       - name: Run unit tests
-        run: poetry run pytest -m unit
+        run: poetry run pytest
 
       - name: Run mypy
         run: poetry run mypy .
