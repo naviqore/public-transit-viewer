@@ -20,7 +20,7 @@ streamlit-searchbox = "^0.1.14"
 folium = "^0.17.0"
 streamlit-folium = "^0.22.0"
 watchdog = "^4.0.2"
-public-transit-client = "^0.5.0"
+public-transit-client = "^0.5.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.2"
