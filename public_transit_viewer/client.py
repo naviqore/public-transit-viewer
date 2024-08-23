@@ -7,8 +7,8 @@ import pandas as pd
 import streamlit as st
 from dotenv import dotenv_values
 from public_transit_client.client import PublicTransitClient
-from public_transit_client.model import (  # # QueryFeatures,; # TransportMode,
-    Connection, Coordinate, Stop, StopConnection, TimeType)
+from public_transit_client.model import (
+    Connection, Coordinate, Stop, StopConnection, TimeType, RouterInfo, TransportMode, QueryConfig)
 
 LOG = logging.getLogger(__name__)
 INFINITY = int(2 ** 31 - 1)
@@ -37,11 +37,9 @@ def _convert_to_seconds(value: int | None) -> int | None:
 
 
 @st.cache_data
-def get_query_features() -> None:  # QueryFeatures:
-    # TODO: Adjust client
-    # client = get_client()
-    # return client.getQueryFeatures()
-    return None
+def get_router_info() -> RouterInfo:  # QueryFeatures:
+    client = get_client()
+    return client.get_router_info()
 
 
 @st.cache_data
@@ -69,25 +67,23 @@ def get_connections(
     travel_date_time = datetime.combine(travel_date, travel_time)
     client = get_client()
 
-    # TODO: Adjust client
-    # if travelModes is not None:
-    #     travelModeEnums = [TransportMode[mode] for mode in travelModes]
-    # else:
-
-    travel_mode_enums = None
+    if travel_modes is not None:
+        travel_mode_enums = [TransportMode[mode] for mode in travel_modes]
+    else:
+        travel_mode_enums = None
 
     return client.get_connections(
         from_stop,
         to_stop,
         travel_date_time,
         time_type=time_type,
-        max_walking_duration=_convert_to_seconds(max_walking_duration),
-        max_transfer_number=max_transfers,
-        max_travel_time=_convert_to_seconds(max_travel_time),
-        min_transfer_time=_convert_to_seconds(min_transfer_time),
-        # wheelchairAccessible=wheelchair_accessible,
-        # bikesAllowed=bikes_allowed,
-        # transportModes=travel_mode_enums,
+        query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
+                                 max_transfer_number=max_transfers,
+                                 max_travel_time=_convert_to_seconds(max_travel_time),
+                                 min_transfer_time=_convert_to_seconds(min_transfer_time),
+                                 accessibility=wheelchair_accessible,
+                                 bikes=bikes_allowed,
+                                 travel_modes=travel_mode_enums)
     )
 
 
@@ -119,24 +115,22 @@ def get_isolines(
     client = get_client()
     travel_date_time = datetime.combine(travel_date, travel_time)
 
-    # TODO: Adjust client
-    # if travel_modes is not None:
-    #    travel_mode_enums = [TransportMode[mode] for mode in travel_modes]
-    # else:
-    travel_mode_enums = None
+    if travel_modes is not None:
+        travel_mode_enums = [TransportMode[mode] for mode in travel_modes]
+    else:
+        travel_mode_enums = None
 
     stop_connections = client.get_isolines(
         from_stop,
         travel_date_time,
         time_type=time_type,
-        max_walking_duration=_convert_to_seconds(max_walking_duration),
-        max_transfer_number=max_transfers,
-        max_travel_time=_convert_to_seconds(max_travel_time),
-        min_transfer_time=_convert_to_seconds(min_transfer_time),
-        # TODO: Adjust client
-        # wheelchairAccessible=wheelchair_accessible,
-        # bikesAllowed=bikes_allowed,
-        # transportModes=travel_mode_enums,
+        query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
+                                 max_transfer_number=max_transfers,
+                                 max_travel_time=_convert_to_seconds(max_travel_time),
+                                 min_transfer_time=_convert_to_seconds(min_transfer_time),
+                                 accessibility=wheelchair_accessible,
+                                 bikes=bikes_allowed,
+                                 travel_modes=travel_mode_enums)
     )
 
     source_stop = client.get_stop(from_stop)
@@ -256,7 +250,7 @@ def _get_travel_mode_from_leg(stop_connection: StopConnection) -> str:
         head_sign = trip.head_sign
         description_pieces: list[str] = []
         if route.transport_mode:
-            description_pieces.append(route.transport_mode)
+            description_pieces.append(route.transport_mode.name)
         if route.short_name:
             description_pieces.append(route.short_name)
         elif route.name:

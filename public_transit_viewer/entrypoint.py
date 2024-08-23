@@ -1,5 +1,5 @@
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 SERVER_ADDRESS = "0.0.0.0"
 SERVER_PORT = 8501

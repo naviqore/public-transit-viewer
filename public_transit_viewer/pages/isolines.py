@@ -29,7 +29,7 @@ from_stop_id: str = st_searchbox(
     search_function=get_stop_suggestions,
     label="From",
     key="from_stop_id",
-    rerun_on_update=True,
+    rerun_on_update=False,
 )
 
 travel_date, travel_time, time_type = time_form_row()

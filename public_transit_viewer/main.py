@@ -28,7 +28,7 @@ with column1:
         search_function=get_stop_suggestions,
         label="From",
         key="from_stop_id",
-        rerun_on_update=True,
+        rerun_on_update=False,
     )
 
 with column2:
@@ -36,7 +36,7 @@ with column2:
         search_function=get_stop_suggestions,
         label="To",
         key="to_stop_id",
-        rerun_on_update=True,
+        rerun_on_update=False,
     )
 
 travel_date, travel_time, time_type = time_form_row()

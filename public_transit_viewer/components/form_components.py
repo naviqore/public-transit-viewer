@@ -3,7 +3,9 @@ from typing import Any
 
 import streamlit as st
 from dateutil.relativedelta import relativedelta
-from public_transit_client.model import TimeType  # , TransportMode
+from public_transit_client.model import TimeType, TransportMode
+
+from public_transit_viewer.client import get_router_info
 
 
 def _get_number_value(input_value: Any) -> int | None:
@@ -87,30 +89,29 @@ def query_config_expandable(
             )
         )
 
-        # TODO: Adjust client
-        # query_features = get_query_features()
-        #
-        # if query_features.supportsAccessibility or query_features.supportsBikes:
-        #     column5, column6 = st.columns(2)
-        #
-        #     if query_features.supportsAccessibility:
-        #         wheelchair_accessible = column5.toggle(
-        #             label="Wheelchair Accessible", value=wheelchair_accessible
-        #         )
-        #
-        #     if query_features.supportsBikes:
-        #         bikes_allowed = column6.toggle(label="Bikes Allowed", value=bikes_allowed)
-        #
-        # if query_features.supportsTravelModes:
-        #     if travel_modes is None:
-        #       travel_modes = [m.value for m in TransportMode.__members__.values()]
-        #     travel_modes = st.multiselect(
-        #         label="Travel Modes",
-        #         options=travel_modes,
-        #         default=travel_modes,
-        #     )
-        # else:
-        #     travel_modes = None
+        router_info = get_router_info()
+
+        if router_info.supports_accessibility or router_info.supports_bikes:
+            column5, column6 = st.columns(2)
+
+            if router_info.supports_accessibility:
+                wheelchair_accessible = column5.toggle(
+                    label="Wheelchair Accessible", value=wheelchair_accessible
+                )
+
+            if router_info.supports_bikes:
+                bikes_allowed = column6.toggle(label="Bikes Allowed", value=bikes_allowed)
+
+        if router_info.supports_travel_modes:
+            if travel_modes is None:
+                travel_modes = [m.value for m in TransportMode.__members__.values()]
+            travel_modes = st.multiselect(
+                label="Travel Modes",
+                options=travel_modes,
+                default=travel_modes,
+            )
+        else:
+            travel_modes = None
 
     return (
         max_transfers,
