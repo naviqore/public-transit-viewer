@@ -85,9 +85,9 @@ def get_connections(
         travel_date_time,
         time_type=time_type,
         query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
-                                 max_transfer_number=max_transfers,
+                                 max_num_transfers=max_transfers,
                                  max_travel_time=_convert_to_seconds(max_travel_time),
-                                 min_transfer_time=_convert_to_seconds(min_transfer_time),
+                                 min_transfer_duration=_convert_to_seconds(min_transfer_time),
                                  accessibility=wheelchair_accessible,
                                  bikes=bikes_allowed,
                                  travel_modes=travel_mode_enums)
@@ -132,9 +132,9 @@ def get_isolines(
         travel_date_time,
         time_type=time_type,
         query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
-                                 max_transfer_number=max_transfers,
+                                 max_num_transfers=max_transfers,
                                  max_travel_time=_convert_to_seconds(max_travel_time),
-                                 min_transfer_time=_convert_to_seconds(min_transfer_time),
+                                 min_transfer_duration=_convert_to_seconds(min_transfer_time),
                                  accessibility=wheelchair_accessible,
                                  bikes=bikes_allowed,
                                  travel_modes=travel_mode_enums)
