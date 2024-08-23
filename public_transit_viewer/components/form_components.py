@@ -1,9 +1,8 @@
-from datetime import date, datetime, time
+from datetime import date, time
 from math import ceil
 from typing import Any
 
 import streamlit as st
-from dateutil.relativedelta import relativedelta
 from public_transit_client.model import TimeType, TransportMode
 
 from public_transit_viewer.client import get_router_info, get_schedule_info
