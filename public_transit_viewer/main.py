@@ -1,6 +1,6 @@
 import streamlit as st
 from public_transit_client.model import Connection
-from streamlit_searchbox import st_searchbox
+from streamlit_searchbox import st_searchbox # type: ignore
 
 from public_transit_viewer import LOGO_PATH
 from public_transit_viewer.client import get_connections, get_stop_suggestions

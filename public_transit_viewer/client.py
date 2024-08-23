@@ -26,6 +26,7 @@ def get_client() -> PublicTransitClient:
     else:
         raise ValueError("NAVIQORE_HOST_URL not found in .env file or env")
 
+    assert service_host is not None
     LOG.info("Binding client to service at %s", service_host)
     return PublicTransitClient(service_host)
 
