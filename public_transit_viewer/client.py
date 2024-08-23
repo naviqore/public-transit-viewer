@@ -8,7 +8,7 @@ import streamlit as st
 from dotenv import dotenv_values
 from public_transit_client.client import PublicTransitClient
 from public_transit_client.model import (
-    Connection, Coordinate, Stop, StopConnection, TimeType, RouterInfo, TransportMode, QueryConfig)
+    Connection, Coordinate, Stop, StopConnection, TimeType, RouterInfo, TransportMode, QueryConfig, ScheduleInfo)
 
 LOG = logging.getLogger(__name__)
 INFINITY = int(2 ** 31 - 1)
@@ -37,9 +37,15 @@ def _convert_to_seconds(value: int | None) -> int | None:
 
 
 @st.cache_data
-def get_router_info() -> RouterInfo:  # QueryFeatures:
+def get_router_info() -> RouterInfo:
     client = get_client()
     return client.get_router_info()
+
+
+@st.cache_data
+def get_schedule_info() -> ScheduleInfo:
+    client = get_client()
+    return client.get_schedule_info()
 
 
 @st.cache_data

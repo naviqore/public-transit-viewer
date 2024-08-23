@@ -6,7 +6,7 @@ import streamlit as st
 from dateutil.relativedelta import relativedelta
 from public_transit_client.model import TimeType, TransportMode
 
-from public_transit_viewer.client import get_router_info
+from public_transit_viewer.client import get_router_info, get_schedule_info
 
 
 def _get_number_value(input_value: Any) -> int | None:
@@ -176,9 +176,17 @@ def time_form_row() -> tuple[date, time, TimeType]:
 
     date_time_label = time_type.value.capitalize()
 
+    schedule_info = get_schedule_info()
+    if schedule_info.schedule_validity.is_date_valid(date.today()):
+        default_date = date.today()
+    else:
+        default_date = schedule_info.schedule_validity.start_date
+
     travel_date: date = column1.date_input(
         label=f"{date_time_label} Date",
-        min_value=datetime.now() - relativedelta(years=30),
+        value=default_date,
+        min_value=schedule_info.schedule_validity.start_date,
+        max_value=schedule_info.schedule_validity.end_date,
     )  # type: ignore
     travel_time: time = column2.time_input(label=f"{date_time_label} Time")
 
