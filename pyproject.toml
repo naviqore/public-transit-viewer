@@ -8,6 +8,7 @@ authors = [
     "Michael Brunner"
 ]
 readme = "README.md"
+include = ["public_transit_viewer/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
