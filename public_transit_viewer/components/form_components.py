@@ -1,4 +1,5 @@
 from datetime import date, datetime, time
+from math import ceil
 from typing import Any
 
 import streamlit as st
@@ -45,62 +46,94 @@ def query_config_expandable(
             - travelModes: List of allowed travel modes.
     """
     with st.expander("Query Configuration"):
-        columns1, columns2 = st.columns(2)
-
-        max_transfers = _get_number_value(
-            columns1.number_input(  # type: ignore
-                label="Max Transfers",
-                value=default_max_transfers,
-                min_value=-1,
-                step=1,
-                help="To deactivate, set to -1.",
-            )
-        )
-
-        max_walking_duration = _get_number_value(
-            columns2.number_input(  # type: ignore
-                label="Max Walking Duration (in minutes)",
-                value=default_max_walking_duration,
-                min_value=-1,
-                step=1,
-                help="To deactivate, set to -1.",
-            )
-        )
-
-        column3, column4 = st.columns(2)
-
-        max_travel_time = _get_number_value(
-            column3.number_input(  # type: ignore
-                label="Max Travel Time (in minutes)",
-                value=default_max_travel_time,
-                min_value=-1,
-                step=1,
-                help="To deactivate, set to -1 or leave empty",
-            )
-        )
-
-        min_transfer_time = _get_number_value(
-            column4.number_input(  # type: ignore
-                label="Min Transfer Time (in minutes)",
-                value=default_min_transfer_time,
-                min_value=-1,
-                step=1,
-                help="To deactivate, set to -1 or leave empty",
-            )
-        )
 
         router_info = get_router_info()
 
-        if router_info.supports_accessibility or router_info.supports_bikes:
-            column5, column6 = st.columns(2)
+        num_options = 0
+        if router_info.supports_max_num_transfers:
+            num_options += 1
+        if router_info.supports_max_walking_duration:
+            num_options += 1
+        if router_info.supports_max_travel_time:
+            num_options += 1
+        if router_info.supports_min_transfer_duration:
+            num_options += 1
+        if router_info.supports_accessibility:
+            num_options += 1
+        if router_info.supports_bikes:
+            num_options += 1
 
-            if router_info.supports_accessibility:
-                wheelchair_accessible = column5.toggle(
-                    label="Wheelchair Accessible", value=wheelchair_accessible
+        columns = []
+        column_index = 0
+        for i in range(ceil(num_options / 2)):
+            columns.extend(st.columns(2))
+
+        if router_info.supports_max_num_transfers:
+            max_transfers = _get_number_value(
+                columns[column_index].number_input(  # type: ignore
+                    label="Max Transfers",
+                    value=default_max_transfers,
+                    min_value=-1,
+                    step=1,
+                    help="To deactivate, set to -1.",
                 )
+            )
+            column_index += 1
+        else:
+            max_transfers = None
 
-            if router_info.supports_bikes:
-                bikes_allowed = column6.toggle(label="Bikes Allowed", value=bikes_allowed)
+        if router_info.supports_max_walking_duration:
+            max_walking_duration = _get_number_value(
+                columns[column_index].number_input(  # type: ignore
+                    label="Max Walking Duration (in minutes)",
+                    value=default_max_walking_duration,
+                    min_value=-1,
+                    step=1,
+                    help="To deactivate, set to -1.",
+                )
+            )
+            column_index += 1
+        else:
+            max_walking_duration = None
+
+        if router_info.supports_max_travel_time:
+            max_travel_time = _get_number_value(
+                columns[column_index].number_input(  # type: ignore
+                    label="Max Travel Time (in minutes)",
+                    value=default_max_travel_time,
+                    min_value=-1,
+                    step=1,
+                    help="To deactivate, set to -1 or leave empty",
+                )
+            )
+            column_index += 1
+        else:
+            max_travel_time = None
+
+        if router_info.supports_min_transfer_duration:
+            min_transfer_time = _get_number_value(
+                columns[column_index].number_input(  # type: ignore
+                    label="Min Transfer Time (in minutes)",
+                    value=default_min_transfer_time,
+                    min_value=-1,
+                    step=1,
+                    help="To deactivate, set to -1 or leave empty",
+                )
+            )
+        else:
+            min_transfer_time = None
+
+        if router_info.supports_accessibility:
+            wheelchair_accessible = columns[column_index].toggle(
+                label="Wheelchair Accessible", value=wheelchair_accessible
+            )
+        else:
+            wheelchair_accessible = False
+
+        if router_info.supports_bikes:
+            bikes_allowed = columns[column_index].toggle(label="Bikes Allowed", value=bikes_allowed)
+        else:
+            bikes_allowed = False
 
         if router_info.supports_travel_modes:
             if travel_modes is None:
