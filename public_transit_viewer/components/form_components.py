@@ -64,7 +64,7 @@ def query_config_expandable(
 
         columns = []
         column_index = 0
-        for i in range(ceil(num_options / 2)):
+        for _ in range(ceil(num_options / 2)):
             columns.extend(st.columns(2))
 
         if router_info.supports_max_num_transfers:

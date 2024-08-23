@@ -1,6 +1,6 @@
 import streamlit as st
 from public_transit_client.model import Connection
-from streamlit_searchbox import st_searchbox # type: ignore
+from streamlit_searchbox import st_searchbox  # type: ignore
 
 from public_transit_viewer import LOGO_PATH
 from public_transit_viewer.client import get_connections, get_stop_suggestions
@@ -74,4 +74,4 @@ if not connections:
     st.error("No connections found")
 else:
     for key, connection in enumerate(connections):
-        output_connection(connection, str(key))
+        output_connection(connection)

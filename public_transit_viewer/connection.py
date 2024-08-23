@@ -13,7 +13,7 @@ stop_icon_args = {
 
 
 @st.fragment
-def output_connection(connection: Connection, key: str):
+def output_connection(connection: Connection):
     with st.container(border=True):
         st.subheader(get_connection_header(connection))
 
@@ -43,7 +43,7 @@ def output_connection(connection: Connection, key: str):
             )
 
         show_legs(connection)
-        show_map(connection, key)
+        show_map(connection)
 
 
 def get_connection_header(connection: Connection):
@@ -133,7 +133,7 @@ def show_leg(leg: Leg):
             )
 
 
-def show_map(connection: Connection, key: str):
+def show_map(connection: Connection):
     # build dataframe with all coordinates
     centroid = (
         (connection.from_coordinate.latitude + connection.to_coordinate.latitude) / 2,
