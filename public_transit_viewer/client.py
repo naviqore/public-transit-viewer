@@ -8,7 +8,16 @@ import streamlit as st
 from dotenv import dotenv_values
 from public_transit_client.client import PublicTransitClient
 from public_transit_client.model import (
-    Connection, Coordinate, Stop, StopConnection, TimeType, RouterInfo, TransportMode, QueryConfig, ScheduleInfo)
+    Connection,
+    Coordinate,
+    QueryConfig,
+    RouterInfo,
+    ScheduleInfo,
+    Stop,
+    StopConnection,
+    TimeType,
+    TransportMode,
+)
 
 LOG = logging.getLogger(__name__)
 INFINITY = int(2 ** 31 - 1)
@@ -84,13 +93,15 @@ def get_connections(
         to_stop,
         travel_date_time,
         time_type=time_type,
-        query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
-                                 max_num_transfers=max_transfers,
-                                 max_travel_time=_convert_to_seconds(max_travel_time),
-                                 min_transfer_duration=_convert_to_seconds(min_transfer_time),
-                                 accessibility=wheelchair_accessible,
-                                 bikes=bikes_allowed,
-                                 travel_modes=travel_mode_enums)
+        query_config=QueryConfig(
+            max_walking_duration=_convert_to_seconds(max_walking_duration),
+            max_num_transfers=max_transfers,
+            max_travel_time=_convert_to_seconds(max_travel_time),
+            min_transfer_duration=_convert_to_seconds(min_transfer_time),
+            accessibility=wheelchair_accessible,
+            bikes=bikes_allowed,
+            travel_modes=travel_mode_enums,
+        ),
     )
 
 
@@ -131,13 +142,15 @@ def get_isolines(
         from_stop,
         travel_date_time,
         time_type=time_type,
-        query_config=QueryConfig(max_walking_duration=_convert_to_seconds(max_walking_duration),
-                                 max_num_transfers=max_transfers,
-                                 max_travel_time=_convert_to_seconds(max_travel_time),
-                                 min_transfer_duration=_convert_to_seconds(min_transfer_time),
-                                 accessibility=wheelchair_accessible,
-                                 bikes=bikes_allowed,
-                                 travel_modes=travel_mode_enums)
+        query_config=QueryConfig(
+            max_walking_duration=_convert_to_seconds(max_walking_duration),
+            max_num_transfers=max_transfers,
+            max_travel_time=_convert_to_seconds(max_travel_time),
+            min_transfer_duration=_convert_to_seconds(min_transfer_time),
+            accessibility=wheelchair_accessible,
+            bikes=bikes_allowed,
+            travel_modes=travel_mode_enums,
+        ),
     )
 
     source_stop = client.get_stop(from_stop)
@@ -175,7 +188,7 @@ def _get_earliest_arrivals_dataframe(
 
         legs.append(
             {
-                "connectionRound": 0,  # TODO: implement connection round
+                "connectionRound": 0,
                 "targetTime": stop_connection.connecting_leg.arrival_time,
                 "sourceTime": stop_connection.connecting_leg.departure_time,
                 "sourceStop": from_stop.name,
@@ -221,7 +234,7 @@ def _get_latest_departures_dataframe(
 
         legs.append(
             {
-                "connectionRound": 0,  # TODO: implement connection round
+                "connectionRound": 0,
                 "targetTime": stop_connection.connecting_leg.departure_time,
                 "sourceTime": stop_connection.connecting_leg.arrival_time,
                 "sourceStop": to_stop.name,
