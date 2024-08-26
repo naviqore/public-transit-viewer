@@ -130,7 +130,9 @@ def query_config_expandable(
             wheelchair_accessible = False
 
         if router_info.supports_bikes:
-            bikes_allowed = columns[column_index].toggle(label="Bikes Allowed", value=bikes_allowed)
+            bikes_allowed = columns[column_index].toggle(
+                label="Bikes Allowed", value=bikes_allowed
+            )
         else:
             bikes_allowed = False
 

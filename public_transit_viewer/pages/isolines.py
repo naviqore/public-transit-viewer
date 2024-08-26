@@ -11,7 +11,9 @@ from streamlit_searchbox import st_searchbox  # type: ignore
 from public_transit_viewer import LOGO_PATH
 from public_transit_viewer.client import get_isolines, get_stop_suggestions
 from public_transit_viewer.components.form_components import (
-    query_config_expandable, time_form_row)
+    query_config_expandable,
+    time_form_row,
+)
 from public_transit_viewer.utils import get_color_map_hex_value
 
 st.set_page_config(
