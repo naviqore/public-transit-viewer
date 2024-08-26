@@ -37,11 +37,11 @@ The required line in the `.env` file will then be: `NAVIQORE_HOST_URL=http://loc
 
 ### Starting the App
 
-To start the app run following command in your terminal from the root directory:
+To start the app in development mode run following command from the root directory:
 
-`streamlit run naviqore_viewer/main.py`.
-
-**Note:** The virtual environment should be active in your terminal session before starting the app.
+```sh
+poetry run streamlit run public_transit_viewer/main.py
+```
 
 ## License
 
