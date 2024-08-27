@@ -4,7 +4,7 @@ import folium  # type: ignore
 import pandas as pd
 import streamlit as st
 from dotenv import dotenv_values
-from public_transit_client.model import Stop
+from public_transit_client.model import Stop, TimeType
 from streamlit_folium import st_folium  # type: ignore
 from streamlit_searchbox import st_searchbox  # type: ignore
 
@@ -168,13 +168,16 @@ def show_marker_and_lines(
 
     if show_markers:
 
+        stop_col = "targetStop" if time_type == TimeType.DEPARTURE else "sourceStop"
         if filter_by == "connectionRound":
-            popup = f"{data_row['targetStop']} - Round {data_row['connectionRound']}"
+            popup = f"{data_row[stop_col]} - Round {data_row['connectionRound']}"
         else:
-            popup = f"{data_row['targetStop']} - {data_row['durationFromSourceInMinutes']} min"
+            popup = (
+                f"{data_row[stop_col]} - {data_row['durationFromSourceInMinutes']} min"
+            )
 
         folium.Circle(  # type: ignore
-            location=source_coordinates,  # type: ignore
+            location=target_coordinates if time_type == TimeType.DEPARTURE else source_coordinates,  # type: ignore
             radius=30,  # type: ignore
             color=color,
             fill=True,
@@ -208,14 +211,19 @@ def show_remaining_distance_circles(
     radius = time_left * this_walking_speed  # type: ignore
 
     # create a circle with the radius of the remaining distance
+    stop_col = "targetStop" if time_type == TimeType.DEPARTURE else "sourceStop"
     folium.Circle(  # type: ignore
-        location=[data_row["targetLat"], data_row["targetLon"]],  # type: ignore
+        location=(
+            [data_row["targetLat"], data_row["targetLon"]]
+            if time_type == TimeType.DEPARTURE
+            else [data_row["sourceLat"], data_row["sourceLon"]]
+        ),  # type: ignore
         radius=radius,  # type: ignore
         color=color,
         fill=True,
         fill_color=color,
         fill_opacity=0.3,
-        popup=f"{data_row['targetStop']} - {arrival_time} minutes",  # type: ignore
+        popup=f"{data_row[stop_col]} - {arrival_time} minutes",  # type: ignore
     ).add_to(geo_map)
 
 
