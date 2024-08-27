@@ -1,17 +1,5 @@
-import time
-from pathlib import Path
-
 import matplotlib.colors as m_colors
 import matplotlib.pyplot as plt
-import streamlit as st
-
-
-def wait_for_logo_to_load(logo_path: Path, retries: int = 3, delay: int = 1):
-    for _ in range(retries):
-        if logo_path.exists():
-            return
-        time.sleep(delay)
-    st.error("Logo not found")
 
 
 def get_color_map_hex_value(

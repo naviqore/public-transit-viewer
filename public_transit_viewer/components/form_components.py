@@ -5,7 +5,7 @@ from typing import Any
 import streamlit as st
 from public_transit_client.model import TimeType, TransportMode
 
-from public_transit_viewer.client import get_router_info, get_schedule_info
+from public_transit_viewer.utils.client import get_router_info, get_schedule_info
 
 
 def _get_number_value(input_value: Any) -> int | None:

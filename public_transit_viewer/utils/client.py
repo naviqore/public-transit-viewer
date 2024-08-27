@@ -25,7 +25,7 @@ INFINITY = int(2 ** 31 - 1)
 
 @st.cache_data
 def get_client() -> PublicTransitClient:
-    root_dir = Path(__file__).parent.parent
+    root_dir = Path(__file__).parent.parent.parent
     config = dotenv_values(root_dir / ".env")
 
     if "NAVIQORE_HOST_URL" in config:

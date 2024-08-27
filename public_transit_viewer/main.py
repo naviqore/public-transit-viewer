@@ -1,22 +1,24 @@
+# streamlit: name=Connections
+
 import streamlit as st
 from public_transit_client.model import Connection
 from streamlit_searchbox import st_searchbox  # type: ignore
 
 from public_transit_viewer import LOGO_PATH
-from public_transit_viewer.client import get_connections, get_stop_suggestions
 from public_transit_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
 )
-from public_transit_viewer.connection import output_connection
-from public_transit_viewer.utils import wait_for_logo_to_load
+from public_transit_viewer.utils.asset import wait_for_static_content_to_load
+from public_transit_viewer.utils.client import get_connections, get_stop_suggestions
+from public_transit_viewer.utils.connection import output_connection
 
 connections: list[Connection] | None = None
 
-wait_for_logo_to_load(LOGO_PATH)
+wait_for_static_content_to_load(LOGO_PATH)
 
 st.set_page_config(
-    page_title="Naviqore - Router",
+    page_title="Naviqore - Connections",
     page_icon=str(LOGO_PATH),
 )
 
