@@ -25,7 +25,7 @@ header_col1, header_col2 = st.columns([1, 4])
 
 header_col1.image(str(LOGO_PATH), use_column_width=True)
 header_col2.title("Naviqore")
-header_col2.write("Visualize Iso Lines from Source Stop")  # type: ignore
+header_col2.write("Visualize isolines from a source stop")  # type: ignore
 
 from_stop_id: str = st_searchbox(
     search_function=get_stop_suggestions,

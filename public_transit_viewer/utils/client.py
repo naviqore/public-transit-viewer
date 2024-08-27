@@ -21,6 +21,7 @@ from public_transit_client.model import (
 
 LOG = logging.getLogger(__name__)
 INFINITY = int(2 ** 31 - 1)
+SERVICE_URL_KEY = "NAVIQORE_SERVICE_URL"
 
 
 @st.cache_data
@@ -28,12 +29,12 @@ def get_client() -> PublicTransitClient:
     root_dir = Path(__file__).parent.parent.parent
     config = dotenv_values(root_dir / ".env")
 
-    if "NAVIQORE_HOST_URL" in config:
-        service_host = config["NAVIQORE_HOST_URL"]
-    elif "NAVIQORE_HOST_URL" in os.environ:
-        service_host = os.environ["NAVIQORE_HOST_URL"]
+    if SERVICE_URL_KEY in config:
+        service_host = config[SERVICE_URL_KEY]
+    elif SERVICE_URL_KEY in os.environ:
+        service_host = os.environ[SERVICE_URL_KEY]
     else:
-        raise ValueError("NAVIQORE_HOST_URL not found in .env file or env")
+        raise ValueError(f"{SERVICE_URL_KEY} not found in .env file or env")
 
     assert service_host is not None
     LOG.info("Binding client to service at %s", service_host)

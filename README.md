@@ -12,14 +12,14 @@ Get the current release from pypi and start the viewer:
 ```sh
 pip install public-transit-viewer
 
-export NAVIQORE_HOST_URL=<SERVER:PORT>
+export NAVIQORE_SERVICE_URL=<SERVER:PORT>
 ptv-deploy
 ```
 
 Or run the viewer inside a Docker container:
 
 ```sh
-docker run -p 8501:8501 -e NAVIQORE_HOST_URL=<SERVER:PORT> ghcr.io/naviqore/public-transit-client:latest
+docker run -p 8501:8501 -e NAVIQORE_SERVICE_URL=<SERVER:PORT> ghcr.io/naviqore/public-transit-client:latest
 ```
 
 Access the viewer on `http://localhost:8501`.
@@ -31,16 +31,16 @@ Access the viewer on `http://localhost:8501`.
 Create a `.env` file in the root directory. And add a line telling the application to which service host it should
 connect. In Local Development this is typically a Java Spring service running on `http://localhost:8080`.
 
-The required line in the `.env` file will then be: `NAVIQORE_HOST_URL=http://localhost:8080`
+The required line in the `.env` file will then be: `NAVIQORE_SERVICE_URL=http://localhost:8080`
 
-**Note**: you can also specify the `NAVIQORE_HOST_URL` in your operating system environment.
+**Note**: you can also specify the `NAVIQORE_SERVICE_URL` in your operating system environment.
 
 ### Starting the App
 
 To start the app in development mode run following command from the root directory:
 
 ```sh
-poetry run streamlit run public_transit_viewer/main.py
+poetry run streamlit run public_transit_viewer/connections.py
 ```
 
 ## License

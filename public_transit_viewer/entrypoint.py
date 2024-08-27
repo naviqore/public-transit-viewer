@@ -7,7 +7,7 @@ SERVER_PORT = 8501
 
 def main():
     root_dir = Path(__file__).resolve().parent.parent
-    main_py_path = root_dir / "public_transit_viewer" / "main.py"
+    main_py_path = root_dir / "public_transit_viewer" / "connections.py"
 
     subprocess.run(
         [

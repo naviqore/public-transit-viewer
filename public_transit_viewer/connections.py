@@ -26,7 +26,7 @@ header_col1, header_col2 = st.columns([1, 4])
 
 header_col1.image(str(LOGO_PATH), use_column_width=True)
 header_col2.title("Naviqore")
-header_col2.write("A simple viewer for the Naviqore API")  # type: ignore
+header_col2.write("Search and visualize connections between stops")  # type: ignore
 
 column1, column2 = st.columns(2)
 
