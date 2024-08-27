@@ -9,8 +9,11 @@ from public_transit_viewer.components.form_components import (
     time_form_row,
 )
 from public_transit_viewer.connection import output_connection
+from public_transit_viewer.utils import wait_for_logo_to_load
 
 connections: list[Connection] | None = None
+
+wait_for_logo_to_load(LOGO_PATH)
 
 st.set_page_config(
     page_title="Naviqore - Router",
