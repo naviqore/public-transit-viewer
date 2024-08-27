@@ -9,13 +9,10 @@ from public_transit_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
 )
-from public_transit_viewer.utils.asset import wait_for_static_content_to_load
 from public_transit_viewer.utils.client import get_connections, get_stop_suggestions
 from public_transit_viewer.utils.connection import output_connection
 
 connections: list[Connection] | None = None
-
-wait_for_static_content_to_load(LOGO_PATH)
 
 st.set_page_config(
     page_title="Naviqore - Connections",
