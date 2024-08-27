@@ -4,7 +4,7 @@ import streamlit as st
 from public_transit_client.model import Connection
 from streamlit_searchbox import st_searchbox  # type: ignore
 
-from public_transit_viewer import LOGO_PATH
+from public_transit_viewer import LOGO_PATH, ICON_PATH
 from public_transit_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
@@ -16,7 +16,7 @@ connections: list[Connection] | None = None
 
 st.set_page_config(
     page_title="Naviqore - Connections",
-    page_icon=str(LOGO_PATH),
+    page_icon=str(ICON_PATH),
 )
 
 header_col1, header_col2 = st.columns([1, 4])
