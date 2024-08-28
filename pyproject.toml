@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "public-transit-viewer"
+version = "0.5.0"
+description = "Viewer to interact with the public transit service."
+authors = [
+    "Lukas Connolly <lukas@connolly.ch>",
+    "Merlin Unterfinger <info@munterfinger.ch>",
+    "Michael Brunner"
+]
+readme = "README.md"
+include = ["public_transit_viewer/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "^1.0.1"
+matplotlib = "^3.9.2"
+pandas = "^2.2.2"
+pydantic = "^2.8.2"
+streamlit = "^1.37.1"
+streamlit-searchbox = "^0.1.14"
+folium = "^0.17.0"
+streamlit-folium = "^0.22.0"
+watchdog = "^4.0.2"
+public-transit-client = "^0.5.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+mypy = "^1.11.1"
+black = "^24.8.0"
+isort = "^5.13.2"
+pandas-stubs = "^2.2.2.240807"
+
+[tool.poetry.scripts]
+ptv-deploy = "public_transit_viewer.entrypoint:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
