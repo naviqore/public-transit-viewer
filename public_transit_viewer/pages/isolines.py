@@ -125,7 +125,7 @@ for distance_threshold in zoom_factors:
         break
 
 source_coordinates = source_stop.coordinate.to_tuple()
-m = folium.Map(location=source_coordinates, zoom_start=zoom)  # type: ignore
+m = folium.Map(location=source_coordinates, zoom_start=zoom, tiles="CartoDB positron")  # type: ignore
 
 # add marker to source coordinate
 folium.Marker(source_coordinates, tooltip="Source").add_to(m)  # type: ignore

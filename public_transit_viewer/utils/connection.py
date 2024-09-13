@@ -162,7 +162,7 @@ def show_map(connection: Connection):
             zoom = zoom_factors[distance_threshold]
             break
 
-    m = folium.Map(location=centroid, zoom_start=zoom)
+    m = folium.Map(location=centroid, zoom_start=zoom, tiles="CartoDB positron")
 
     marker_label = (
         connection.from_stop.name
