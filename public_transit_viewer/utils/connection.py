@@ -12,7 +12,6 @@ stop_icon_args = {
 }
 
 
-@st.fragment
 def output_connection(connection: Connection):
     with st.container(border=True):
         st.subheader(get_connection_header(connection))
