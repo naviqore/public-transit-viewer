@@ -33,6 +33,7 @@ with column1:
         label="From",
         key="from_stop_id",
         rerun_on_update=False,
+        debounce=1,
     )
 
 with column2:
@@ -41,6 +42,7 @@ with column2:
         label="To",
         key="to_stop_id",
         rerun_on_update=False,
+        debounce=1,
     )
 
 travel_date, travel_time, time_type = time_form_row()
