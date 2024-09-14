@@ -27,10 +27,10 @@ header_col1.image(str(LOGO_PATH), use_column_width=True)
 header_col2.title("Naviqore")
 header_col2.write("Visualize isolines from a source stop")  # type: ignore
 
-from_stop_id: str = st_searchbox(
+stop_id: str = st_searchbox(
     search_function=get_stop_suggestions,
     label="From",
-    key="from_stop_id",
+    key="stop_id",
     rerun_on_update=True,
     debounce=100,
 )
@@ -49,9 +49,9 @@ travel_date, travel_time, time_type = time_form_row()
 
 isolines: tuple[Stop, pd.DataFrame] | None = None
 
-if from_stop_id and travel_date and travel_time:
+if stop_id and travel_date and travel_time:
     isolines = get_isolines(
-        from_stop_id,
+        stop_id,
         travel_date,
         travel_time,
         time_type,
@@ -85,7 +85,8 @@ filter_value = option_columns[0].slider(  # type: ignore
     label="Duration in Minutes",
     min_value=slider_range[0],
     max_value=slider_range[1],  # type: ignore
-    value=slider_range,  # type: ignore
+    value=(slider_range[0], 30),  # type: ignore
+    step=5,
 )
 
 show_markers: bool = option_columns[1].toggle(  # type: ignore
