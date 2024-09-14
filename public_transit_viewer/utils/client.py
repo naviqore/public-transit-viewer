@@ -17,11 +17,13 @@ from public_transit_client.model import (
     StopConnection,
     TimeType,
     TransportMode,
+    SearchType,
 )
 
 LOG = logging.getLogger(__name__)
-INFINITY = int(2 ** 31 - 1)
+INFINITY = int(2**31 - 1)
 SERVICE_URL_KEY = "NAVIQORE_SERVICE_URL"
+STOP_SUGGESTION_LIMIT = 10
 
 
 @st.cache_data
@@ -62,24 +64,41 @@ def get_schedule_info() -> ScheduleInfo:
 @st.cache_data
 def get_stop_suggestions(search_term: str) -> list[tuple[str, str]]:
     client = get_client()
-    stops = client.search_stops(search_term, limit=10)
-    return [(stop.name, stop.id) for stop in stops]
+
+    stops: dict[str, str] = {}
+
+    for stop in client.search_stops(
+        search_term,
+        limit=STOP_SUGGESTION_LIMIT,
+        search_type=SearchType.STARTS_WITH,
+    ):
+        stops[stop.name] = stop.id
+
+    if len(stops) < STOP_SUGGESTION_LIMIT:
+        for stop in client.search_stops(
+            search_term, search_type=SearchType.CONTAINS, limit=STOP_SUGGESTION_LIMIT
+        ):
+            stops[stop.name] = stop.id
+            if len(stops) >= STOP_SUGGESTION_LIMIT:
+                break
+
+    return list(stops.items())
 
 
 @st.cache_data
 def get_connections(
-        from_stop: str,
-        to_stop: str,
-        travel_date: date,
-        travel_time: time,
-        time_type: TimeType,
-        max_transfers: int | None = None,
-        max_travel_time: int | None = None,
-        max_walking_duration: int | None = None,
-        min_transfer_time: int | None = None,
-        wheelchair_accessible: bool = False,
-        bikes_allowed: bool = False,
-        travel_modes: list[str] | None = None,
+    from_stop: str,
+    to_stop: str,
+    travel_date: date,
+    travel_time: time,
+    time_type: TimeType,
+    max_transfers: int | None = None,
+    max_travel_time: int | None = None,
+    max_walking_duration: int | None = None,
+    min_transfer_time: int | None = None,
+    wheelchair_accessible: bool = False,
+    bikes_allowed: bool = False,
+    travel_modes: list[str] | None = None,
 ) -> list[Connection]:
     travel_date_time = datetime.combine(travel_date, travel_time)
     client = get_client()
@@ -119,17 +138,17 @@ def get_stops() -> dict[str, str]:
 
 @st.cache_data
 def get_isolines(
-        from_stop: str,
-        travel_date: date,
-        travel_time: time,
-        time_type: TimeType,
-        max_transfers: int | None = None,
-        max_travel_time: int | None = None,
-        max_walking_duration: int | None = None,
-        min_transfer_time: int | None = None,
-        wheelchair_accessible: bool = False,
-        bikes_allowed: bool = False,
-        travel_modes: list[str] | None = None,
+    from_stop: str,
+    travel_date: date,
+    travel_time: time,
+    time_type: TimeType,
+    max_transfers: int | None = None,
+    max_travel_time: int | None = None,
+    max_walking_duration: int | None = None,
+    min_transfer_time: int | None = None,
+    wheelchair_accessible: bool = False,
+    bikes_allowed: bool = False,
+    travel_modes: list[str] | None = None,
 ) -> tuple[Stop, pd.DataFrame] | None:
     client = get_client()
     travel_date_time = datetime.combine(travel_date, travel_time)
@@ -173,9 +192,9 @@ def get_isolines(
 
 
 def _get_earliest_arrivals_dataframe(
-        stop_connections: list[StopConnection],
-        travel_date_time: datetime,
-        source_stop: Stop,
+    stop_connections: list[StopConnection],
+    travel_date_time: datetime,
+    source_stop: Stop,
 ) -> tuple[Stop, pd.DataFrame] | None:
     legs: list[dict[str, datetime | int | str | float]] = []
 
@@ -201,8 +220,8 @@ def _get_earliest_arrivals_dataframe(
                 "durationFromSourceInMinutes": abs(
                     int(
                         (
-                                stop_connection.connecting_leg.arrival_time
-                                - travel_date_time
+                            stop_connection.connecting_leg.arrival_time
+                            - travel_date_time
                         ).total_seconds()
                         // 60
                     )
@@ -219,9 +238,9 @@ def _get_earliest_arrivals_dataframe(
 
 
 def _get_latest_departures_dataframe(
-        stop_connections: list[StopConnection],
-        travel_date_time: datetime,
-        source_stop: Stop,
+    stop_connections: list[StopConnection],
+    travel_date_time: datetime,
+    source_stop: Stop,
 ) -> tuple[Stop, pd.DataFrame] | None:
     legs: list[dict[str, datetime | int | str | float]] = []
 
@@ -247,8 +266,8 @@ def _get_latest_departures_dataframe(
                 "durationFromSourceInMinutes": int(
                     abs(
                         (
-                                stop_connection.connecting_leg.departure_time
-                                - travel_date_time
+                            stop_connection.connecting_leg.departure_time
+                            - travel_date_time
                         ).total_seconds()
                         // 60
                     )

@@ -12,7 +12,6 @@ stop_icon_args = {
 }
 
 
-@st.fragment
 def output_connection(connection: Connection):
     with st.container(border=True):
         st.subheader(get_connection_header(connection))
@@ -163,7 +162,7 @@ def show_map(connection: Connection):
             zoom = zoom_factors[distance_threshold]
             break
 
-    m = folium.Map(location=centroid, zoom_start=zoom)
+    m = folium.Map(location=centroid, zoom_start=zoom, tiles="CartoDB positron")
 
     marker_label = (
         connection.from_stop.name
@@ -216,8 +215,8 @@ def show_map(connection: Connection):
             stop_times = sorted(leg.trip.stop_times, key=lambda x: x.departure_time)
             for stop_time in stop_times:
                 if (
-                        stop_time.departure_time < leg.departure_time
-                        or stop_time.arrival_time > leg.arrival_time
+                    stop_time.departure_time < leg.departure_time
+                    or stop_time.arrival_time > leg.arrival_time
                 ):
                     continue
                 coords.append(stop_time.stop.coordinate.to_tuple())

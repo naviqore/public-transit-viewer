@@ -27,11 +27,12 @@ header_col1.image(str(LOGO_PATH), use_column_width=True)
 header_col2.title("Naviqore")
 header_col2.write("Visualize isolines from a source stop")  # type: ignore
 
-from_stop_id: str = st_searchbox(
+stop_id: str = st_searchbox(
     search_function=get_stop_suggestions,
     label="From",
-    key="from_stop_id",
-    rerun_on_update=False,
+    key="stop_id",
+    rerun_on_update=True,
+    debounce=100,
 )
 
 travel_date, travel_time, time_type = time_form_row()
@@ -48,9 +49,9 @@ travel_date, travel_time, time_type = time_form_row()
 
 isolines: tuple[Stop, pd.DataFrame] | None = None
 
-if from_stop_id and travel_date and travel_time:
+if stop_id and travel_date and travel_time:
     isolines = get_isolines(
-        from_stop_id,
+        stop_id,
         travel_date,
         travel_time,
         time_type,
@@ -72,48 +73,34 @@ source_stop = isolines[0]
 isolines_df = isolines[1]
 
 max_duration = int(isolines_df["durationFromSourceInMinutes"].max())  # type: ignore
-max_round = int(isolines_df["connectionRound"].max())  # type: ignore
 
-options = {
-    "durationFromSourceInMinutes": "By time in minutes",
-    "connectionRound": "By round",
-}
-
-option_columns = st.columns(3)
-
-filter_by: str = option_columns[0].selectbox(  # type: ignore
-    label="Filter by",
-    options=options.keys(),
-    format_func=lambda key: options[key],
-    index=0,
-)
+option_columns = st.columns(2)
 
 slider_range = (0, 1)
-if filter_by == "connectionRound" and max_round > 0:
-    slider_range = (0, max_round)  # type: ignore
-elif filter_by == "durationFromSourceInMinutes" and max_duration > 0:
+
+if max_duration > 0:
     slider_range = (0, max_duration)  # type: ignore
 
-filter_value = option_columns[1].slider(  # type: ignore
-    label=options[filter_by],
+filter_value = option_columns[0].slider(  # type: ignore
+    label="Duration in Minutes",
     min_value=slider_range[0],
     max_value=slider_range[1],  # type: ignore
-    value=slider_range,  # type: ignore
+    value=(slider_range[0], 30),  # type: ignore
+    step=5,
 )
 
-show_markers: bool = option_columns[2].toggle(  # type: ignore
+show_markers: bool = option_columns[1].toggle(  # type: ignore
     label="Show markers", value=False  # type: ignore
 )
-show_footpath_radius: bool = False
-if filter_by != "connectionRound":
-    show_footpath_radius: bool = option_columns[2].toggle(  # type: ignore
-        label="Show Footpath Radius on Arrival", value=show_footpath_radius
-    )
+
+show_footpath_radius: bool = option_columns[1].toggle(  # type: ignore
+    label="Show Footpath Radius on Arrival", value=False
+)
 
 filtered_df = isolines_df[  # type: ignore
-    (isolines_df[filter_by] >= filter_value[0])
-    & (isolines_df[filter_by] <= filter_value[1])
-    ]
+    (isolines_df["durationFromSourceInMinutes"] >= filter_value[0])
+    & (isolines_df["durationFromSourceInMinutes"] <= filter_value[1])
+]
 
 # random, may have to be adjusted
 zoom = 10
@@ -139,7 +126,7 @@ for distance_threshold in zoom_factors:
         break
 
 source_coordinates = source_stop.coordinate.to_tuple()
-m = folium.Map(location=source_coordinates, zoom_start=zoom)  # type: ignore
+m = folium.Map(location=source_coordinates, zoom_start=zoom, tiles="CartoDB positron")  # type: ignore
 
 # add marker to source coordinate
 folium.Marker(source_coordinates, tooltip="Source").add_to(m)  # type: ignore
@@ -152,7 +139,7 @@ walking_speed = float(env_variables.get("WALKING_SPEED", 4)) * 1000 / 60  # type
 
 
 def show_marker_and_lines(
-        geo_map: folium.Map, data_row: pd.Series, this_filter_value: tuple[int, int]  # type: ignore
+    geo_map: folium.Map, data_row: pd.Series, this_filter_value: tuple[int, int]  # type: ignore
 ) -> None:
     # get color key based on filterValue
     filter_range = this_filter_value[1] - this_filter_value[0]
@@ -160,7 +147,7 @@ def show_marker_and_lines(
         color = get_color_map_hex_value(1.0, 0.0, 1.0)
     else:
         color = get_color_map_hex_value(
-            data_row[filter_by], this_filter_value[0], this_filter_value[1]  # type: ignore
+            data_row["durationFromSourceInMinutes"], this_filter_value[0], this_filter_value[1]  # type: ignore
         )
 
     source_coordinates: list[float] = [data_row["sourceLat"], data_row["sourceLon"]]
@@ -169,12 +156,7 @@ def show_marker_and_lines(
     if show_markers:
 
         stop_col = "targetStop" if time_type == TimeType.DEPARTURE else "sourceStop"
-        if filter_by == "connectionRound":
-            popup = f"{data_row[stop_col]} - Round {data_row['connectionRound']}"
-        else:
-            popup = (
-                f"{data_row[stop_col]} - {data_row['durationFromSourceInMinutes']} min"
-            )
+        popup = f"{data_row[stop_col]} - {data_row['durationFromSourceInMinutes']} min"
 
         folium.Circle(  # type: ignore
             location=target_coordinates if time_type == TimeType.DEPARTURE else source_coordinates,  # type: ignore
@@ -199,10 +181,10 @@ def show_marker_and_lines(
 
 
 def show_remaining_distance_circles(
-        geo_map: folium.Map,
-        data_row: pd.Series,  # type: ignore
-        this_filter_value: tuple[int, int],
-        this_walking_speed: float,
+    geo_map: folium.Map,
+    data_row: pd.Series,  # type: ignore
+    this_filter_value: tuple[int, int],
+    this_walking_speed: float,
 ) -> None:
     arrival_time = data_row["durationFromSourceInMinutes"]  # type: ignore
     color = get_color_map_hex_value(arrival_time, 0, this_filter_value[1])  # type: ignore
