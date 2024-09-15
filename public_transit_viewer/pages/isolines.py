@@ -8,11 +8,12 @@ from public_transit_client.model import Stop, TimeType
 from streamlit_folium import st_folium  # type: ignore
 from streamlit_searchbox import st_searchbox  # type: ignore
 
-from public_transit_viewer import LOGO_PATH, ICON_PATH
+from public_transit_viewer import ICON_PATH
 from public_transit_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
 )
+from public_transit_viewer.components.logo import show_logo
 from public_transit_viewer.utils.client import get_isolines, get_stop_suggestions
 from public_transit_viewer.utils.color import get_color_map_hex_value
 
@@ -23,7 +24,9 @@ st.set_page_config(
 
 header_col1, header_col2 = st.columns([1, 4])
 
-header_col1.image(str(LOGO_PATH), use_column_width=True)
+with header_col1:
+    show_logo(max_width=150)
+    
 header_col2.title("Naviqore")
 header_col2.write("Visualize isolines from a source stop")  # type: ignore
 
