@@ -4,7 +4,7 @@ from itertools import cycle
 import folium  # type: ignore
 import streamlit as st
 from public_transit_client.model import Connection, Leg
-from streamlit_folium import folium_static  # type: ignore
+from public_transit_viewer.components.map import display_map
 
 stop_icon_args = {
     "prefix": "fa",
@@ -247,4 +247,4 @@ def show_map(connection: Connection):
 
     with st.expander("Show map"):  # type: ignore
         st.write("Map of the connection")  # type: ignore
-        folium_static(m, width=600, height=400)  # type: ignore
+        display_map(m)
