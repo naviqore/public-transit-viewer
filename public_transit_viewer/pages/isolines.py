@@ -5,14 +5,15 @@ import pandas as pd
 import streamlit as st
 from dotenv import dotenv_values
 from public_transit_client.model import Stop, TimeType
-from streamlit_folium import st_folium  # type: ignore
 from streamlit_searchbox import st_searchbox  # type: ignore
 
-from public_transit_viewer import LOGO_PATH, ICON_PATH
+from public_transit_viewer import ICON_PATH
 from public_transit_viewer.components.form_components import (
     query_config_expandable,
     time_form_row,
 )
+from public_transit_viewer.components.logo import show_logo
+from public_transit_viewer.components.map import display_map
 from public_transit_viewer.utils.client import get_isolines, get_stop_suggestions
 from public_transit_viewer.utils.color import get_color_map_hex_value
 
@@ -23,7 +24,9 @@ st.set_page_config(
 
 header_col1, header_col2 = st.columns([1, 4])
 
-header_col1.image(str(LOGO_PATH), use_column_width=True)
+with header_col1:
+    show_logo(max_width=150)
+
 header_col2.title("Naviqore")
 header_col2.write("Visualize isolines from a source stop")  # type: ignore
 
@@ -215,4 +218,4 @@ for _, row in filtered_df.iterrows():  # type: ignore
     else:
         show_remaining_distance_circles(m, row, filter_value, walking_speed)  # type: ignore
 
-st_folium(m, use_container_width=True)  # type: ignore
+display_map(m, height=600)

@@ -4,7 +4,7 @@ from itertools import cycle
 import folium  # type: ignore
 import streamlit as st
 from public_transit_client.model import Connection, Leg
-from streamlit_folium import folium_static  # type: ignore
+from public_transit_viewer.components.map import display_map
 
 stop_icon_args = {
     "prefix": "fa",
@@ -113,7 +113,7 @@ def show_leg(leg: Leg):
             if leg.is_walk:
                 walk_duration = leg.duration // 60
                 st.markdown(
-                    f"{walk_duration}' Walk",
+                    f"{walk_duration} Minute Walk",
                     help=f"Distance: {float(leg.distance) / 1000:.2f} km",
                 )
             elif leg.trip is not None:
@@ -235,7 +235,7 @@ def show_map(connection: Connection):
             line_args["dash_array"] = "5"
 
         walk_duration = leg.duration // 60
-        label = f"{walk_duration}' Walk"
+        label = f"{walk_duration} Minute Walk"
 
         if leg.trip is not None:
             trip = leg.trip
@@ -247,4 +247,4 @@ def show_map(connection: Connection):
 
     with st.expander("Show map"):  # type: ignore
         st.write("Map of the connection")  # type: ignore
-        folium_static(m, width=600, height=400)  # type: ignore
+        display_map(m)
