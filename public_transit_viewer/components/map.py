@@ -1,4 +1,5 @@
 import streamlit.components.v1 as components
+import html
 from folium import Map, Marker, Circle, PolyLine, Popup, Tooltip, Icon  # type: ignore
 from typing import Any
 
@@ -133,7 +134,7 @@ def _get_object_children_js(obj: Marker | Circle | PolyLine, parent: str) -> str
 def _create_popup_js(popup: Popup, parent: str) -> str:
     if len(popup.html._children.values()) == 0:  # type: ignore
         return ""
-    content = list(popup.html._children.values())[0].data  # type: ignore
+    content = _escape_js_string(list(popup.html._children.values())[0].data)  # type: ignore
     maybe_show = ".openPopup()" if popup.show else ""
     return f"{parent}.bindPopup('{content}'){maybe_show};\n\n"
 
@@ -146,4 +147,9 @@ def _create_icon_js(icon: Icon, name: str, parent: str) -> str:
 
 
 def _create_tooltip_js(tooltip: Tooltip, parent: str) -> str:
-    return f"{parent}.bindTooltip('{tooltip.text}');"  # type: ignore
+    return f"{parent}.bindTooltip('{_escape_js_string(tooltip.text)}');"  # type: ignore
+
+
+def _escape_js_string(string: str) -> str:
+    # Escapes quotes and other necessary characters for JavaScript strings
+    return html.escape(string).replace("'", "\\'").replace('"', '\\"')
