@@ -113,7 +113,7 @@ def show_leg(leg: Leg):
             if leg.is_walk:
                 walk_duration = leg.duration // 60
                 st.markdown(
-                    f"{walk_duration}' Walk",
+                    f"{walk_duration} Minute Walk",
                     help=f"Distance: {float(leg.distance) / 1000:.2f} km",
                 )
             elif leg.trip is not None:
@@ -235,7 +235,7 @@ def show_map(connection: Connection):
             line_args["dash_array"] = "5"
 
         walk_duration = leg.duration // 60
-        label = f"{walk_duration}' Walk"
+        label = f"{walk_duration} Minute Walk"
 
         if leg.trip is not None:
             trip = leg.trip
