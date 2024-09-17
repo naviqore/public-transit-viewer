@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 
 def get_color_map_hex_value(
-        value: float,
-        min_value: float,
-        max_value: float,
-        num_color_steps: int = 32,
-        color_map: str = "hsv",
+    value: float,
+    min_value: float,
+    max_value: float,
+    num_color_steps: int = 32,
+    color_map: str = "hsv",
 ) -> str:
     """Get hexadecimal color value based on value and color map.
 

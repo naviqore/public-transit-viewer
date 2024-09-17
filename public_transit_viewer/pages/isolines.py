@@ -157,7 +157,6 @@ def show_marker_and_lines(
     target_coordinates: list[float] = [data_row["targetLat"], data_row["targetLon"]]
 
     if show_markers:
-
         stop_col = "targetStop" if time_type == TimeType.DEPARTURE else "sourceStop"
         popup = f"{data_row[stop_col]} - {data_row['durationFromSourceInMinutes']} min"
 

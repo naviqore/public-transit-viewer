@@ -15,13 +15,13 @@ def _get_number_value(input_value: Any) -> int | None:
 
 
 def query_config_expandable(
-        default_max_transfers: int = -1,
-        default_max_walking_duration: int = -1,
-        default_max_travel_time: int = -1,
-        default_min_transfer_time: int = -1,
-        wheelchair_accessible: bool = False,
-        bikes_allowed: bool = False,
-        travel_modes: list[str] | None = None,
+    default_max_transfers: int = -1,
+    default_max_walking_duration: int = -1,
+    default_max_travel_time: int = -1,
+    default_min_transfer_time: int = -1,
+    wheelchair_accessible: bool = False,
+    bikes_allowed: bool = False,
+    travel_modes: list[str] | None = None,
 ) -> tuple[
     int | None,
     int | None,
