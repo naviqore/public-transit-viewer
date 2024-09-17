@@ -1,11 +1,11 @@
-import streamlit.components.v1 as components
 import html
-from folium import Map, Marker, Circle, PolyLine, Popup, Tooltip, Icon  # type: ignore
 from typing import Any
+
+import streamlit.components.v1 as components
+from folium import Circle, Icon, Map, Marker, PolyLine, Popup, Tooltip  # type: ignore
 
 
 def display_map(map: Map, height: int = 400) -> None:
-
     zoom: int = map.options.get("zoom", 10)  # type: ignore
 
     children = _create_children_js(map)
@@ -56,7 +56,6 @@ def display_map(map: Map, height: int = 400) -> None:
 
 
 def _create_children_js(map: Map) -> str:
-
     children = ""
 
     for name, child in map._children.items():  # type: ignore

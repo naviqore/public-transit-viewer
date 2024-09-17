@@ -1,10 +1,11 @@
-import streamlit as st
 import base64
+
+import streamlit as st
 
 from public_transit_viewer import LOGO_PATH
 
-def show_logo(max_width: int = 150, padding: int = 15) -> None:
 
+def show_logo(max_width: int = 150, padding: int = 15) -> None:
     image = LOGO_PATH.read_bytes()
     base64_image = base64.b64encode(image).decode()
 

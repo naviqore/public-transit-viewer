@@ -27,7 +27,7 @@ def test_main():
 
         # Check that the process has ended
         assert (
-                process.returncode == 0 or process.returncode == -signal.SIGTERM
+            process.returncode == 0 or process.returncode == -signal.SIGTERM
         ), "Process did not terminate as expected"
 
     finally:

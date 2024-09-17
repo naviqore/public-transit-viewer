@@ -4,6 +4,7 @@ from itertools import cycle
 import folium  # type: ignore
 import streamlit as st
 from public_transit_client.model import Connection, Leg
+
 from public_transit_viewer.components.map import display_map
 
 stop_icon_args = {

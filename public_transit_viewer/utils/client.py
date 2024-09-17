@@ -13,11 +13,11 @@ from public_transit_client.model import (
     QueryConfig,
     RouterInfo,
     ScheduleInfo,
+    SearchType,
     Stop,
     StopConnection,
     TimeType,
     TransportMode,
-    SearchType,
 )
 
 LOG = logging.getLogger(__name__)
