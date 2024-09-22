@@ -28,6 +28,7 @@ mypy = "^1.11.1"
 black = "^24.8.0"
 isort = "^5.13.2"
 pandas-stubs = "^2.2.2.240807"
+pytest-cov = "^5.0.0"
 
 [tool.poetry.scripts]
 ptv-deploy = "public_transit_viewer.entrypoint:main"
