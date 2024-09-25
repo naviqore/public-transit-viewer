@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "public-transit-viewer"
-version = "0.5.1"
+version = "1.0.0"
 description = "Viewer to interact with the public transit service."
 authors = [
     "Lukas Connolly <lukas@connolly.ch>",
