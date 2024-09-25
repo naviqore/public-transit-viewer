@@ -1909,13 +1909,13 @@ snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python 
 
 [[package]]
 name = "streamlit-searchbox"
-version = "0.1.16"
+version = "0.1.17"
 description = "Autocomplete Searchbox"
 optional = false
 python-versions = "!=3.9.7,>=3.8"
 files = [
-    {file = "streamlit_searchbox-0.1.16-py3-none-any.whl", hash = "sha256:b27ac7857f7dc3ed199dee8c5f9649145e53b433bc94a61332ae9e5d39bc3adc"},
-    {file = "streamlit_searchbox-0.1.16.tar.gz", hash = "sha256:dba445fa9ff50f5f7eb83c9424257bcd607b2ce6b2308b96d23f2f571cc73501"},
+    {file = "streamlit_searchbox-0.1.17-py3-none-any.whl", hash = "sha256:f0ae4c1f75f3690c00fd4333a0f2d6c132ab92a26127fbc38ecaea1c6ac4d0f6"},
+    {file = "streamlit_searchbox-0.1.17.tar.gz", hash = "sha256:8f623eaf38ecb8edde30afeec6c0c388607d897ba1bd88b97798bfbaa9cd0aed"},
 ]
 
 [package.dependencies]
