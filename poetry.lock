@@ -1918,21 +1918,21 @@ snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python 
 
 [[package]]
 name = "streamlit-searchbox"
-version = "0.1.17"
+version = "0.1.19"
 description = "Autocomplete Searchbox"
 optional = false
-python-versions = "!=3.9.7,>=3.8"
+python-versions = "!=3.9.7,>=3.9"
 files = [
-    {file = "streamlit_searchbox-0.1.17-py3-none-any.whl", hash = "sha256:f0ae4c1f75f3690c00fd4333a0f2d6c132ab92a26127fbc38ecaea1c6ac4d0f6"},
-    {file = "streamlit_searchbox-0.1.17.tar.gz", hash = "sha256:8f623eaf38ecb8edde30afeec6c0c388607d897ba1bd88b97798bfbaa9cd0aed"},
+    {file = "streamlit_searchbox-0.1.19-py3-none-any.whl", hash = "sha256:c73ced052fd374f346bfe4f043292fa3aecfd682dd67962819feb7aff86070a1"},
+    {file = "streamlit_searchbox-0.1.19.tar.gz", hash = "sha256:ee2e7e666c909d4ca20eeb8fa9f1bb88ac6f17e0f07cc7aa10e24ba597ee0bb4"},
 ]
 
 [package.dependencies]
 streamlit = ">=1.0"
 
 [package.extras]
-dev = ["black", "isort", "pre-commit", "pyright", "ruff"]
-tests = ["pytest", "pytest-playwright", "wikipedia"]
+dev = ["pre-commit (==4.0.1)", "pyright (==1.1.377)", "ruff (==0.7.1)"]
+tests = ["playwright (==1.46.0)", "pytest (==8.3.2)", "pytest-playwright (==0.5.1)", "wikipedia (==1.4.0)"]
 
 [[package]]
 name = "tenacity"
