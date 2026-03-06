@@ -51,6 +51,7 @@ This repository is a production Vite + React + TypeScript frontend.
 - Explain assumptions when requirements are ambiguous.
 - Prefer incremental commits/patches over one massive rewrite.
 - If changing docs or setup, keep `README.md`, `.github/`, and scripts in sync.
+- Reusable chat prompt templates are stored in `.github/prompts/*.prompt.md`.
 
 ## Commit and Release Workflow
 

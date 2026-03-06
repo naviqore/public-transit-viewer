@@ -148,45 +148,18 @@ This section describes the recommended state-of-the-art workflow for AI-assisted
 - You review changes and run app checks manually if desired, then give explicit commit approval.
 - Only after your approval should the agent commit and close the story.
 
-### Prompt: Implement Existing Story
+### Prompt Templates (VS Code / Copilot)
 
-Use this when a story already exists:
+This repo includes reusable prompt templates in `.github/prompts/`:
 
-```text
-Implement STORY-00XX.
-Follow all repo instructions.
-Set the story to IN_PROGRESS.
-Implement only the approved scope.
-Validate acceptance criteria with lean tests.
-Then stop, summarize results, and show the proposed conventional commit message.
-Ask for my approval before committing and before closing the story.
-```
+- `.github/prompts/implement-existing-story.prompt.md`
+- `.github/prompts/new-feature-story-first.prompt.md`
+- `.github/prompts/commit-gate.prompt.md`
 
-### Prompt: New Feature (Story Must Be Written First)
+Use them when chatting with agents instead of rewriting prompts each time.
 
-Use this when no story exists yet:
-
-```text
-I want to add: <feature description>.
-Do NOT implement yet.
-First create a new story in docs/stories and update INDEX.md.
-Keep it small and reviewable with clear acceptance criteria.
-Then stop and ask for my review/approval.
-Only after I approve, start implementation.
-```
-
-### Prompt: Commit Gate At End
-
-Use this to enforce final review before commit:
-
-```text
-Before committing, show:
-1. Acceptance criteria checklist with what passed
-2. Lean test evidence (commands run and outcomes)
-3. Proposed conventional commit message
-Then ask: "Do you want me to commit and close the story?"
-Wait for my explicit yes.
-```
+- Option 1: open a template file and paste/adapt its content in chat.
+- Option 2: use VS Code Copilot prompt file support to insert and run prompt templates directly.
 
 ### Lean Testing Expectation For Stories
 
