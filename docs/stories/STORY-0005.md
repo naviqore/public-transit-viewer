@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -26,5 +26,5 @@ No behavior redesign in this story; extraction only.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Extracted `ErrorBoundary` from `App.tsx` to `src/components/common/ErrorBoundary.tsx`, added focused fallback behavior tests, and validated with `npm run test:run` and `npm run check`.
