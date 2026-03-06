@@ -1,4 +1,6 @@
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@config '../tailwind.config.js';
+@custom-variant dark (&:where(.dark, .dark *));
 @import 'tailwindcss';
 
 :root {
@@ -18,6 +20,12 @@ body {
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+input,
+select,
+textarea {
+  font-weight: 400;
 }
 
 #root {
@@ -72,5 +80,6 @@ body {
 }
 
 *:hover::-webkit-scrollbar-thumb {
-  background-color: #94a3b8; /* Visible on hover */
+  background-color: #94a3b8;
+  /* Visible on hover */
 }

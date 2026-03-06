@@ -181,7 +181,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <button
               onClick={() => setMobileMapOpen(!mobileMapOpen)}
-              className="md:hidden fixed bottom-20 right-4 z-[90] h-12 w-12 rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/30 flex items-center justify-center hover:bg-brand-700 active:scale-95 transition-all"
+              className="md:hidden fixed bottom-20 right-4 z-[90] h-12 w-12 rounded-full bg-brand-600 text-white border-2 border-white/90 dark:border-slate-800 shadow-xl shadow-brand-600/35 flex items-center justify-center hover:bg-brand-700 active:scale-95 transition-all"
               aria-label={mobileMapOpen ? 'Show List' : 'Show Map'}
             >
               {mobileMapOpen ? <List size={24} /> : <MapIcon size={24} />}

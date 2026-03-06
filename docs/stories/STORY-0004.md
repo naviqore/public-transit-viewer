@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -16,9 +16,9 @@ Tailwind is already integrated through `@tailwindcss/vite`. Configuration should
 
 ## Acceptance Criteria
 
-- [ ] No Tailwind CDN/config script remains in `index.html`.
-- [ ] Tailwind config is repository-based (root config file) if customization is required.
-- [ ] Existing styles render correctly after `npm run build`.
+- [x] No Tailwind CDN/config script remains in `index.html`.
+- [x] Tailwind config is repository-based (root config file) if customization is required.
+- [x] Existing styles render correctly after `npm run build`.
 
 ## Implementation Notes
 
@@ -26,5 +26,5 @@ Keep CSS changes minimal and targeted to plugin compatibility.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Moved Tailwind config from `index.html` to root config, restored class-based dark mode/brand styles in plugin flow, and fixed related UI spacing/visibility regressions.

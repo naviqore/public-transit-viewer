@@ -46,7 +46,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
 
   return (
     <div className="flex flex-row gap-1 sm:gap-2 min-w-0 w-full">
-      <div className="flex-1 min-w-0 w-full">
+      <div className="flex-1 min-w-0 w-full pt-0.5">
         <div className="flex items-end justify-between mb-1">
           <label className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 block leading-4 truncate">
             Date & Time
@@ -76,7 +76,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
             type="datetime-local"
             min={minDate}
             max={maxDate}
-            className="h-9 w-full min-w-[100px] pl-9 pr-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-base text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none transition-all dark:[color-scheme:dark] invalid:text-red-500 invalid:border-red-300"
+            className="h-9 w-full min-w-[100px] pl-9 pr-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-base font-normal text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none transition-all dark:[color-scheme:dark] invalid:text-red-500 invalid:border-red-300"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
@@ -89,7 +89,7 @@ const DateTimeSelector: React.FC<DateTimeSelectorProps> = ({
           </button>
         </div>
       </div>
-      <div className="w-[72px] flex-shrink-0">
+      <div className="w-[72px] flex-shrink-0 pt-0.5">
         <label className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block h-4 leading-4 truncate">
           Type
         </label>

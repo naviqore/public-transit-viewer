@@ -346,19 +346,19 @@ const IsolinePage: React.FC = () => {
       <PageHeader title="Isolines" icon={CircleDot} />
       <div className="flex-1 overflow-y-auto">
         <div className="panel-section">
-          <div className="panel-header space-y-3 p-4">
+          <div className="panel-header p-4">
             <StopSearch
               selectedStop={centerStop}
               onSelect={(s) => updateState({ centerStop: s })}
               placeholder="Search stops..."
               className="mb-0"
             />
-            <div>
+            <div className="mt-3">
               <div className="flex justify-between items-center">
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block h-[16px] leading-[16px]">
                   Max Travel Duration
                 </label>
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                <span className="text-xs font-bold text-brand-600 dark:text-brand-400">
                   {maxDuration} min
                 </span>
               </div>
@@ -371,10 +371,10 @@ const IsolinePage: React.FC = () => {
                 onChange={(e) =>
                   updateState({ maxDuration: parseInt(e.target.value) })
                 }
-                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-600 focus:outline-none focus:ring-0 block mt-1"
+                className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-brand-600 focus:outline-none focus:ring-0 block mt-1"
               />
             </div>
-            <div className="flex items-start gap-1 sm:gap-2">
+            <div className="mt-3 flex items-start gap-1 sm:gap-2">
               <div className="flex-1 min-w-0 w-full">
                 <DateTimeSelector
                   date={date}
@@ -385,7 +385,7 @@ const IsolinePage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowConfig(true)}
-                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-indigo-600 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
                 title="Isoline Options"
               >
                 <SlidersHorizontal size={16} />
@@ -419,7 +419,7 @@ const IsolinePage: React.FC = () => {
                     {displayRange.start > 0 && (
                       <button
                         onClick={handleShowPrevious}
-                        className="w-full py-2 mb-2 flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
+                        className="w-full py-2 mb-2 flex items-center justify-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 rounded-lg transition-colors"
                       >
                         <ChevronUp size={14} /> Show{' '}
                         {Math.min(displayRange.start, PAGE_SIZE)} previous...
@@ -449,7 +449,7 @@ const IsolinePage: React.FC = () => {
                     {displayRange.end < isolines.length && (
                       <button
                         onClick={handleShowMore}
-                        className="w-full py-2 mt-2 flex items-center justify-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
+                        className="w-full py-2 mt-2 flex items-center justify-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/30 rounded-lg transition-colors"
                       >
                         <ChevronDown size={14} /> And{' '}
                         {isolines.length - displayRange.end} more...

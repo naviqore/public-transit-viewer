@@ -225,7 +225,7 @@ const ConnectPage: React.FC = () => {
               {/* Swap Button */}
               <button
                 onClick={handleSwapStops}
-                className="h-8 w-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm z-10 flex-shrink-0"
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-300 dark:hover:border-brand-700 transition-all shadow-sm z-10 flex-shrink-0"
                 title="Swap Origin and Destination"
                 aria-label="Swap Origin and Destination"
               >
@@ -243,7 +243,7 @@ const ConnectPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowConfig(true)}
-                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-indigo-600 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
                 title="Connection Options"
               >
                 <SlidersHorizontal size={16} />

@@ -257,7 +257,7 @@ const ExplorePage: React.FC = () => {
               onSelect={handleStopSelect}
               className="mb-0"
             />
-            <div className="flex items-start gap-1 sm:gap-2">
+            <div className="mt-3 flex items-start gap-1 sm:gap-2">
               <div className="flex-1 min-w-0 w-full">
                 <DateTimeSelector
                   date={date}
@@ -268,7 +268,7 @@ const ExplorePage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowConfig(true)}
-                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-indigo-600 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
+                className="mt-[20px] h-9 w-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors flex items-center justify-center flex-shrink-0 shadow-sm"
                 title="Explore Options"
               >
                 <SlidersHorizontal size={16} />
