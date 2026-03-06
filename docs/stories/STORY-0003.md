@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -15,9 +15,9 @@ The app is already a Vite + npm build. Import maps in `index.html` indicate prot
 
 ## Acceptance Criteria
 
-- [ ] `index.html` no longer contains an import map.
-- [ ] `npm run build` succeeds.
-- [ ] App boots without module resolution errors.
+- [x] `index.html` no longer contains an import map.
+- [x] `npm run build` succeeds.
+- [x] App boots without module resolution errors.
 
 ## Implementation Notes
 
@@ -25,5 +25,5 @@ Do not change runtime behavior beyond module loading cleanup.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Removed `index.html` import map and verified build/tests/dev boot via npm/Vite module resolution.

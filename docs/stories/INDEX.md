@@ -20,7 +20,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 | ---------- | ------ | -------------------------------------- | ---------- | -------------------------------------------------------------------------- |
 | STORY-0001 | CLOSED | Bootstrap story workflow and templates | unassigned | Completed 2026-03-06: baseline, release, testing, and story workflow setup |
 | STORY-0002 | CLOSED | Remove JetBrains .idea folder          | unassigned | Completed 2026-03-06: removed tracked .idea files and enforced ignore rule |
-| STORY-0003 | OPEN   | Remove index.html import map           | unassigned | Use bundled npm imports                                                    |
+| STORY-0003 | CLOSED | Remove index.html import map           | unassigned | Completed 2026-03-06: removed import map, validated build/tests/dev boot   |
 | STORY-0004 | OPEN   | Move Tailwind config out of HTML       | unassigned | Root Tailwind config file                                                  |
 | STORY-0005 | OPEN   | Extract ErrorBoundary component        | unassigned | Move from App.tsx                                                          |
 | STORY-0006 | OPEN   | Replace custom benchmark tooltip       | unassigned | Use Floating UI or Radix                                                   |
