@@ -1,46 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
-  Connection,
-  ExploreQueryConfig,
-  RoutingInfo,
-  ScheduleInfo,
-  StopDeparture,
-  Stop,
-  StopConnection,
+  ExploreState,
+  IsolineState,
+  RoutingState,
+  ServerInfo,
   TimeType,
 } from '../types';
 import { naviqoreService } from '../services/naviqoreService';
 import { DEFAULT_EXPLORE_CONFIG } from '../constants';
-
-interface ExploreState {
-  selectedStop: Stop | null;
-  departures: StopDeparture[];
-  nearbyStops: Stop[];
-  date: string;
-  config: ExploreQueryConfig;
-}
-
-interface RoutingState {
-  fromStop: Stop | null;
-  toStop: Stop | null;
-  connections: Connection[];
-  selectedConnection: Connection | null;
-  date: string;
-  timeType: TimeType;
-  maxTravelDuration?: number;
-}
-
-interface IsolineState {
-  centerStop: Stop | null;
-  isolines: StopConnection[];
-  maxDuration: number;
-  date: string;
-}
-
-interface ServerInfo {
-  schedule: ScheduleInfo | null;
-  routing: RoutingInfo | null;
-}
 
 interface DomainContextType {
   serverInfo: ServerInfo;
@@ -106,7 +73,7 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
           schedule: sched.data,
           routing: rout.data,
         });
-      } catch (e) {
+      } catch (e: unknown) {
         console.error('Failed to load server capabilities', e);
       }
     };

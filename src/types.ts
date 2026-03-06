@@ -136,6 +136,36 @@ export interface ExploreQueryConfig {
   limit: number;
 }
 
+export interface ExploreState {
+  selectedStop: Stop | null;
+  departures: StopDeparture[];
+  nearbyStops: Stop[];
+  date: string;
+  config: ExploreQueryConfig;
+}
+
+export interface RoutingState {
+  fromStop: Stop | null;
+  toStop: Stop | null;
+  connections: Connection[];
+  selectedConnection: Connection | null;
+  date: string;
+  timeType: TimeType;
+  maxTravelDuration?: number;
+}
+
+export interface IsolineState {
+  centerStop: Stop | null;
+  isolines: StopConnection[];
+  maxDuration: number;
+  date: string;
+}
+
+export interface ServerInfo {
+  schedule: ScheduleInfo | null;
+  routing: RoutingInfo | null;
+}
+
 // --- New Types for Benchmarking and Notifications ---
 
 export interface RequestLog {

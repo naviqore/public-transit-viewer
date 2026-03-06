@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -16,9 +16,9 @@ The project targets strict TypeScript usage, but some local `any` usage remains 
 
 ## Acceptance Criteria
 
-- [ ] `noImplicitAny` is enabled (directly or via `strict`).
-- [ ] No `any` remains in the targeted `DomainContext` slice.
-- [ ] `npm run check` passes.
+- [x] `noImplicitAny` is enabled (directly or via `strict`).
+- [x] No `any` remains in the targeted `DomainContext` slice.
+- [x] `npm run check` passes.
 
 ## Implementation Notes
 
@@ -26,5 +26,5 @@ Use narrow interfaces and existing domain types; do not introduce broad `unknown
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Explicit `DomainContext` state types were centralized in `src/types.ts`, context typing was cleaned up, and a focused `DomainContext` test was added; `npm run test:run` and `npm run check` passed.

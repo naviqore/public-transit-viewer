@@ -24,7 +24,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 | STORY-0004 | CLOSED | Move Tailwind config out of HTML       | unassigned | Completed 2026-03-06: moved Tailwind config to repo files and fixed theme/spacing regressions |
 | STORY-0005 | CLOSED | Extract ErrorBoundary component        | unassigned | Completed 2026-03-06: extracted ErrorBoundary to common component and added focused tests     |
 | STORY-0006 | CLOSED | Replace custom benchmark tooltip       | unassigned | Completed 2026-03-06: replaced custom tooltip with Floating UI and added focused tests        |
-| STORY-0007 | OPEN   | Enable strict typing cleanup slice     | unassigned | Remove local any usage                                                                        |
+| STORY-0007 | CLOSED | Enable strict typing cleanup slice     | unassigned | Completed 2026-03-06: removed local any usage in DomainContext slice and added focused tests  |
 | STORY-0008 | OPEN   | Improve service error result model     | unassigned | Propagate actionable errors                                                                   |
 | STORY-0009 | OPEN   | Split map layer rendering helpers      | unassigned | Break up useMapLayers hook                                                                    |
 | STORY-0010 | OPEN   | Reduce manual layout calc CSS          | unassigned | Move scaffolding to TSX                                                                       |
