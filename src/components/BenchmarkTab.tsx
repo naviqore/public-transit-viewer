@@ -1,5 +1,18 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import {
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useClick,
+  useDismiss,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+  useRole,
+} from '@floating-ui/react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   ArrowDownCircle,
@@ -25,75 +38,43 @@ const MAX_HISTORY = 60;
 
 // --- Helper Components ---
 
-const PortalTooltip: React.FC<{ text: string }> = ({ text }) => {
-  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
+const ScenarioTooltip: React.FC<{ text: string }> = ({ text }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  // State for calculated position to ensure visibility
-  const [position, setPosition] = useState<{
-    top: number;
-    left: number;
-    placement: 'top' | 'bottom';
-    arrowLeft: number;
-  } | null>(null);
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+    placement: 'top',
+    middleware: [offset(8), flip({ padding: 10 }), shift({ padding: 10 })],
+    whileElementsMounted: autoUpdate,
+  });
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    setTriggerRect(e.currentTarget.getBoundingClientRect());
-  };
+  const hover = useHover(context, { move: false });
+  const focus = useFocus(context);
+  const click = useClick(context, { event: 'click' });
+  const dismiss = useDismiss(context);
+  const role = useRole(context, { role: 'tooltip' });
 
-  const handleMouseLeave = () => {
-    setTriggerRect(null);
-    setPosition(null);
-  };
-
-  useLayoutEffect(() => {
-    if (triggerRect && tooltipRef.current) {
-      const tooltip = tooltipRef.current;
-      const { width, height } = tooltip.getBoundingClientRect();
-      const { top, left, width: targetW, height: targetH } = triggerRect;
-      const targetCenter = left + targetW / 2;
-
-      const GAP = 8;
-      const PADDING = 10;
-
-      // Default Placement: Top
-      let finalTop = top - height - GAP;
-      let finalPlacement: 'top' | 'bottom' = 'top';
-
-      // Vertical Check: If top clips window top, flip to bottom
-      if (finalTop < PADDING) {
-        finalTop = top + targetH + GAP;
-        finalPlacement = 'bottom';
-      }
-
-      // Horizontal Placement: Centered
-      let finalLeft = targetCenter - width / 2;
-
-      // Horizontal Check: Clamp to window edges
-      if (finalLeft < PADDING) {
-        finalLeft = PADDING;
-      } else if (finalLeft + width > window.innerWidth - PADDING) {
-        finalLeft = window.innerWidth - PADDING - width;
-      }
-
-      // Calculate Arrow Position relative to Tooltip
-      // The arrow should point to the Target Center
-      const arrowLeft = targetCenter - finalLeft;
-
-      setPosition({
-        top: finalTop,
-        left: finalLeft,
-        placement: finalPlacement,
-        arrowLeft: arrowLeft,
-      });
-    }
-  }, [triggerRect, text]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    hover,
+    focus,
+    click,
+    dismiss,
+    role,
+  ]);
 
   return (
     <>
       <span
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        ref={refs.setReference}
+        {...getReferenceProps({
+          role: 'button',
+          tabIndex: 0,
+          'aria-label': 'Show scenario description',
+          onClick: (event) => {
+            event.stopPropagation();
+          },
+        })}
         className="group relative inline-flex items-center ml-1 cursor-help"
       >
         <HelpCircle
@@ -101,28 +82,19 @@ const PortalTooltip: React.FC<{ text: string }> = ({ text }) => {
           className="text-slate-400 group-hover:text-indigo-500 transition-colors"
         />
       </span>
-      {triggerRect &&
-        createPortal(
+
+      {isOpen && (
+        <FloatingPortal>
           <div
-            ref={tooltipRef}
-            className={`fixed z-[9999] px-3 py-2 bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl pointer-events-none w-max max-w-[280px] text-left leading-relaxed whitespace-pre-line transition-opacity duration-200 ${position ? 'opacity-100' : 'opacity-0'}`}
-            style={{
-              top: position?.top ?? 0,
-              left: position?.left ?? 0,
-            }}
+            ref={refs.setFloating}
+            style={floatingStyles}
+            {...getFloatingProps()}
+            className="z-[9999] px-3 py-2 bg-slate-800 text-white text-[11px] font-medium rounded-lg shadow-xl pointer-events-none w-max max-w-[280px] text-left leading-relaxed whitespace-pre-line"
           >
             {text}
-            {/* Arrow */}
-            <div
-              className={`absolute w-0 h-0 border-4 border-transparent ${position?.placement === 'bottom' ? 'border-b-slate-800 bottom-full' : 'border-t-slate-800 top-full'}`}
-              style={{
-                left: position?.arrowLeft ?? '50%',
-                transform: 'translateX(-50%)',
-              }}
-            ></div>
-          </div>,
-          document.body
-        )}
+          </div>
+        </FloatingPortal>
+      )}
     </>
   );
 };
@@ -148,9 +120,7 @@ const ScenarioButton: React.FC<{
     >
       <Icon size={12} className="mr-1 md:mr-1.5" />
       {label}
-      <span onClick={(e) => e.stopPropagation()} className="flex items-center">
-        <PortalTooltip text={description} />
-      </span>
+      <ScenarioTooltip text={description} />
     </button>
   );
 };

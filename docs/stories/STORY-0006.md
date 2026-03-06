@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -25,5 +25,5 @@ Prefer `@floating-ui/react` or Radix Tooltip. Keep API simple and avoid design c
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Replaced custom benchmark tooltip with `@floating-ui/react` and added focused tooltip interaction tests.
