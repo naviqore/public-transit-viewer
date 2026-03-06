@@ -1,0 +1,131 @@
+@reference "../styles.css";
+
+/* 
+   The Page Components (Explore, Route, Iso) render two main divs:
+   .panel-section (The inputs + content scroll area)
+   .map-section (The map)
+
+   We need to project these into the slots defined by Layout.css.
+*/
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensure wrapper doesn't double scroll */
+}
+
+/* 
+   Inputs & Content Panel: 
+   These live inside .input-panel-slot. 
+*/
+.panel-section {
+  display: block;
+  flex-direction: column;
+  height: 100%; /* Fill the parent container */
+  width: 100%;
+  overflow-y: auto; /* Main scrolling happens here */
+  position: relative;
+  @apply bg-slate-50 dark:bg-slate-950 transition-colors;
+}
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  /* Unified Padding: 16px top/sides, 8px bottom */
+  padding: 16px 16px 8px 16px;
+
+  /* Glassmorphism Style */
+  background-color: rgba(248, 250, 252, 0.85); /* slate-50 @ 85% */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 0;
+  @media (min-width: 768px) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.dark .panel-header {
+  background-color: rgba(2, 6, 23, 0.85); /* slate-950 @ 85% */
+  border-bottom: 0;
+  @media (min-width: 768px) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+.panel-content {
+  padding: 16px;
+  padding-top: 12px;
+  padding-bottom: 80px; /* Extra padding for FAB on mobile */
+  @apply transition-colors;
+}
+
+@media (min-width: 768px) {
+  .panel-content {
+    padding-bottom: 32px;
+  }
+}
+
+/* Map Positioning */
+.map-section {
+  position: fixed;
+  z-index: 10;
+  @apply bg-slate-200 dark:bg-slate-900 transition-colors;
+}
+
+/* 
+   MOBILE MAP BEHAVIOR
+   Controlled by Layout.css classes via React Context on the parent wrapper
+*/
+@media (max-width: 767px) {
+  /* Default State: List Visible, Map Hidden */
+  .map-section {
+    display: none;
+  }
+
+  /* Map Open State: List Hidden, Map Visible */
+  /* We use !important to override the default display:block of panel-section */
+  .mobile-map-open .panel-section {
+    display: none !important;
+  }
+
+  .mobile-map-open .map-section {
+    display: block;
+    z-index: 30;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--nav-height-mobile);
+  }
+}
+
+/* DESKTOP MAP BEHAVIOR */
+@media (min-width: 768px) {
+  .map-section {
+    display: block !important; /* Always visible on desktop */
+    bottom: 0;
+    right: 0;
+    /* Start after Nav + Inputs */
+    left: calc(var(--nav-width-desktop) + var(--panel-width-desktop));
+    top: 0;
+  }
+
+  .panel-section {
+    display: block !important;
+  }
+}
+
+/* Settings Page */
+.settings-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  height: 100%;
+  overflow-y: auto;
+}

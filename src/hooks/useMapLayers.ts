@@ -1,0 +1,762 @@
+import { useEffect } from 'react';
+import L from 'leaflet';
+import { Connection, Leg, Stop } from '../types';
+import { COLORS, getGradientColor, TRANSPORT_COLORS } from '../constants';
+import { getLegStopTimes } from '../utils/dataUtils';
+
+function isValidCoordinate(
+  lat: number | undefined | null,
+  lng: number | undefined | null
+): boolean {
+  return (
+    typeof lat === 'number' &&
+    typeof lng === 'number' &&
+    !isNaN(lat) &&
+    !isNaN(lng)
+  );
+}
+
+type StopMarkerType =
+  | 'highlighted'
+  | 'source'
+  | 'target'
+  | 'intermediate-future'
+  | 'intermediate-past'
+  | 'context'
+  | 'context-subtle';
+
+function createStopIcon(
+  type: StopMarkerType,
+  isDark: boolean,
+  colorOverride?: string
+) {
+  const sizeMap: Record<StopMarkerType, number> = {
+    highlighted: 24,
+    source: 20,
+    target: 20,
+    'intermediate-future': 14,
+    'intermediate-past': 12,
+    context: 14,
+    'context-subtle': 8,
+  };
+  const size = sizeMap[type];
+
+  let html = '';
+
+  switch (type) {
+    case 'highlighted': {
+      const hColor = colorOverride || COLORS.primary;
+      html = `
+                <div class="relative w-full h-full">
+                    <div class="absolute inset-0 rounded-full animate-ping opacity-40" style="background-color: ${hColor}"></div>
+                    <div class="relative w-full h-full rounded-full border-[3px] shadow-lg flex items-center justify-center" style="background-color: ${hColor}; border-color: ${isDark ? '#0f172a' : '#fff'}">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                </div>`;
+      break;
+    }
+
+    case 'source':
+    case 'target': {
+      // Unified "Black Dot" style for Start (Source) and End (Target)
+      // Light Mode: White Fill, Fat Black Border
+      // Dark Mode: Black Fill, Fat White Border
+      const borderColor = isDark ? '#ffffff' : '#0f172a';
+      const fillColor = isDark ? '#0f172a' : '#ffffff';
+      html = `<div class="w-full h-full rounded-full shadow-lg" style="background-color: ${fillColor}; border: 4px solid ${borderColor}; box-sizing: border-box;"></div>`;
+      break;
+    }
+
+    case 'intermediate-future':
+      html = `<div class="w-full h-full rounded-full bg-white dark:bg-slate-900 border-[3px] border-indigo-500 dark:border-indigo-400 shadow-sm"></div>`;
+      break;
+
+    case 'intermediate-past':
+      // High visibility gray for passed stops
+      html = `<div class="w-full h-full rounded-full bg-slate-400 dark:bg-slate-600 border-[2px] border-slate-600 dark:border-slate-400"></div>`;
+      break;
+
+    case 'context':
+      html = `<div class="w-full h-full rounded-full bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 shadow-sm"></div>`;
+      break;
+
+    case 'context-subtle':
+      html = `<div class="w-full h-full rounded-full bg-slate-300/50 dark:bg-slate-600/50"></div>`;
+      break;
+  }
+
+  const wrapperHtml = `<div class="flex items-center justify-center transition-transform duration-300 hover:scale-110" style="width: ${size}px; height: ${size}px;">${html}</div>`;
+  return L.divIcon({
+    className: 'bg-transparent',
+    html: wrapperHtml,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+interface UseMapLayersProps {
+  map: L.Map | null;
+  layerGroup: L.LayerGroup | null;
+  stops?: Stop[];
+  connections?: Connection[];
+  selectedConnection?: Connection | null;
+  currentStopId?: string;
+  isolines?: Stop[];
+  visConnections?: { legs: Leg[] }[];
+  variant?: 'default' | 'isoline';
+  darkMode: boolean;
+  timezone: string;
+  isolineMaxDuration: number;
+
+  // Highlighting
+  sourceStop?: Stop;
+  targetStop?: Stop;
+  highlightedStopId?: string | null;
+
+  onStopClick?: (stop: Stop) => void;
+  onConnectionClick?: (connection: Connection) => void;
+}
+
+export const useMapLayers = ({
+  map,
+  layerGroup,
+  stops,
+  connections,
+  selectedConnection,
+  currentStopId,
+  isolines,
+  visConnections,
+  variant,
+  darkMode,
+  timezone,
+  isolineMaxDuration,
+  sourceStop,
+  targetStop,
+  highlightedStopId,
+  onStopClick,
+  onConnectionClick,
+}: UseMapLayersProps) => {
+  useEffect(() => {
+    if (!map || !layerGroup) return;
+
+    layerGroup.clearLayers();
+
+    // 1. Draw Lines
+    if (selectedConnection) {
+      drawConnection(
+        layerGroup,
+        selectedConnection,
+        true,
+        darkMode,
+        currentStopId
+      );
+      drawTripStops(
+        layerGroup,
+        selectedConnection,
+        currentStopId,
+        darkMode,
+        timezone,
+        sourceStop,
+        targetStop,
+        onStopClick
+      );
+    } else if (connections && Array.isArray(connections)) {
+      connections.forEach((c) =>
+        drawConnection(
+          layerGroup,
+          c,
+          false,
+          darkMode,
+          undefined,
+          onConnectionClick
+        )
+      );
+    }
+
+    const isDimmed = !!selectedConnection;
+
+    if (visConnections && Array.isArray(visConnections)) {
+      if (variant === 'isoline') {
+        drawIsolinePaths(
+          layerGroup,
+          visConnections,
+          isolineMaxDuration,
+          isDimmed
+        );
+      } else if (!selectedConnection) {
+        // Overview mode for Explore page
+        visConnections.forEach((c) =>
+          drawConnection(
+            layerGroup,
+            { legs: c.legs } as Connection,
+            false,
+            darkMode
+          )
+        );
+      }
+    }
+
+    // 2. Draw Context Stops
+    if (stops && Array.isArray(stops)) {
+      drawContextStops(
+        layerGroup,
+        stops,
+        selectedConnection || null,
+        currentStopId,
+        darkMode,
+        timezone,
+        onStopClick
+      );
+    }
+
+    if (
+      isolines &&
+      Array.isArray(isolines) &&
+      visConnections &&
+      variant === 'isoline'
+    ) {
+      drawIsolineStops(
+        layerGroup,
+        isolines,
+        visConnections,
+        isolineMaxDuration,
+        darkMode,
+        timezone,
+        highlightedStopId,
+        isDimmed,
+        onStopClick
+      );
+    }
+
+    drawSourceTargetStops(
+      layerGroup,
+      sourceStop,
+      targetStop,
+      darkMode,
+      timezone
+    );
+  }, [
+    map,
+    layerGroup,
+    stops,
+    connections,
+    selectedConnection,
+    currentStopId,
+    isolines,
+    visConnections,
+    variant,
+    darkMode,
+    timezone,
+    isolineMaxDuration,
+    sourceStop,
+    targetStop,
+    highlightedStopId,
+  ]);
+};
+
+// --- DRAWING IMPLEMENTATIONS (Private to Hook) ---
+
+const drawSourceTargetStops = (
+  layers: L.LayerGroup,
+  source: Stop | undefined,
+  target: Stop | undefined,
+  isDark: boolean,
+  timezone: string
+) => {
+  if (
+    source &&
+    isValidCoordinate(source.coordinates.latitude, source.coordinates.longitude)
+  ) {
+    const marker = L.marker(
+      [source.coordinates.latitude, source.coordinates.longitude],
+      {
+        icon: createStopIcon('source', isDark),
+        zIndexOffset: 2000,
+      }
+    );
+    // Remove subtitle 'Start'
+    bindRichStopPopup(marker, source, { isDark, timezone, permanent: true });
+    layers.addLayer(marker);
+  }
+  if (
+    target &&
+    isValidCoordinate(target.coordinates.latitude, target.coordinates.longitude)
+  ) {
+    const marker = L.marker(
+      [target.coordinates.latitude, target.coordinates.longitude],
+      {
+        // Use 'target' type, which maps to the same visual style as 'source'
+        icon: createStopIcon('target', isDark),
+        zIndexOffset: 2000,
+      }
+    );
+    // Remove subtitle 'End'
+    bindRichStopPopup(marker, target, { isDark, timezone, permanent: true });
+    layers.addLayer(marker);
+  }
+};
+
+const drawConnection = (
+  layers: L.LayerGroup,
+  conn: Connection,
+  isSelected: boolean,
+  isDark: boolean,
+  currentStopId?: string,
+  onClick?: (c: Connection) => void
+) => {
+  if (!conn.legs) return;
+
+  conn.legs.forEach((leg) => {
+    if (
+      !isValidCoordinate(leg.from.latitude, leg.from.longitude) ||
+      !isValidCoordinate(leg.to.latitude, leg.to.longitude)
+    )
+      return;
+
+    const isWalk = leg.type === 'WALK';
+    const mode = leg.trip?.route?.transportMode || 'WALK';
+    const standardColor = isWalk
+      ? isDark
+        ? '#64748b'
+        : '#94a3b8'
+      : TRANSPORT_COLORS[mode] || COLORS.primary;
+
+    const points: [number, number][] = [
+      [leg.from.latitude, leg.from.longitude],
+    ];
+
+    if (!isWalk && leg.trip) {
+      const relevantStops = getLegStopTimes(leg);
+      for (let i = 1; i < relevantStops.length - 1; i++) {
+        const st = relevantStops[i];
+        if (
+          isValidCoordinate(
+            st.stop.coordinates.latitude,
+            st.stop.coordinates.longitude
+          )
+        ) {
+          points.push([
+            st.stop.coordinates.latitude,
+            st.stop.coordinates.longitude,
+          ]);
+        }
+      }
+    }
+    points.push([leg.to.latitude, leg.to.longitude]);
+
+    // Detail View with Past/Future split
+    if (!isWalk && leg.trip && currentStopId && isSelected) {
+      const relevantStops = getLegStopTimes(leg);
+      const splitIndex = relevantStops.findIndex(
+        (st) => st.stop.id === currentStopId
+      );
+
+      if (splitIndex !== -1) {
+        for (let i = 0; i < relevantStops.length - 1; i++) {
+          const startSt = relevantStops[i];
+          const endSt = relevantStops[i + 1];
+          if (
+            !isValidCoordinate(
+              startSt.stop.coordinates.latitude,
+              startSt.stop.coordinates.longitude
+            ) ||
+            !isValidCoordinate(
+              endSt.stop.coordinates.latitude,
+              endSt.stop.coordinates.longitude
+            )
+          )
+            continue;
+
+          const isPast = i < splitIndex;
+          const segmentColor = isPast ? COLORS.pastTrip : standardColor;
+
+          const poly = L.polyline(
+            [
+              [
+                startSt.stop.coordinates.latitude,
+                startSt.stop.coordinates.longitude,
+              ],
+              [
+                endSt.stop.coordinates.latitude,
+                endSt.stop.coordinates.longitude,
+              ],
+            ],
+            {
+              color: segmentColor,
+              weight: isPast ? 4 : 5,
+              opacity: isPast ? 0.7 : 1, // Increased opacity for high contrast on light maps
+              lineCap: 'round',
+              lineJoin: 'round',
+            }
+          );
+          bindRichLinePopup(poly, leg, isDark, isPast);
+          poly.addTo(layers);
+        }
+        return;
+      }
+    }
+
+    const poly = L.polyline(points, {
+      color: standardColor,
+      weight: isWalk ? 4 : 5,
+      opacity: isSelected ? 1 : 0.4,
+      dashArray: isWalk ? '1, 8' : undefined,
+      lineCap: 'round',
+      lineJoin: 'round',
+      className: isSelected ? 'drop-shadow-md' : '',
+    });
+
+    if (onClick) {
+      const clickArea = L.polyline(points, {
+        color: 'transparent',
+        weight: 20,
+        className: 'cursor-pointer',
+      });
+      clickArea.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        onClick(conn);
+      });
+      clickArea.addTo(layers);
+    }
+    if (!isWalk && isSelected) bindRichLinePopup(poly, leg, isDark, false);
+    poly.addTo(layers);
+  });
+};
+
+const drawTripStops = (
+  layers: L.LayerGroup,
+  conn: Connection,
+  currentStopId: string | undefined,
+  isDark: boolean,
+  timezone: string,
+  sourceStop: Stop | undefined,
+  targetStop: Stop | undefined,
+  onClick?: (s: Stop) => void
+) => {
+  const stopsMap = new Map<
+    string,
+    { stop: Stop; time: string; isPast: boolean }
+  >();
+
+  conn.legs?.forEach((leg) => {
+    if (leg.type === 'WALK') return;
+
+    const relevantStops = getLegStopTimes(leg);
+
+    if (relevantStops.length > 0) {
+      const splitIndex = relevantStops.findIndex(
+        (st) => st.stop.id === currentStopId
+      );
+      relevantStops.forEach((st, idx) => {
+        if (sourceStop && st.stop.id === sourceStop.id) return;
+        if (targetStop && st.stop.id === targetStop.id) return;
+
+        const isPast = currentStopId
+          ? splitIndex !== -1 && idx < splitIndex
+          : false;
+        stopsMap.set(st.stop.id, {
+          stop: st.stop,
+          time: st.departureTime,
+          isPast,
+        });
+      });
+    }
+  });
+
+  stopsMap.forEach(({ stop, time, isPast }) => {
+    if (
+      !isValidCoordinate(stop.coordinates.latitude, stop.coordinates.longitude)
+    )
+      return;
+
+    const isCurrent = currentStopId === stop.id;
+
+    let type: StopMarkerType = 'intermediate-future';
+    if (isCurrent) type = 'highlighted';
+    else if (isPast) type = 'intermediate-past';
+
+    const marker = L.marker(
+      [stop.coordinates.latitude, stop.coordinates.longitude],
+      {
+        icon: createStopIcon(type, isDark),
+        zIndexOffset: isCurrent ? 1000 : 0,
+      }
+    );
+
+    if (onClick) marker.on('click', () => onClick(stop));
+
+    // Show permanent label if this is the currently selected stop in the route view
+    bindRichStopPopup(marker, stop, {
+      time,
+      isCurrent,
+      isPast,
+      isDark,
+      timezone,
+      permanent: isCurrent,
+    });
+    layers.addLayer(marker);
+  });
+};
+
+const drawContextStops = (
+  layers: L.LayerGroup,
+  stops: Stop[],
+  selectedConnection: Connection | null,
+  currentStopId: string | undefined,
+  isDark: boolean,
+  timezone: string,
+  onClick?: (s: Stop) => void
+) => {
+  const tripStopIds = new Set<string>();
+  selectedConnection?.legs.forEach((l) => {
+    const relevantStops = getLegStopTimes(l);
+    relevantStops.forEach((st) => tripStopIds.add(st.stop.id));
+    if (l.fromStop) tripStopIds.add(l.fromStop.id);
+    if (l.toStop) tripStopIds.add(l.toStop.id);
+  });
+
+  stops.forEach((stop) => {
+    if (
+      !isValidCoordinate(stop.coordinates.latitude, stop.coordinates.longitude)
+    )
+      return;
+    if (tripStopIds.has(stop.id)) return;
+
+    const isFocused = stop.id === currentStopId;
+    const type: StopMarkerType = isFocused
+      ? 'highlighted'
+      : selectedConnection
+        ? 'context-subtle'
+        : 'context';
+
+    const marker = L.marker(
+      [stop.coordinates.latitude, stop.coordinates.longitude],
+      {
+        icon: createStopIcon(type, isDark),
+        zIndexOffset: isFocused ? 2000 : 500,
+      }
+    );
+    if (onClick) marker.on('click', () => onClick(stop));
+
+    // Use Unified Popup. If Focused (Selected), make it permanent.
+    bindRichStopPopup(marker, stop, {
+      isCurrent: isFocused,
+      isDark,
+      timezone,
+      permanent: isFocused,
+    });
+    layers.addLayer(marker);
+  });
+};
+
+const drawIsolinePaths = (
+  layers: L.LayerGroup,
+  items: { legs: Leg[] }[],
+  maxDuration: number,
+  isDimmed: boolean
+) => {
+  items.forEach((item) => {
+    const leg = item.legs[0];
+    if (
+      !isValidCoordinate(leg?.from.latitude, leg?.from.longitude) ||
+      !isValidCoordinate(leg?.to.latitude, leg?.to.longitude)
+    )
+      return;
+
+    const durationMin = (leg.duration || 0) / 60;
+    const color = getGradientColor(durationMin, maxDuration);
+
+    // Reduce opacity significantly if dimmed (selected connection is active)
+    L.polyline(
+      [
+        [leg.from.latitude, leg.from.longitude],
+        [leg.to.latitude, leg.to.longitude],
+      ],
+      {
+        color: color,
+        weight: 3,
+        opacity: isDimmed ? 0.1 : 0.8,
+        className: 'pointer-events-none',
+      }
+    ).addTo(layers);
+  });
+};
+
+const drawIsolineStops = (
+  layers: L.LayerGroup,
+  stops: Stop[],
+  connections: { legs: Leg[] }[],
+  maxDuration: number,
+  isDark: boolean,
+  timezone: string,
+  highlightedStopId: string | null | undefined,
+  isDimmed: boolean,
+  onClick?: (s: Stop) => void
+) => {
+  const stopDurationMap = new Map<string, number>();
+  connections.forEach((c) => {
+    const dur = (c.legs[0].duration || 0) / 60;
+    if (c.legs[0]?.toStop) stopDurationMap.set(c.legs[0].toStop.id, dur);
+    if (c.legs[0]?.fromStop) stopDurationMap.set(c.legs[0].fromStop.id, dur);
+  });
+
+  stops.forEach((stop) => {
+    if (
+      !isValidCoordinate(stop.coordinates.latitude, stop.coordinates.longitude)
+    )
+      return;
+    const duration = stopDurationMap.get(stop.id) || 0;
+    const color = getGradientColor(duration, maxDuration);
+
+    const isHighlighted = stop.id === highlightedStopId;
+
+    if (isHighlighted) {
+      const icon = createStopIcon('highlighted', isDark, color);
+      const marker = L.marker(
+        [stop.coordinates.latitude, stop.coordinates.longitude],
+        {
+          icon,
+          zIndexOffset: 1000,
+        }
+      );
+
+      // Rich Popup for Highlighted
+      bindRichStopPopup(marker, stop, {
+        isDark,
+        timezone,
+        permanent: true,
+        highlightColor: color,
+        subtitle: `${Math.round(duration)} min`,
+      });
+
+      if (onClick) marker.on('click', () => onClick(stop));
+      layers.addLayer(marker);
+    } else {
+      // If mode is dimmed, make non-highlighted stops very subtle
+      const opacity = isDimmed ? 0.2 : 1;
+
+      // Efficient Circle Marker for non-highlighted points
+      const circle = L.circleMarker(
+        [stop.coordinates.latitude, stop.coordinates.longitude],
+        {
+          radius: 5,
+          fillColor: color,
+          fillOpacity: opacity,
+          color: isDark ? '#1e293b' : '#ffffff', // Border color
+          weight: 1,
+          opacity: opacity,
+        }
+      );
+
+      // Only bind tooltip if not dimmed to avoid clutter when focusing on a path
+      if (!isDimmed) {
+        const textColor = isDark ? '#fff' : '#0f172a';
+        circle.bindTooltip(
+          `
+                    <div class="text-center min-w-[60px] font-sans">
+                        <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
+                        <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${Math.round(duration)} min</span></div>
+                    </div>`,
+          {
+            direction: 'top',
+            offset: [0, -6],
+            className: `!bg-white/95 dark:!bg-slate-900/95 backdrop-blur-md !border-0 !shadow-xl rounded-lg px-2 py-1`,
+          }
+        );
+      }
+
+      if (onClick) circle.on('click', () => onClick(stop));
+      layers.addLayer(circle);
+    }
+  });
+};
+
+// Unified Popup Logic
+interface PopupOptions {
+  time?: string;
+  isCurrent?: boolean;
+  isPast?: boolean;
+  isDark: boolean;
+  timezone: string;
+  permanent?: boolean;
+  highlightColor?: string;
+  subtitle?: string;
+}
+
+function bindRichStopPopup(layer: L.Layer, stop: Stop, options: PopupOptions) {
+  if (!layer.bindTooltip) return;
+
+  const {
+    isDark,
+    isCurrent,
+    isPast,
+    highlightColor,
+    subtitle,
+    permanent,
+    time,
+    timezone,
+  } = options;
+
+  const bg = isDark
+    ? 'bg-slate-900/95 border-slate-700'
+    : 'bg-white/95 border-slate-200';
+  const textColor = isDark ? 'text-slate-100' : 'text-slate-900';
+
+  let titleColorClass = textColor;
+  let titleStyle = '';
+
+  if (isCurrent) {
+    if (highlightColor) titleStyle = `color: ${highlightColor}`;
+    else titleColorClass = 'text-indigo-600 dark:text-indigo-400';
+  } else if (isPast) {
+    titleColorClass = 'text-slate-400';
+  }
+
+  let subtitleHtml = '';
+  if (time) {
+    const date = new Date(time);
+    const timeStr = date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: timezone,
+    });
+    subtitleHtml = `<div class="text-[10px] font-mono font-bold mt-0.5 ${isPast ? 'text-slate-400 line-through decoration-slate-400/50' : 'text-slate-600 dark:text-slate-300'}">${timeStr}</div>`;
+  } else if (subtitle) {
+    subtitleHtml = `<div class="text-[10px] font-mono font-bold mt-0.5" style="color:${highlightColor || 'inherit'}">${subtitle}</div>`;
+  }
+
+  const content = `
+        <div class="font-sans text-center min-w-[60px]">
+            <div class="font-bold text-xs ${titleColorClass}" style="${titleStyle}">${stop.name}</div>
+            ${subtitleHtml}
+            ${isCurrent && !permanent ? '<div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Selected</div>' : ''}
+        </div>`;
+
+  layer.bindTooltip(content, {
+    permanent,
+    direction: 'top',
+    offset: permanent ? [0, -12] : [0, -10],
+    className: `!${bg} backdrop-blur-md border shadow-xl rounded-lg px-2 py-1.5`,
+  });
+}
+
+function bindRichLinePopup(
+  layer: L.Layer,
+  leg: Leg,
+  isDark: boolean,
+  isPast: boolean
+) {
+  if (!layer.bindTooltip) return;
+  const bg = isDark
+    ? 'bg-slate-900/95 border-slate-700'
+    : 'bg-white/95 border-slate-200';
+  const text = isDark ? 'text-slate-100' : 'text-slate-900';
+  const subText = isDark ? 'text-slate-400' : 'text-slate-500';
+  const content = `<div class="flex items-center gap-3 p-1 font-sans min-w-[140px]"><div class="flex flex-col"><div class="flex items-center gap-1.5 mb-0.5"><span class="font-bold text-xs ${text} px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800">${leg.trip?.route.shortName || 'Route'}</span><span class="text-[10px] ${subText}">to</span><span class="font-bold text-xs ${text}">${leg.trip?.headSign}</span></div>${isPast ? `<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Already departed</div>` : `<div class="text-[10px] font-mono ${subText}">Next Stop: ${leg.toStop?.name}</div>`}</div></div>`;
+  layer.bindTooltip(content, {
+    sticky: true,
+    direction: 'center',
+    className: `!${bg} backdrop-blur-md border shadow-xl rounded-xl px-0 py-0 overflow-hidden`,
+  });
+}

@@ -1,49 +1,155 @@
-# Public Transit Viewer
+# Naviqore Viewer
 
-Viewer to interact with the [Public Transit Service](https://github.com/naviqore/public-transit-service).
+Naviqore Viewer is a web application designed to visualize and interact with the Naviqore backend service. It provides
+features for routing, exploring schedules, viewing isolines, and monitoring system performance.
 
-The streamlit based Python app allows users to query connections between two stops or generate isolines from a specific
-stop. The application supports the query parameters of the service to search specific connections or isoline.
+## Environment Variables
 
-## Installation
+The application can be configured using the following environment variables. In a Vite project, these variables must be
+prefixed with `VITE_`.
 
-Get the current release from pypi and start the viewer:
+- `VITE_API_BASE_URL` (or `VITE_NAVIQORE_BACKEND_URL`): Sets the base URL for the Naviqore backend API. If this is set,
+  the application will connect to the specified backend and disable the mock data option in the settings. If not set, it
+  defaults to `http://localhost:8080`.
+- `VITE_ENABLE_MOCK_DATA`: Set this to `true` to automatically enable mock data mode on startup.
+- `VITE_DISABLE_BENCHMARK`: Set this to `true` to disable the Benchmark tab in the System Monitor page. This is highly
+  recommended for public deployments to prevent excessive load on the backend service.
 
-```sh
-pip install public-transit-viewer
+### Example `.env` file
 
-export NAVIQORE_SERVICE_URL=<SERVER:PORT>
-ptv-deploy
+```env
+VITE_API_BASE_URL=https://api.your-naviqore-instance.com
+VITE_ENABLE_MOCK_DATA=false
+VITE_DISABLE_BENCHMARK=true
 ```
 
-Or run the viewer inside a Docker container:
+## Running Locally
 
-```sh
-docker run -p 8501:8501 -e NAVIQORE_SERVICE_URL=<SERVER:PORT> ghcr.io/naviqore/public-transit-client:latest
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+3. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## Professional Development Setup
+
+### Quality and Automation Scripts
+
+- `npm run lint` runs ESLint with zero-warning policy.
+- `npm run lint:fix` applies safe lint fixes.
+- `npm run format` formats the repository with Prettier.
+- `npm run format:check` validates formatting without rewriting files.
+- `npm run typecheck` runs TypeScript checks without emitting.
+- `npm run test` starts Vitest in watch mode.
+- `npm run test:run` runs unit tests once.
+- `npm run test:coverage` runs tests with V8 coverage reports.
+- `npm run commitlint` validates recent commits against Conventional Commits.
+- `npm run check` runs the full local quality gate.
+
+Recommended day-to-day loop:
+
+```bash
+npm run check
 ```
 
-Access the viewer on `http://localhost:8501`.
+### Tests
 
-## Development
+- Test runner: `Vitest`
+- DOM environment: `jsdom`
+- Test setup file: `src/test/setup.ts`
+- Coverage output: `coverage/`
 
-### Configuration
+### VS Code Setup
 
-Create a `.env` file in the root directory. And add a line telling the application to which service host it should
-connect. In Local Development this is typically a Java Spring service running on `http://localhost:8080`.
+This repo is optimized for VS Code with shared workspace config:
 
-The required line in the `.env` file will then be: `NAVIQORE_SERVICE_URL=http://localhost:8080`
+- `.vscode/extensions.json` contains recommended extensions.
+- `.vscode/settings.json` enables format-on-save and ESLint flat config behavior.
+- `.vscode/tasks.json` provides reusable tasks for `check`, `test`, and `build`.
 
-**Note**: you can also specify the `NAVIQORE_SERVICE_URL` in your operating system environment.
+### CI and Dependency Automation
 
-### Starting the App
+- `Quality CI` workflow runs lint/typecheck/format/tests/build on push and PR.
+- `Commitlint` workflow validates commit messages on pull requests.
+- `Release Please` workflow creates release PRs/tags from Conventional Commits on `main`.
+- Docker workflows are kept for image build/publish.
+- Dependabot tracks `npm`, `github-actions`, and `docker` updates.
 
-To start the app in development mode run following command from the root directory:
+### Conventional Commits and Releases
 
-```sh
-poetry run streamlit run public_transit_viewer/connections.py
+This project uses Conventional Commits so Release Please can generate changelogs and releases automatically.
+
+- Commit format: `<type>(<scope>): <subject>`
+- Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+- Breaking changes: use `!` after type/scope or a `BREAKING CHANGE:` footer
+
+Examples:
+
+```text
+feat(connect): add transfer duration slider
+fix(map): keep bounds stable on stop swap
+chore(ci): add release please workflow
 ```
 
-## License
+Local and CI enforcement:
 
-This project is licensed under the MIT License - see
-the [LICENSE](https://github.com/naviqore/public-transit-viewer/blob/main/LICENSE) file for details.
+- Husky `commit-msg` hook runs `commitlint`
+- PR commits are validated by `.github/workflows/commitlint.yml`
+
+### Story Workflow for Agents
+
+To keep agent work deterministic and auditable, this repo uses a local story index:
+
+- `docs/stories/INDEX.md` is the source of truth for story status
+- stories use sequential IDs (`STORY-0001`, `STORY-0002`, ...)
+- implementation should pick the highest-numbered `OPEN` story unless directed otherwise
+- when complete, mark story `CLOSED` and add date + outcome
+- use `docs/stories/STORY_TEMPLATE.md` for new stories
+
+### AI Agent Setup
+
+VS Code Copilot instructions live in:
+
+- `.github/copilot-instructions.md` (workspace-wide behavior)
+- `.github/instructions/frontend.instructions.md` (frontend-specific guidance)
+
+This is the canonical location for AI guidance in VS Code. Keep these files aligned with scripts and architecture when conventions change.
+
+## Docker Deployment
+
+A `Dockerfile` is provided for deploying the application using a production-ready Nginx server.
+
+1. Build the Docker image:
+
+   ```bash
+   docker build -t naviqore-viewer .
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run -p 80:80 -e VITE_API_BASE_URL=https://api.example.com -e VITE_DISABLE_BENCHMARK=true naviqore-viewer
+   ```
+   _Note: Environment variables need to be passed during the build process if they are baked into the static files by
+   Vite, or you can use a runtime configuration approach._
+
+### Building with Build Arguments
+
+Since Vite bakes environment variables into the static build, you should pass them as build arguments:
+
+```bash
+docker build \
+  --build-arg VITE_API_BASE_URL=https://api.your-naviqore-instance.com \
+  --build-arg VITE_DISABLE_BENCHMARK=true \
+  -t naviqore-viewer .
+```

@@ -1,23 +1,26 @@
 {
-  "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
-  "[python]": {
-    "editor.rulers": [
-      88
-    ],
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "never"
   },
-  "python.analysis.autoFormatStrings": true,
-  "python.analysis.typeCheckingMode": "strict",
-  "editor.defaultFormatter": "ms-python.black-formatter",
-  "black-formatter.args": [
-    "--line-length",
-    "88"
+  "eslint.useFlatConfig": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
   ],
-  "python.testing.pytestArgs": [
-    "tests"
-  ],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "search.exclude": {
+    "**/dist": true,
+    "**/coverage": true
+  },
+  "testing.automaticallyOpenPeekView": "never",
+  "vitest.enable": true,
+  "chat.tools.terminal.autoApprove": {
+    "npm install": true
+  }
 }
