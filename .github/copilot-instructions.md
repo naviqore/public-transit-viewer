@@ -26,6 +26,18 @@ This repository is a production Vite + React + TypeScript frontend.
 - Run `npm run build` when changing build/tooling/runtime behavior.
 - Add or update tests for changed business logic (`src/services`, `src/utils`, important hooks).
 
+## Test Baseline (Lean + Modern)
+
+- Test stack: `Vitest` + `@testing-library/react` + `jsdom` + `@testing-library/jest-dom`.
+- Keep tests focused on behavior and business logic, not implementation details.
+- Prefer small, fast unit tests; add integration tests only when multiple parts interact.
+- Co-locate tests with source as `*.test.ts` / `*.test.tsx`.
+- Reuse shared setup from `src/test/setup.ts`.
+- For new stories:
+  - add or update tests for the changed logic
+  - run `npm run test:run` locally
+  - use `npm run test:coverage` only when story scope requires coverage verification
+
 ## Project conventions
 
 - React function components and hooks only.

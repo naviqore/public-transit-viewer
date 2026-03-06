@@ -26,3 +26,10 @@ When changing behavior:
 
 - Update unit tests for utility/service logic first.
 - Then update component behavior and snapshot expectations only if needed.
+
+Testing conventions for frontend work:
+
+- Use `Vitest` and Testing Library as the default.
+- For UI tests, assert visible behavior and interactions (not class names or internal state).
+- Keep tests deterministic: mock time/network where needed.
+- Keep tests small and story-scoped; avoid broad end-to-end style tests in unit suites.

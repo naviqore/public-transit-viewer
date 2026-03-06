@@ -70,6 +70,24 @@ npm run check
 - Test setup file: `src/test/setup.ts`
 - Coverage output: `coverage/`
 
+Simple test workflow:
+
+```bash
+npm run test:run
+```
+
+For coverage on larger changes:
+
+```bash
+npm run test:coverage
+```
+
+Testing conventions:
+
+- Co-locate tests near source files as `*.test.ts` / `*.test.tsx`.
+- Prefer fast unit tests for `src/services`, `src/utils`, and important hooks.
+- For React components, use Testing Library and assert user-visible behavior.
+
 ### VS Code Setup
 
 This repo is optimized for VS Code with shared workspace config:
