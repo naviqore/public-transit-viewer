@@ -33,3 +33,8 @@ Testing conventions for frontend work:
 - For UI tests, assert visible behavior and interactions (not class names or internal state).
 - Keep tests deterministic: mock time/network where needed.
 - Keep tests small and story-scoped; avoid broad end-to-end style tests in unit suites.
+- For story-driven work, validate changed acceptance criteria with lean tests before asking for commit approval.
+
+Workflow guardrail:
+
+- For new features without an existing story, write the story first and wait for user approval before implementing code.

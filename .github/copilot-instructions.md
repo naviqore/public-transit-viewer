@@ -74,7 +74,13 @@ Examples:
 - Use `docs/stories/INDEX.md` as the local source of truth for story status in this repo.
 - Story IDs must be sequential (`STORY-0001`, `STORY-0002`, ...).
 - Always pick the highest-numbered story marked `OPEN` unless explicitly directed otherwise.
+- Story-first rule for new features:
+  - if no story exists, write/update story docs first and stop for user review before implementation
+  - do not start coding a new feature until the user approves the story text
 - For each implementation PR/commit series:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
-  - update story status from `OPEN` to `CLOSED` when completed
+  - set status to `IN_PROGRESS` when implementation starts
+  - when implementation is done, verify acceptance criteria with lean tests (`npm run test:run` minimum for changed logic)
+  - before committing, present the proposed commit message and ask the user for commit approval
+  - only after user approval: commit changes and update story status to `CLOSED`
   - add completion date and short outcome note

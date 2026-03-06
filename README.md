@@ -135,6 +135,65 @@ To keep agent work deterministic and auditable, this repo uses a local story ind
 - when complete, mark story `CLOSED` and add date + outcome
 - use `docs/stories/STORY_TEMPLATE.md` for new stories
 
+## How To Work With Agents
+
+This section describes the recommended state-of-the-art workflow for AI-assisted delivery in this repo.
+
+### Core Rule: Story First
+
+- New feature work must start with a story document.
+- You review and approve the story before any implementation starts.
+- After implementation, the agent validates acceptance criteria with lean tests.
+- The agent then asks whether to commit and shows the proposed commit message.
+- You review changes and run app checks manually if desired, then give explicit commit approval.
+- Only after your approval should the agent commit and close the story.
+
+### Prompt: Implement Existing Story
+
+Use this when a story already exists:
+
+```text
+Implement STORY-00XX.
+Follow all repo instructions.
+Set the story to IN_PROGRESS.
+Implement only the approved scope.
+Validate acceptance criteria with lean tests.
+Then stop, summarize results, and show the proposed conventional commit message.
+Ask for my approval before committing and before closing the story.
+```
+
+### Prompt: New Feature (Story Must Be Written First)
+
+Use this when no story exists yet:
+
+```text
+I want to add: <feature description>.
+Do NOT implement yet.
+First create a new story in docs/stories and update INDEX.md.
+Keep it small and reviewable with clear acceptance criteria.
+Then stop and ask for my review/approval.
+Only after I approve, start implementation.
+```
+
+### Prompt: Commit Gate At End
+
+Use this to enforce final review before commit:
+
+```text
+Before committing, show:
+1. Acceptance criteria checklist with what passed
+2. Lean test evidence (commands run and outcomes)
+3. Proposed conventional commit message
+Then ask: "Do you want me to commit and close the story?"
+Wait for my explicit yes.
+```
+
+### Lean Testing Expectation For Stories
+
+- Minimum: run `npm run test:run` when changed logic is covered by tests.
+- Always run `npm run check` for non-trivial stories.
+- Use `npm run test:coverage` only when story scope requires coverage verification.
+
 ### AI Agent Setup
 
 VS Code Copilot instructions live in:
