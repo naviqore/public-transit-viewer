@@ -82,6 +82,6 @@ Examples:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts
   - when implementation is done, verify acceptance criteria with lean tests (`npm run test:run` minimum for changed logic)
-  - before committing, present the proposed commit message and ask the user for commit approval
+  - before committing, present the proposed commit message and ask one combined approval question for both actions: commit and close story
   - only after user approval: commit changes and update story status to `CLOSED`
   - add completion date and short outcome note

@@ -57,7 +57,7 @@ This section describes the recommended state-of-the-art workflow for AI-assisted
 - New feature work must start with a story document.
 - You review and approve the story before any implementation starts.
 - After implementation, the agent validates acceptance criteria with lean tests.
-- The agent then asks whether to commit and shows the proposed commit message.
+- The agent then shows the proposed commit message and asks once whether to commit and close the story.
 - You review changes and run app checks manually if desired, then give explicit commit approval.
 - Only after your approval should the agent commit and close the story.
 

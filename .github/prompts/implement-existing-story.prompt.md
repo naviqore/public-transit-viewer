@@ -16,4 +16,4 @@ Before committing:
 - Show acceptance criteria checklist with pass/fail status.
 - Show test commands run and outcomes.
 - Propose one conventional commit message.
-- Ask for explicit user approval before committing and before closing the story.
+- Ask once: "Do you want me to commit and close the story?"
