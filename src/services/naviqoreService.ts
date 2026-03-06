@@ -13,7 +13,12 @@ import {
   StopScope,
   TimeType,
 } from '../types';
-import { IDataProvider, ProviderResponse } from './IDataProvider';
+import {
+  IDataProvider,
+  ProviderError,
+  ProviderFailureResponse,
+  ProviderResult,
+} from './IDataProvider';
 import { RealDataProvider } from './RealDataProvider';
 import { MockDataProvider } from './MockDataProvider';
 
@@ -31,6 +36,25 @@ const toErrorMessage = (error: unknown): string => {
   if (error instanceof Error) return error.message;
   return String(error);
 };
+
+const toLogErrorMessage = (error: ProviderError): string => {
+  const details = [error.message];
+  if (error.requestId) details.push(`requestId=${error.requestId}`);
+  if (error.type) details.push(`type=${error.type}`);
+  return details.join(' | ');
+};
+
+class ServiceRequestError extends Error {
+  readonly status: number;
+  readonly providerError: ProviderError;
+
+  constructor(error: ProviderError, status: number) {
+    super(error.message);
+    this.name = 'ServiceRequestError';
+    this.status = status;
+    this.providerError = error;
+  }
+}
 
 // Helper to construct query strings for logging
 const formatParams = (params: Record<string, QueryParamValue>): string => {
@@ -216,10 +240,10 @@ class NaviqoreService {
 
   private async execute<T>(
     operationName: string,
-    fn: () => Promise<ProviderResponse<T>>
+    fn: () => Promise<ProviderResult<T>>
   ): Promise<ApiResponse<T>> {
     const start = performance.now();
-    let result: ProviderResponse<T>;
+    let result: ProviderResult<T>;
 
     const logUrl = this.isMockMode
       ? `MOCK://${operationName}`
@@ -228,7 +252,15 @@ class NaviqoreService {
     try {
       result = await fn();
     } catch (error: unknown) {
-      result = { data: {} as T, status: 0, error: toErrorMessage(error) };
+      result = {
+        ok: false,
+        status: 0,
+        error: {
+          message: 'Request execution failed.',
+          detail: toErrorMessage(error),
+          status: 0,
+        },
+      };
     }
 
     const end = performance.now();
@@ -241,13 +273,13 @@ class NaviqoreService {
       method: this.isMockMode ? 'MOCK' : 'GET',
       duration,
       status: result.status,
-      error: result.error,
+      error: !result.ok ? toLogErrorMessage(result.error) : undefined,
     };
 
     this.notifyListeners(logEntry);
 
-    if (result.status >= 400 || result.status === 0) {
-      throw new Error(result.error || `Error ${result.status}`);
+    if (!result.ok) {
+      throw this.toServiceError(result);
     }
 
     return {
@@ -255,6 +287,24 @@ class NaviqoreService {
       duration,
       status: result.status,
     };
+  }
+
+  private toServiceError(result: ProviderFailureResponse): ServiceRequestError {
+    const statusLabel =
+      result.status > 0 ? `HTTP ${result.status}` : 'Network Error';
+    const baseMessage = result.error.message || statusLabel;
+    const message =
+      result.error.requestId && !baseMessage.includes('requestId=')
+        ? `${baseMessage} (requestId=${result.error.requestId})`
+        : baseMessage;
+
+    return new ServiceRequestError(
+      {
+        ...result.error,
+        message,
+      },
+      result.status
+    );
   }
 }
 

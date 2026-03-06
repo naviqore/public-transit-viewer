@@ -50,7 +50,56 @@ describe('RealDataProvider', () => {
     const provider = new RealDataProvider('http://localhost:8080');
     const response = await provider.getScheduleInfo();
 
+    expect(response.ok).toBe(false);
     expect(response.status).toBe(0);
-    expect(response.error).toBe('Network Error');
+    if (!response.ok) {
+      expect(response.error.message).toBe('Network request failed.');
+      expect(response.error.detail).toBe('network down');
+    }
+  });
+
+  it('maps RFC ProblemDetail responses to structured provider errors', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          title: 'Invalid Parameters',
+          detail: 'The value of maxTravelDuration must be positive.',
+          type: 'tag:naviqore.org:invalid-parameters',
+          instance: '/routing/connections?maxTravelDuration=-1',
+          requestId: 'req-123',
+          errors: {
+            maxTravelDuration: {
+              rejectedValue: -1,
+              message: 'must be positive',
+            },
+          },
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/problem+json' },
+        }
+      )
+    );
+
+    const provider = new RealDataProvider('http://localhost:8080');
+    const response = await provider.getScheduleInfo();
+
+    expect(response.ok).toBe(false);
+    expect(response.status).toBe(400);
+    if (!response.ok) {
+      expect(response.error.message).toBe(
+        'Invalid Parameters: The value of maxTravelDuration must be positive.'
+      );
+      expect(response.error.type).toBe('tag:naviqore.org:invalid-parameters');
+      expect(response.error.requestId).toBe('req-123');
+      expect(response.error.extras).toEqual({
+        errors: {
+          maxTravelDuration: {
+            rejectedValue: -1,
+            message: 'must be positive',
+          },
+        },
+      });
+    }
   });
 });

@@ -1,4 +1,4 @@
-import { IDataProvider, ProviderResponse } from './IDataProvider';
+import { IDataProvider, ProviderError, ProviderResult } from './IDataProvider';
 import {
   Connection,
   DistanceToStop,
@@ -20,6 +20,43 @@ type QueryParamValue =
   | undefined
   | Array<string | number | boolean>;
 
+const isObject = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null;
+};
+
+const asString = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const pickExtras = (
+  payload: Record<string, unknown>
+): Record<string, unknown> | undefined => {
+  const knownKeys = new Set([
+    'title',
+    'detail',
+    'type',
+    'instance',
+    'requestId',
+    'method',
+    'timestamp',
+    'status',
+  ]);
+
+  const extras = Object.fromEntries(
+    Object.entries(payload).filter(([key]) => !knownKeys.has(key))
+  );
+
+  return Object.keys(extras).length > 0 ? extras : undefined;
+};
+
+const toStatusLabel = (status: number): string => {
+  return Number.isFinite(status) && status > 0
+    ? `HTTP ${status}`
+    : 'Network Error';
+};
+
 export class RealDataProvider implements IDataProvider {
   private baseUrl: string;
 
@@ -31,11 +68,11 @@ export class RealDataProvider implements IDataProvider {
     this.baseUrl = url.endsWith('/') ? url.slice(0, -1) : url;
   }
 
-  async getScheduleInfo(): Promise<ProviderResponse<ScheduleInfo>> {
+  async getScheduleInfo(): Promise<ProviderResult<ScheduleInfo>> {
     return this.fetch<ScheduleInfo>('/schedule');
   }
 
-  async autocompleteStops(query: string): Promise<ProviderResponse<Stop[]>> {
+  async autocompleteStops(query: string): Promise<ProviderResult<Stop[]>> {
     return this.fetch<Stop[]>('/schedule/stops/autocomplete', {
       query,
       limit: 10,
@@ -45,7 +82,7 @@ export class RealDataProvider implements IDataProvider {
   async getNearestStops(
     lat: number,
     lon: number
-  ): Promise<ProviderResponse<DistanceToStop[]>> {
+  ): Promise<ProviderResult<DistanceToStop[]>> {
     return this.fetch<DistanceToStop[]>('/schedule/stops/nearest', {
       latitude: lat,
       longitude: lon,
@@ -60,7 +97,7 @@ export class RealDataProvider implements IDataProvider {
     timeType: TimeType,
     stopScope: StopScope,
     limit: number
-  ): Promise<ProviderResponse<StopDeparture[]>> {
+  ): Promise<ProviderResult<StopDeparture[]>> {
     return this.fetch<StopDeparture[]>(`/schedule/stops/${stopId}/times`, {
       from,
       to,
@@ -70,7 +107,7 @@ export class RealDataProvider implements IDataProvider {
     });
   }
 
-  async getRoutingInfo(): Promise<ProviderResponse<RoutingInfo>> {
+  async getRoutingInfo(): Promise<ProviderResult<RoutingInfo>> {
     return this.fetch<RoutingInfo>('/routing');
   }
 
@@ -80,7 +117,7 @@ export class RealDataProvider implements IDataProvider {
     dateTime: string,
     timeType: TimeType,
     config: QueryConfig
-  ): Promise<ProviderResponse<Connection[]>> {
+  ): Promise<ProviderResult<Connection[]>> {
     // Convert duration configs from minutes (UI) to seconds (API)
     const apiConfig = {
       ...config,
@@ -113,7 +150,7 @@ export class RealDataProvider implements IDataProvider {
     timeType: TimeType,
     maxTravelDuration: number,
     config: QueryConfig
-  ): Promise<ProviderResponse<StopConnection[]>> {
+  ): Promise<ProviderResult<StopConnection[]>> {
     // Convert duration configs from minutes (UI) to seconds (API)
     const apiConfig = {
       ...config,
@@ -143,10 +180,19 @@ export class RealDataProvider implements IDataProvider {
   private async fetch<T>(
     endpoint: string,
     params: Record<string, QueryParamValue> = {}
-  ): Promise<ProviderResponse<T>> {
-    // If no base URL is provided, return an empty success response to prevent crashes
+  ): Promise<ProviderResult<T>> {
+    // Missing URL should be an explicit failure, not a fake success payload.
     if (!this.baseUrl || this.baseUrl.includes('undefined')) {
-      return { data: [] as unknown as T, status: 200 };
+      return {
+        ok: false,
+        status: 0,
+        error: {
+          message: 'Backend URL is not configured.',
+          detail:
+            'Set VITE_API_BASE_URL (or VITE_NAVIQORE_BACKEND_URL) to enable API requests.',
+          status: 0,
+        },
+      };
     }
 
     const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -168,22 +214,96 @@ export class RealDataProvider implements IDataProvider {
       if (!response.ok) {
         // For autocomplete, we often get 404s or empty results, handle gracefully
         if (path.includes('autocomplete'))
-          return { data: [] as unknown as T, status: 200 };
+          return { ok: true, data: [] as T, status: 200 };
 
+        const error = await this.readError(response);
         return {
-          data: {} as T,
+          ok: false,
           status: response.status,
-          error: response.statusText,
+          error,
         };
       }
       const data = await response.json();
-      return { data, status: response.status };
+      return { ok: true, data, status: response.status };
     } catch (error: unknown) {
       // Network errors (fetch failed)
       console.warn(`Fetch failed for ${path}:`, error);
-      // Return a safe empty state with a status of 0 to indicate network failure,
-      // but structured so the app continues running.
-      return { data: [] as unknown as T, status: 0, error: 'Network Error' };
+      return {
+        ok: false,
+        status: 0,
+        error: {
+          message: 'Network request failed.',
+          detail: error instanceof Error ? error.message : String(error),
+          status: 0,
+        },
+      };
     }
+  }
+
+  private async readError(response: Response): Promise<ProviderError> {
+    const contentType = response.headers.get('content-type') ?? '';
+    const isJson = contentType.includes('json');
+
+    let payload: unknown;
+    if (isJson) {
+      try {
+        payload = await response.json();
+      } catch {
+        payload = undefined;
+      }
+    }
+
+    let textBody = '';
+    if (!payload) {
+      try {
+        textBody = (await response.text()).trim();
+      } catch {
+        textBody = '';
+      }
+    }
+
+    const status = response.status;
+    const fallback = asString(response.statusText) ?? toStatusLabel(status);
+
+    if (!isObject(payload)) {
+      const detail = asString(textBody);
+      const message = detail ?? fallback;
+      return {
+        message,
+        detail,
+        status,
+      };
+    }
+
+    const title = asString(payload.title);
+    const detail = asString(payload.detail);
+    const type = asString(payload.type);
+    const instance = asString(payload.instance);
+    const requestId =
+      asString(payload.requestId) ??
+      asString(response.headers.get('X-Request-ID'));
+    const method = asString(payload.method);
+    const timestamp = asString(payload.timestamp);
+
+    const message =
+      [title, detail]
+        .filter((part): part is string => Boolean(part))
+        .join(': ') ||
+      detail ||
+      title ||
+      fallback;
+
+    return {
+      message,
+      title,
+      detail,
+      type,
+      instance,
+      requestId,
+      method,
+      timestamp,
+      status,
+      extras: pickExtras(payload),
+    };
   }
 }

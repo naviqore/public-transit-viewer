@@ -11,22 +11,48 @@ import {
   TimeType,
 } from '../types';
 
-export interface ProviderResponse<T> {
-  data: T;
+export interface ProviderResponse {
+  ok: boolean;
   status: number;
-  error?: string;
 }
+
+export interface ProviderSuccessResponse<T> extends ProviderResponse {
+  ok: true;
+  data: T;
+}
+
+export interface ProviderError {
+  message: string;
+  title?: string;
+  detail?: string;
+  type?: string;
+  instance?: string;
+  requestId?: string;
+  method?: string;
+  timestamp?: string;
+  status?: number;
+  extras?: Record<string, unknown>;
+}
+
+export interface ProviderFailureResponse extends ProviderResponse {
+  ok: false;
+  error: ProviderError;
+}
+
+export type ProviderResult<T> =
+  | ProviderSuccessResponse<T>
+  | ProviderFailureResponse;
 
 export interface IDataProvider {
   // Schedule
-  getScheduleInfo(): Promise<ProviderResponse<ScheduleInfo>>;
+  getScheduleInfo(): Promise<ProviderResult<ScheduleInfo>>;
 
-  autocompleteStops(query: string): Promise<ProviderResponse<Stop[]>>;
+  autocompleteStops(query: string): Promise<ProviderResult<Stop[]>>;
 
   getNearestStops(
     lat: number,
     lon: number
-  ): Promise<ProviderResponse<DistanceToStop[]>>;
+  ): Promise<ProviderResult<DistanceToStop[]>>;
 
   getStopDepartures(
     stopId: string,
@@ -35,10 +61,10 @@ export interface IDataProvider {
     timeType: TimeType,
     stopScope: StopScope,
     limit: number
-  ): Promise<ProviderResponse<StopDeparture[]>>;
+  ): Promise<ProviderResult<StopDeparture[]>>;
 
   // Routing
-  getRoutingInfo(): Promise<ProviderResponse<RoutingInfo>>;
+  getRoutingInfo(): Promise<ProviderResult<RoutingInfo>>;
 
   getConnections(
     sourceStopId: string | undefined,
@@ -46,7 +72,7 @@ export interface IDataProvider {
     dateTime: string,
     timeType: TimeType,
     config: QueryConfig
-  ): Promise<ProviderResponse<Connection[]>>;
+  ): Promise<ProviderResult<Connection[]>>;
 
   getIsolines(
     sourceStopId: string,
@@ -54,5 +80,5 @@ export interface IDataProvider {
     timeType: TimeType,
     maxTravelDuration: number,
     config: QueryConfig
-  ): Promise<ProviderResponse<StopConnection[]>>;
+  ): Promise<ProviderResult<StopConnection[]>>;
 }

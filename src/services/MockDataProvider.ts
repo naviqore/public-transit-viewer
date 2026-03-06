@@ -1,4 +1,4 @@
-import { IDataProvider, ProviderResponse } from './IDataProvider';
+import { IDataProvider, ProviderResult } from './IDataProvider';
 import {
   Connection,
   DistanceToStop,
@@ -21,11 +21,11 @@ import {
 } from './mockData';
 
 export class MockDataProvider implements IDataProvider {
-  async getScheduleInfo(): Promise<ProviderResponse<ScheduleInfo>> {
+  async getScheduleInfo(): Promise<ProviderResult<ScheduleInfo>> {
     return this.delay(MOCK_SCHEDULE_INFO);
   }
 
-  async autocompleteStops(query: string): Promise<ProviderResponse<Stop[]>> {
+  async autocompleteStops(query: string): Promise<ProviderResult<Stop[]>> {
     const lower = query.toLowerCase();
     const matches = MOCK_STOPS.filter((s) =>
       s.name.toLowerCase().includes(lower)
@@ -36,7 +36,7 @@ export class MockDataProvider implements IDataProvider {
   async getNearestStops(
     lat: number,
     lon: number
-  ): Promise<ProviderResponse<DistanceToStop[]>> {
+  ): Promise<ProviderResult<DistanceToStop[]>> {
     void lat;
     void lon;
     const stops = MOCK_STOPS.map((s) => ({
@@ -53,7 +53,7 @@ export class MockDataProvider implements IDataProvider {
     timeType: TimeType,
     stopScope: StopScope,
     limit: number
-  ): Promise<ProviderResponse<StopDeparture[]>> {
+  ): Promise<ProviderResult<StopDeparture[]>> {
     void from;
     void to;
     void timeType;
@@ -80,7 +80,7 @@ export class MockDataProvider implements IDataProvider {
     return this.delay(departures);
   }
 
-  async getRoutingInfo(): Promise<ProviderResponse<RoutingInfo>> {
+  async getRoutingInfo(): Promise<ProviderResult<RoutingInfo>> {
     return this.delay(MOCK_ROUTING_INFO);
   }
 
@@ -90,7 +90,7 @@ export class MockDataProvider implements IDataProvider {
     dateTime: string,
     timeType: TimeType,
     config: QueryConfig
-  ): Promise<ProviderResponse<Connection[]>> {
+  ): Promise<ProviderResult<Connection[]>> {
     void sourceStopId;
     void targetStopId;
     void dateTime;
@@ -105,7 +105,7 @@ export class MockDataProvider implements IDataProvider {
     timeType: TimeType,
     maxTravelDuration: number,
     config: QueryConfig
-  ): Promise<ProviderResponse<StopConnection[]>> {
+  ): Promise<ProviderResult<StopConnection[]>> {
     void sourceStopId;
     void dateTime;
     void timeType;
@@ -117,8 +117,8 @@ export class MockDataProvider implements IDataProvider {
   private async delay<T>(
     data: T,
     ms: number = 400
-  ): Promise<ProviderResponse<T>> {
+  ): Promise<ProviderResult<T>> {
     await new Promise((resolve) => setTimeout(resolve, ms));
-    return { data, status: 200 };
+    return { ok: true, data, status: 200 };
   }
 }
