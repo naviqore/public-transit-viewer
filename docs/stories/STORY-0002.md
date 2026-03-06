@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Context
 

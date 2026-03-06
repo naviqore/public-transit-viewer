@@ -19,7 +19,7 @@ coverage
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
