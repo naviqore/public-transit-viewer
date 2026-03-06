@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -15,9 +15,9 @@ The repository targets VS Code workflows. JetBrains project metadata in `.idea/`
 
 ## Acceptance Criteria
 
-- [ ] `.idea/` is removed from git-tracked files.
-- [ ] `.gitignore` includes `.idea/`.
-- [ ] `npm run check` still passes.
+- [x] `.idea/` is removed from git-tracked files.
+- [x] `.gitignore` includes `.idea/`.
+- [x] `npm run check` still passes.
 
 ## Implementation Notes
 
@@ -25,5 +25,5 @@ Keep this story strictly about repository hygiene; do not combine with unrelated
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-06
+- Outcome: Removed tracked `.idea/` files from git, added `.idea/` ignore rule, and verified `npm run check` passes.
