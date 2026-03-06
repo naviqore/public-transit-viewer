@@ -42,98 +42,11 @@ VITE_DISABLE_BENCHMARK=true
    npm run build
    ```
 
-## Professional Development Setup
+## Development Commands
 
-### Quality and Automation Scripts
-
-- `npm run lint` runs ESLint with zero-warning policy.
-- `npm run lint:fix` applies safe lint fixes.
-- `npm run format` formats the repository with Prettier.
-- `npm run format:check` validates formatting without rewriting files.
-- `npm run typecheck` runs TypeScript checks without emitting.
-- `npm run test` starts Vitest in watch mode.
-- `npm run test:run` runs unit tests once.
-- `npm run test:coverage` runs tests with V8 coverage reports.
-- `npm run commitlint` validates recent commits against Conventional Commits.
-- `npm run check` runs the full local quality gate.
-
-Recommended day-to-day loop:
-
-```bash
-npm run check
-```
-
-### Tests
-
-- Test runner: `Vitest`
-- DOM environment: `jsdom`
-- Test setup file: `src/test/setup.ts`
-- Coverage output: `coverage/`
-
-Simple test workflow:
-
-```bash
-npm run test:run
-```
-
-For coverage on larger changes:
-
-```bash
-npm run test:coverage
-```
-
-Testing conventions:
-
-- Co-locate tests near source files as `*.test.ts` / `*.test.tsx`.
-- Prefer fast unit tests for `src/services`, `src/utils`, and important hooks.
-- For React components, use Testing Library and assert user-visible behavior.
-
-### VS Code Setup
-
-This repo is optimized for VS Code with shared workspace config:
-
-- `.vscode/extensions.json` contains recommended extensions.
-- `.vscode/settings.json` enables format-on-save and ESLint flat config behavior.
-- `.vscode/tasks.json` provides reusable tasks for `check`, `test`, and `build`.
-
-### CI and Dependency Automation
-
-- `Quality CI` workflow runs lint/typecheck/format/tests/build on push and PR.
-- `Commitlint` workflow validates commit messages on pull requests.
-- `Release Please` workflow creates release PRs/tags from Conventional Commits on `main`.
-- Docker workflows are kept for image build/publish.
-- Dependabot tracks `npm`, `github-actions`, and `docker` updates.
-
-### Conventional Commits and Releases
-
-This project uses Conventional Commits so Release Please can generate changelogs and releases automatically.
-
-- Commit format: `<type>(<scope>): <subject>`
-- Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
-- Breaking changes: use `!` after type/scope or a `BREAKING CHANGE:` footer
-
-Examples:
-
-```text
-feat(connect): add transfer duration slider
-fix(map): keep bounds stable on stop swap
-chore(ci): add release please workflow
-```
-
-Local and CI enforcement:
-
-- Husky `commit-msg` hook runs `commitlint`
-- PR commits are validated by `.github/workflows/commitlint.yml`
-
-### Story Workflow for Agents
-
-To keep agent work deterministic and auditable, this repo uses a local story index:
-
-- `docs/stories/INDEX.md` is the source of truth for story status
-- stories use sequential IDs (`STORY-0001`, `STORY-0002`, ...)
-- implementation should pick the highest-numbered `OPEN` story unless directed otherwise
-- when complete, mark story `CLOSED` and add date + outcome
-- use `docs/stories/STORY_TEMPLATE.md` for new stories
+- Full local quality gate: `npm run check`
+- Unit tests (lean default): `npm run test:run`
+- Build: `npm run build`
 
 ## How To Work With Agents
 
@@ -161,12 +74,6 @@ Use them when chatting with agents instead of rewriting prompts each time.
 - Option 1: open a template file and paste/adapt its content in chat.
 - Option 2: use VS Code Copilot prompt file support to insert and run prompt templates directly.
 
-### Lean Testing Expectation For Stories
-
-- Minimum: run `npm run test:run` when changed logic is covered by tests.
-- Always run `npm run check` for non-trivial stories.
-- Use `npm run test:coverage` only when story scope requires coverage verification.
-
 ### AI Agent Setup
 
 VS Code Copilot instructions live in:
@@ -175,6 +82,11 @@ VS Code Copilot instructions live in:
 - `.github/instructions/frontend.instructions.md` (frontend-specific guidance)
 
 This is the canonical location for AI guidance in VS Code. Keep these files aligned with scripts and architecture when conventions change.
+
+Also relevant:
+
+- Story index: `docs/stories/INDEX.md`
+- Story template: `docs/stories/STORY_TEMPLATE.md`
 
 ## Docker Deployment
 
