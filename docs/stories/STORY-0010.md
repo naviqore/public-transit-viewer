@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -25,5 +25,7 @@ Keep this story narrowly scoped; avoid full rewrite of layout architecture.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-09
+- Outcome: Descoped. Reviewed codebase — `Layout.tsx` is already fully Tailwind-driven. Only one `calc()` remains in `PageStyles.css` (`left: calc(var(--nav-width-desktop) + var(--panel-width-desktop))`) and it is the semantically correct tool for the job; replacing it would require hardcoding pixel values or custom JIT tokens that are less readable. No actionable work remains.
+- Descoped ACs:
+  - `- [~]` At least one core layout segment no longer depends on manual `calc(...)` — descoped: the single remaining `calc()` is necessary and correct; removing it would reduce clarity.
