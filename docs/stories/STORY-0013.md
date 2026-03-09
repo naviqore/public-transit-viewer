@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -70,5 +70,5 @@ duration, derived from the same computation.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-09
+- Outcome: Fixed. Duration now computed as `arrivalTime – departureTime` for all TimeTypes; IsolineCard fallback updated to use `connectingLeg.duration`. Map and list always show identical minute values. 7 unit tests added.

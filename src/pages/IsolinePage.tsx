@@ -97,7 +97,6 @@ const IsolinePage: React.FC = () => {
       const timeoutId = setTimeout(async () => {
         try {
           const isoDate = inputDateToIso(date, timezone);
-          const queryStartMs = new Date(isoDate).getTime();
 
           const res = await naviqoreService.getIsolines(
             centerStop.id,
@@ -107,35 +106,23 @@ const IsolinePage: React.FC = () => {
             queryConfig
           );
 
-          // Fix for 0 duration: Calculate Total Duration based on TimeType
           const processedIsolines = res.data.map((iso) => {
-            const arrivalMs = new Date(iso.arrivalTime).getTime();
-            const departureMs = new Date(iso.departureTime).getTime();
-
-            let totalDurationSeconds: number;
-
-            if (timeType === TimeType.ARRIVAL) {
-              totalDurationSeconds = (queryStartMs - departureMs) / 1000;
-            } else {
-              totalDurationSeconds = (arrivalMs - queryStartMs) / 1000;
-            }
-
-            if (totalDurationSeconds <= 0) {
-              totalDurationSeconds = (arrivalMs - departureMs) / 1000;
-            }
-            totalDurationSeconds = Math.max(0, totalDurationSeconds);
+            const travelDurationSeconds =
+              (new Date(iso.arrivalTime).getTime() -
+                new Date(iso.departureTime).getTime()) /
+              1000;
 
             return {
               ...iso,
               connection: {
                 ...(iso.connection || {}),
-                duration: totalDurationSeconds,
+                duration: travelDurationSeconds,
                 legs: iso.connection?.legs || [],
                 transfers: iso.transfers,
               },
               connectingLeg: {
                 ...iso.connectingLeg,
-                duration: totalDurationSeconds,
+                duration: travelDurationSeconds,
               },
             };
           });

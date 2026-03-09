@@ -25,14 +25,10 @@ const IsolineCard: React.FC<IsolineCardProps> = ({
 }) => {
   const leg = item.connectingLeg;
 
-  // Calculate duration from connection (if available) or leg times
+  // Use connection.duration when set and non-zero; otherwise fall back to connectingLeg.duration.
   const duration = item.connection?.duration
     ? Math.round(item.connection.duration / 60)
-    : Math.round(
-        (new Date(leg.arrivalTime).getTime() -
-          new Date(leg.departureTime).getTime()) /
-          60000
-      );
+    : Math.round((item.connectingLeg.duration ?? 0) / 60);
 
   const mode = leg.trip?.route?.transportMode || 'WALK';
   const color = TRANSPORT_COLORS[mode] || TRANSPORT_COLORS.WALK;
