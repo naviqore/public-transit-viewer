@@ -23,7 +23,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 | STORY-0012 | CLOSED | Reorder story index to newest-first    | unassigned | Completed 2026-03-09: reversed table row order and documented newest-first convention                          |
 | STORY-0011 | OPEN   | Introduce TanStack Query incrementally | unassigned | Migrate one fetch flow                                                                                         |
 | STORY-0010 | OPEN   | Reduce manual layout calc CSS          | unassigned | Move scaffolding to TSX                                                                                        |
-| STORY-0009 | OPEN   | Split map layer rendering helpers      | unassigned | Break up useMapLayers hook                                                                                     |
+| STORY-0009 | CLOSED | Split map layer rendering helpers      | unassigned | Completed 2026-03-09: extracted stopIcons.ts and popups.ts from useMapLayers; fixed line tooltip cursor overlap |
 | STORY-0008 | CLOSED | Improve service error result model     | unassigned | Completed 2026-03-06: introduced explicit provider success/failure model and propagated ProblemDetail metadata |
 | STORY-0007 | CLOSED | Enable strict typing cleanup slice     | unassigned | Completed 2026-03-06: removed local any usage in DomainContext slice and added focused tests                   |
 | STORY-0006 | CLOSED | Replace custom benchmark tooltip       | unassigned | Completed 2026-03-06: replaced custom tooltip with Floating UI and added focused tests                         |
