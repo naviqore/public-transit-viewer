@@ -20,6 +20,9 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 
 | ID         | Status | Title                                   | Owner      | Notes                                                                                                           |
 | ---------- | ------ | --------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
+| STORY-0017 | OPEN   | Rename browser tab title                | unassigned | Change `<title>` to "Naviqore \| Public Transit Viewer"                                                         |
+| STORY-0016 | OPEN   | Production-ready Docker image and CI/CD | unassigned | Multi-stage Dockerfile, PR build-check workflow, release-publish to ghcr.io                                     |
+| STORY-0015 | OPEN   | Documentation and comment style cleanup | unassigned | Remove obvious comments; add JSDoc to complex hooks, services, utilities; enforce consistent style              |
 | STORY-0014 | OPEN   | Isoline map colour-mode toggle          | unassigned | Toggle between travel-time gradient and transfer-count discrete palette; add matching legend                    |
 | STORY-0013 | OPEN   | Align isoline list travel time with map | unassigned | Fix card duration fallback so list and map always show the same minute value                                    |
 | STORY-0012 | CLOSED | Reorder story index to newest-first     | unassigned | Completed 2026-03-09: reversed table row order and documented newest-first convention                           |
