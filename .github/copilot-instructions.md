@@ -78,10 +78,17 @@ Examples:
 - Story-first rule for new features:
   - if no story exists, write/update story docs first and stop for user review before implementation
   - do not start coding a new feature until the user approves the story text
+- Acceptance criteria (AC) notation:
+  - `- [ ]` — not yet done; **blocks closure**
+  - `- [x]` — satisfied and verified during implementation
+  - `- [~]` — intentionally descoped or deferred; **must** include a written justification in the Completion section
+  - An agent must never check `- [x]` without having actually satisfied the criterion.
 - For each implementation PR/commit series:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts
-  - when implementation is done, verify acceptance criteria with lean tests (`npm run test:run` minimum for changed logic)
+  - check each AC as `- [x]` in the story file **as it is satisfied** during implementation
+  - when implementation is done, verify with lean tests (`npm run test:run` minimum for changed logic)
   - before committing, present the proposed commit message and ask one combined approval question for both actions: commit and close story
+  - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]` remain, the agent must ask the user whether to satisfy, descope (`- [~]`), or block closure
   - only after user approval: commit changes and update story status to `CLOSED`
-  - add completion date and short outcome note
+  - add completion date and short outcome note; if any ACs were descoped, document the reason there

@@ -15,9 +15,9 @@ CLOSED
 
 ## Acceptance Criteria
 
-- [ ] Custom `PortalTooltip` logic is removed from `BenchmarkTab.tsx`.
-- [ ] Tooltip behavior remains usable on desktop and mobile.
-- [ ] `npm run check` and `npm run build` pass.
+- [x] Custom `PortalTooltip` logic is removed from `BenchmarkTab.tsx`.
+- [x] Tooltip behavior remains usable on desktop and mobile.
+- [x] `npm run check` and `npm run build` pass.
 
 ## Implementation Notes
 

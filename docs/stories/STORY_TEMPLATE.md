@@ -26,3 +26,4 @@ Optional technical notes for implementers.
 
 - Date:
 - Outcome:
+- Descoped ACs:

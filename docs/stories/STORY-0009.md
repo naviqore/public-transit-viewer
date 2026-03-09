@@ -15,9 +15,9 @@ CLOSED
 
 ## Acceptance Criteria
 
-- [ ] `useMapLayers.ts` is reduced in size/complexity by delegating a major concern.
-- [ ] Extracted helpers are typed and colocated under a clear map-layer structure.
-- [ ] Map rendering behavior remains functionally equivalent.
+- [x] `useMapLayers.ts` is reduced in size/complexity by delegating a major concern.
+- [x] Extracted helpers are typed and colocated under a clear map-layer structure.
+- [x] Map rendering behavior remains functionally equivalent.
 
 ## Implementation Notes
 

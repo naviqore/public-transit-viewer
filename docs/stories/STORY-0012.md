@@ -17,11 +17,11 @@ The story index table in `docs/stories/INDEX.md` currently lists stories in asce
 
 ## Acceptance Criteria
 
-- [ ] The story table in `INDEX.md` is ordered newest-to-oldest (STORY-0012 first, STORY-0001 last).
-- [ ] New stories must be inserted at the top of the table (documented explicitly in `INDEX.md`).
-- [ ] All existing story metadata (ID, status, title, owner, notes) is preserved exactly; no data is lost or modified.
-- [ ] The "Selection Rule for Agents" section still correctly states: pick the highest-numbered `OPEN` story.
-- [ ] `npm run check` passes with no errors after the change (markdown/lint rules satisfied).
+- [x] The story table in `INDEX.md` is ordered newest-to-oldest (STORY-0012 first, STORY-0001 last).
+- [x] New stories must be inserted at the top of the table (documented explicitly in `INDEX.md`).
+- [x] All existing story metadata (ID, status, title, owner, notes) is preserved exactly; no data is lost or modified.
+- [x] The "Selection Rule for Agents" section still correctly states: pick the highest-numbered `OPEN` story.
+- [x] `npm run check` passes with no errors after the change (markdown/lint rules satisfied).
 
 ## Implementation Notes
 

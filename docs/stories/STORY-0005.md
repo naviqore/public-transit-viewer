@@ -16,9 +16,9 @@ CLOSED
 
 ## Acceptance Criteria
 
-- [ ] `App.tsx` no longer contains inline `ErrorBoundary` class/component implementation.
-- [ ] New `ErrorBoundary` component preserves existing fallback behavior.
-- [ ] `npm run check` passes.
+- [x] `App.tsx` no longer contains inline `ErrorBoundary` class/component implementation.
+- [x] New `ErrorBoundary` component preserves existing fallback behavior.
+- [x] `npm run check` passes.
 
 ## Implementation Notes
 
