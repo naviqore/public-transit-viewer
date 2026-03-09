@@ -20,12 +20,17 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Copy built assets from the build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy entrypoint script that writes runtime env vars into env.js on startup
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
 # Create a non-root user and fix permissions on all directories nginx needs
 RUN adduser -S -D -u 1001 appuser \
+ && chmod +x /docker-entrypoint.sh \
  && chown -R appuser /var/cache/nginx \
                      /var/log/nginx \
                      /usr/share/nginx/html \
-                     /etc/nginx/nginx.conf
+                     /etc/nginx/nginx.conf \
+                     /docker-entrypoint.sh
 
 # OCI standard image labels (dynamic labels are added by the CI publish step)
 LABEL org.opencontainers.image.title="naviqore-public-transit-viewer" \
@@ -39,4 +44,4 @@ USER appuser
 # nginx.conf listens on 8080 to avoid requiring root for privileged ports
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

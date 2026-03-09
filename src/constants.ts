@@ -1,4 +1,18 @@
-const getEnv = (key: string): string | undefined => {
+interface RuntimeEnv {
+  VITE_API_BASE_URL?: string;
+  VITE_NAVIQORE_BACKEND_URL?: string;
+  VITE_DISABLE_BENCHMARK?: string;
+  VITE_ENABLE_MOCK_DATA?: string;
+}
+
+const getEnv = (key: keyof RuntimeEnv): string | undefined => {
+  // Prefer runtime values injected by docker-entrypoint.sh via window.__ENV__
+  // (allows configuring a pre-built image without rebuilding).
+  if (typeof window !== 'undefined') {
+    const runtime = (window as { __ENV__?: RuntimeEnv }).__ENV__;
+    if (runtime?.[key]) return runtime[key];
+  }
+  // Fall back to Vite build-time env (local dev / build-arg workflow).
   const env = (
     import.meta as ImportMeta & {
       env?: Record<string, string | undefined>;
