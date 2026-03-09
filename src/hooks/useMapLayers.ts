@@ -9,6 +9,7 @@ import {
   createStopIcon,
   StopMarkerType,
 } from './mapLayers/stopIcons';
+import { IsolineColorMode, getTransferColor } from '../utils/isolineColorUtils';
 
 interface UseMapLayersProps {
   map: L.Map | null;
@@ -23,6 +24,8 @@ interface UseMapLayersProps {
   darkMode: boolean;
   timezone: string;
   isolineMaxDuration: number;
+  isolineColorMode?: IsolineColorMode;
+  isolineTransfersMap?: Map<string, number>;
 
   // Highlighting
   sourceStop?: Stop;
@@ -46,6 +49,8 @@ export const useMapLayers = ({
   darkMode,
   timezone,
   isolineMaxDuration,
+  isolineColorMode,
+  isolineTransfersMap,
   sourceStop,
   targetStop,
   highlightedStopId,
@@ -56,6 +61,41 @@ export const useMapLayers = ({
     if (!map || !layerGroup) return;
 
     layerGroup.clearLayers();
+
+    // Colour resolvers for isoline mode — encapsulate mode + transfer map lookup
+    const mode = isolineColorMode ?? 'travelTime';
+
+    const resolveTransfers = (
+      toId: string | undefined,
+      fromId: string | undefined
+    ): number => {
+      if (toId && isolineTransfersMap?.has(toId))
+        return isolineTransfersMap.get(toId)!;
+      if (fromId && isolineTransfersMap?.has(fromId))
+        return isolineTransfersMap.get(fromId)!;
+      return 0;
+    };
+
+    const colorResolver = (
+      toId: string | undefined,
+      fromId: string | undefined,
+      durationMin: number
+    ): string =>
+      mode === 'transfers'
+        ? getTransferColor(resolveTransfers(toId, fromId))
+        : getGradientColor(durationMin, isolineMaxDuration);
+
+    const labelResolver = (
+      toId: string | undefined,
+      fromId: string | undefined,
+      durationMin: number
+    ): string => {
+      if (mode === 'transfers') {
+        const xfers = resolveTransfers(toId, fromId);
+        return `${xfers} transfer${xfers === 1 ? '' : 's'}`;
+      }
+      return `${Math.round(durationMin)} min`;
+    };
 
     // 1. Draw Lines
     if (selectedConnection) {
@@ -93,12 +133,7 @@ export const useMapLayers = ({
 
     if (visConnections && Array.isArray(visConnections)) {
       if (variant === 'isoline') {
-        drawIsolinePaths(
-          layerGroup,
-          visConnections,
-          isolineMaxDuration,
-          isDimmed
-        );
+        drawIsolinePaths(layerGroup, visConnections, isDimmed, colorResolver);
       } else if (!selectedConnection) {
         // Overview mode for Explore page
         visConnections.forEach((c) =>
@@ -135,11 +170,12 @@ export const useMapLayers = ({
         layerGroup,
         isolines,
         visConnections,
-        isolineMaxDuration,
         darkMode,
         timezone,
         highlightedStopId,
         isDimmed,
+        colorResolver,
+        labelResolver,
         onStopClick
       );
     }
@@ -164,6 +200,8 @@ export const useMapLayers = ({
     darkMode,
     timezone,
     isolineMaxDuration,
+    isolineColorMode,
+    isolineTransfersMap,
     sourceStop,
     targetStop,
     highlightedStopId,
@@ -468,8 +506,12 @@ const drawContextStops = (
 const drawIsolinePaths = (
   layers: L.LayerGroup,
   items: { legs: Leg[] }[],
-  maxDuration: number,
-  isDimmed: boolean
+  isDimmed: boolean,
+  colorResolver: (
+    toId: string | undefined,
+    fromId: string | undefined,
+    durationMin: number
+  ) => string
 ) => {
   items.forEach((item) => {
     const leg = item.legs[0];
@@ -480,7 +522,7 @@ const drawIsolinePaths = (
       return;
 
     const durationMin = (leg.duration || 0) / 60;
-    const color = getGradientColor(durationMin, maxDuration);
+    const color = colorResolver(leg.toStop?.id, leg.fromStop?.id, durationMin);
 
     // Reduce opacity significantly if dimmed (selected connection is active)
     L.polyline(
@@ -502,11 +544,20 @@ const drawIsolineStops = (
   layers: L.LayerGroup,
   stops: Stop[],
   connections: { legs: Leg[] }[],
-  maxDuration: number,
   isDark: boolean,
   timezone: string,
   highlightedStopId: string | null | undefined,
   isDimmed: boolean,
+  colorResolver: (
+    toId: string | undefined,
+    fromId: string | undefined,
+    durationMin: number
+  ) => string,
+  labelResolver: (
+    toId: string | undefined,
+    fromId: string | undefined,
+    durationMin: number
+  ) => string,
   onClick?: (s: Stop) => void
 ) => {
   const stopDurationMap = new Map<string, number>();
@@ -522,7 +573,8 @@ const drawIsolineStops = (
     )
       return;
     const duration = stopDurationMap.get(stop.id) || 0;
-    const color = getGradientColor(duration, maxDuration);
+    const color = colorResolver(stop.id, stop.id, duration);
+    const label = labelResolver(stop.id, stop.id, duration);
 
     const isHighlighted = stop.id === highlightedStopId;
 
@@ -542,7 +594,7 @@ const drawIsolineStops = (
         timezone,
         permanent: true,
         highlightColor: color,
-        subtitle: `${Math.round(duration)} min`,
+        subtitle: label,
       });
 
       if (onClick) marker.on('click', () => onClick(stop));
@@ -571,7 +623,7 @@ const drawIsolineStops = (
           `
                     <div class="text-center min-w-[60px] font-sans">
                         <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
-                        <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${Math.round(duration)} min</span></div>
+                        <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${label}</span></div>
                     </div>`,
           {
             direction: 'top',

@@ -1,12 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Connection, Leg, Stop } from '../types';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { DEFAULT_MAP_CENTER } from '../constants';
-import { useSettings } from '../contexts/SettingsContext';
 import { useDomain } from '../contexts/DomainContext';
+import { useSettings } from '../contexts/SettingsContext';
+import { Connection, Leg, Stop } from '../types';
 import TransportIcon from './common/TransportIcon';
 import { useMapLayers } from '../hooks/useMapLayers';
 import { getLegStopTimes } from '../utils/dataUtils';
+import {
+  IsolineColorMode,
+  TRANSFER_COLORS,
+  getTransferColor,
+} from '../utils/isolineColorUtils';
 
 interface MapProps {
   center: [number, number];
@@ -24,6 +30,11 @@ interface MapProps {
   sourceStop?: Stop;
   targetStop?: Stop;
   highlightedStopId?: string | null;
+
+  // Isoline color mode
+  isolineColorMode?: IsolineColorMode;
+  onIsolineColorModeChange?: (mode: IsolineColorMode) => void;
+  isolineTransfersMap?: Map<string, number>;
 
   onStopClick?: (stop: Stop) => void;
   onMapClick?: (lat: number, lon: number) => void;
@@ -144,6 +155,8 @@ const MapComponent: React.FC<MapProps> = (props) => {
     darkMode,
     timezone,
     isolineMaxDuration: isolineState.maxDuration,
+    isolineColorMode: props.isolineColorMode,
+    isolineTransfersMap: props.isolineTransfersMap,
 
     // Highlighting Props
     sourceStop: props.sourceStop,
@@ -234,17 +247,57 @@ const MapComponent: React.FC<MapProps> = (props) => {
         props.visConnections &&
         props.visConnections.length > 0 && (
           <div className="absolute top-6 right-6 z-[400] bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-xl max-w-[200px] animate-in fade-in slide-in-from-top-4">
+            {/* Mode toggle */}
+            <div className="flex gap-1 mb-3">
+              {(['travelTime', 'transfers'] as IsolineColorMode[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => props.onIsolineColorModeChange?.(m)}
+                  className={`flex-1 py-1 px-1.5 text-[10px] font-bold rounded transition-colors ${
+                    (props.isolineColorMode ?? 'travelTime') === m
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  {m === 'travelTime' ? 'Travel time' : 'Transfers'}
+                </button>
+              ))}
+            </div>
+            {/* Legend */}
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-              Travel Time
+              {(props.isolineColorMode ?? 'travelTime') === 'travelTime'
+                ? 'Travel Time'
+                : 'Transfers'}
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="h-2 w-full rounded-full bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-amber-500" />
-              <div className="flex justify-between text-[10px] font-mono font-medium text-slate-600 dark:text-slate-300">
-                <span>0m</span>
-                <span>{isolineState.maxDuration / 2}m</span>
-                <span>{isolineState.maxDuration}m</span>
+            {(props.isolineColorMode ?? 'travelTime') === 'travelTime' ? (
+              <div className="flex flex-col gap-1">
+                <div className="h-2 w-full rounded-full bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-amber-500" />
+                <div className="flex justify-between text-[10px] font-mono font-medium text-slate-600 dark:text-slate-300">
+                  <span>0m</span>
+                  <span>{isolineState.maxDuration / 2}m</span>
+                  <span>{isolineState.maxDuration}m</span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {[
+                  { label: 'Direct', color: TRANSFER_COLORS[0] },
+                  { label: '1 transfer', color: TRANSFER_COLORS[1] },
+                  { label: '2 transfers', color: TRANSFER_COLORS[2] },
+                  { label: '3+ transfers', color: getTransferColor(3) },
+                ].map(({ label, color }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300">
+                      {label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       {props.variant !== 'isoline' && visibleModes.length > 0 && (

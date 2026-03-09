@@ -24,6 +24,7 @@ import {
   getCurrentInputTime,
   inputDateToIso,
 } from '../utils/dateUtils';
+import { IsolineColorMode } from '../utils/isolineColorUtils';
 import './PageStyles.css';
 
 const PAGE_SIZE = 50;
@@ -46,6 +47,8 @@ const IsolinePage: React.FC = () => {
     useState<Connection | null>(null);
   const [showConfig, setShowConfig] = useState(false);
   const [customBounds, setCustomBounds] = useState<L.LatLngBounds | null>(null);
+  const [isolineColorMode, setIsolineColorMode] =
+    useState<IsolineColorMode>('travelTime');
 
   // Pagination State (Sliding Window)
   const [displayRange, setDisplayRange] = useState({
@@ -327,6 +330,11 @@ const IsolinePage: React.FC = () => {
     () => (centerStop ? [centerStop] : []),
     [centerStop]
   );
+  const isolineTransfersMap = useMemo(() => {
+    const m = new Map<string, number>();
+    isolines.forEach((iso) => m.set(iso.stop.id, iso.transfers));
+    return m;
+  }, [isolines]);
 
   return (
     <div className="page-wrapper flex flex-col h-full overflow-hidden">
@@ -463,6 +471,9 @@ const IsolinePage: React.FC = () => {
           highlightedStopId={highlightedStopId}
           sourceStop={centerStop || undefined}
           selectedConnection={expandedConnection}
+          isolineColorMode={isolineColorMode}
+          onIsolineColorModeChange={setIsolineColorMode}
+          isolineTransfersMap={isolineTransfersMap}
         />
       </div>
       {showConfig && (
