@@ -2,6 +2,7 @@ import L from 'leaflet';
 
 import { COLORS } from '../../constants';
 
+/** Returns true only when both coordinates are finite numbers (guards against undefined or NaN values from the API). */
 export function isValidCoordinate(
   lat: number | undefined | null,
   lng: number | undefined | null
@@ -23,6 +24,7 @@ export type StopMarkerType =
   | 'context'
   | 'context-subtle';
 
+/** Builds a Leaflet `DivIcon` for a stop marker; size and visual style are driven by the semantic `type`. */
 export function createStopIcon(
   type: StopMarkerType,
   isDark: boolean,

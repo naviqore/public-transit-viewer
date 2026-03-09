@@ -27,13 +27,11 @@ const DomainContext = createContext<DomainContextType | undefined>(undefined);
 export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Server Capabilities
   const [serverInfo, setServerInfo] = useState<ServerInfo>({
     schedule: null,
     routing: null,
   });
 
-  // Explore Page State
   const [exploreState, setExploreState] = useState<ExploreState>({
     selectedStop: null,
     departures: [],
@@ -42,7 +40,6 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     config: DEFAULT_EXPLORE_CONFIG,
   });
 
-  // Routing Page State
   const [routingState, setRoutingState] = useState<RoutingState>({
     fromStop: null,
     toStop: null,
@@ -53,7 +50,6 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     maxTravelDuration: undefined,
   });
 
-  // Isoline Page State
   const [isolineState, setIsolineState] = useState<IsolineState>({
     centerStop: null,
     isolines: [],
@@ -61,7 +57,6 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     date: new Date().toISOString().slice(0, 16),
   });
 
-  // Data Fetching Logic
   useEffect(() => {
     const fetchData = async () => {
       try {

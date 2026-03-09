@@ -19,6 +19,7 @@ interface EndpointStats {
   history: number[];
 }
 
+/** Collapses dynamic path segments (stop IDs, UUIDs) into labelled placeholders for grouping. */
 const normalizeUrlPath = (path: string): string => {
   const normalized = path.replace(/\/+$/, '');
   if (normalized === '/schedule') return '/schedule';
@@ -37,6 +38,7 @@ const normalizeUrlPath = (path: string): string => {
   return normalized.replace(/\/(\d{4,}|[a-f0-9-]{10,})/g, '/{id}');
 };
 
+/** Groups request logs by normalised endpoint key and computes per-endpoint latency statistics. */
 const aggregateLogs = (logs: RequestLog[]): EndpointStats[] => {
   const map = new Map<string, EndpointStats>();
   logs.forEach((log) => {

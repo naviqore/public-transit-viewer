@@ -59,7 +59,6 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
       onClick={handleBackdropClick}
     >
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90dvh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
-        {/* Header / Brand */}
         <div className="flex flex-col items-center justify-center p-8 pb-4 bg-slate-50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800 relative">
           <button
             onClick={onClose}

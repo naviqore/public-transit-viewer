@@ -14,6 +14,7 @@ import {
   getTransferColor,
 } from '../utils/isolineColorUtils';
 
+/** Props accepted by the shared Leaflet map component, covering all page variants. */
 interface MapProps {
   center: [number, number];
   zoom: number;
@@ -63,7 +64,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const [mapSize, setMapSize] = useState({ w: 0, h: 0 });
 
-  // 1. Initialize Map
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
     const initialCenter: [number, number] = isValidCoordinate(
@@ -96,7 +96,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     };
   }, []);
 
-  // 2. Resize Observer
   useEffect(() => {
     if (!mapContainerRef.current || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
@@ -112,7 +111,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     return () => observer.disconnect();
   }, []);
 
-  // 3. Sync Dark Mode
   useEffect(() => {
     if (!tileLayerRef.current) return;
     const lightUrl =
@@ -122,7 +120,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     tileLayerRef.current.setUrl(darkMode ? darkUrl : lightUrl);
   }, [darkMode]);
 
-  // 4. Viewport Management
   useEffect(() => {
     if (!mapInstanceRef.current || mapSize.w === 0) return;
     if (props.customBounds && props.customBounds.isValid()) {
@@ -141,7 +138,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     }
   }, [props.center, props.zoom, props.customBounds, mapSize]);
 
-  // 5. Delegate Rendering to Custom Hook
   useMapLayers({
     map: mapInstanceRef.current,
     layerGroup: layerGroupRef.current,
@@ -167,7 +163,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     onConnectionClick: props.onConnectionClick,
   });
 
-  // 6. Auto-fit logic (Separate from hook as it affects Viewport)
   useEffect(() => {
     if (
       mapSize.w > 0 &&
@@ -209,7 +204,6 @@ const MapComponent: React.FC<MapProps> = (props) => {
     }
   }, [props.selectedConnection, props.customBounds, mapSize]);
 
-  // 7. Legend Calculation
   const visibleModes = useMemo(() => {
     const modes = new Set<string>();
     const processLegs = (legs: Leg[]) => {

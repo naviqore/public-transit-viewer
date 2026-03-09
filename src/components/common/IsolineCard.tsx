@@ -48,7 +48,6 @@ const IsolineCard: React.FC<IsolineCardProps> = ({
       }`}
       onClick={handleToggle}
     >
-      {/* Header Row */}
       <div className="flex items-center justify-between p-3 cursor-pointer">
         <div className="flex items-center gap-3 overflow-hidden">
           <div
@@ -75,7 +74,6 @@ const IsolineCard: React.FC<IsolineCardProps> = ({
         </div>
       </div>
 
-      {/* Expanded Detail View - Full Reconstructed Path */}
       {isExpanded && detailedConnection && (
         <div className="bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 py-3 pr-4 animate-in slide-in-from-top-2">
           {detailedConnection.legs.map((detailLeg, idx) => {

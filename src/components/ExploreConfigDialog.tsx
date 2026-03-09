@@ -53,7 +53,6 @@ const ExploreConfigDialog: React.FC<ExploreConfigDialogProps> = ({
       onClick={handleBackdropClick}
     >
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-sm max-h-[90dvh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800">
-        {/* Header */}
         <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
           <h3 className="font-bold text-slate-800 dark:text-slate-100">
             Explore Options
@@ -66,7 +65,6 @@ const ExploreConfigDialog: React.FC<ExploreConfigDialogProps> = ({
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {/* Stop Scope */}
           <div>
@@ -151,7 +149,6 @@ const ExploreConfigDialog: React.FC<ExploreConfigDialogProps> = ({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0 flex gap-3">
           <button
             onClick={handleReset}

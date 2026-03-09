@@ -238,6 +238,7 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  /** Fetches a pool of stops from SEED_CITIES so benchmark workers have real stop IDs to query. */
   const preloadStops = async () => {
     if (stopsRef.current.length > 0) return;
 
@@ -280,6 +281,10 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({
     return pool[Math.floor(Math.random() * pool.length)];
   };
 
+  /**
+   * Builds a randomised routing request based on the current benchmark scenario.
+   * Returns `null` when the stop pool is empty.
+   */
   const generateRandomRequest = () => {
     const currentConfig = configRef.current;
     const serverInfo = serverInfoRef.current;
@@ -372,6 +377,10 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({
     return { from, to, dateStr, queryConfig, timeType };
   };
 
+  /**
+   * Long-running async loop that fires routing requests until `runningRef` is false.
+   * Respects the configured concurrency ceiling and per-request delay with ±20 % jitter.
+   */
   const runWorker = async () => {
     activeWorkers.current++;
     const randomStartDelay = Math.random() * 1000;

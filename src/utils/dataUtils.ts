@@ -1,5 +1,9 @@
 import { Leg, StopTime } from '../types';
 
+/**
+ * Extracts the subset of a trip's stop-times that fall between the leg's board and alight stop.
+ * Falls back to the leg's from/to stops when an exact index match cannot be found.
+ */
 export function getLegStopTimes(leg: Leg): StopTime[] {
   const trip = leg.trip;
   if (!trip || !trip.stopTimes || trip.stopTimes.length === 0) {

@@ -116,17 +116,14 @@ const TripTimeline: React.FC<TripTimelineProps> = ({
                   )}
                 </div>
                 <div className="relative flex flex-col items-center h-full">
-                  {/* Upper Line Segment */}
                   <div
                     className={`w-0.5 flex-1 ${!isFirst ? lineColor : 'bg-transparent'}`}
                   />
 
-                  {/* Dot */}
                   <div
                     className={`relative z-10 w-3 h-3 rounded-full border-2 box-content flex-shrink-0 my-0.5 transition-all duration-300 ${dotColor} ${isCurrent ? 'scale-125' : ''}`}
                   />
 
-                  {/* Lower Line Segment */}
                   <div
                     className={`w-0.5 flex-1 ${!isLast ? (isCurrent ? 'bg-indigo-200 dark:bg-indigo-900' : lineColor) : 'bg-transparent'}`}
                   />

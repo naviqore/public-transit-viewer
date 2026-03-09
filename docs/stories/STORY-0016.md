@@ -35,7 +35,7 @@ and corresponding GitHub Actions CI enables:
 
 - [ ] `docker build -t naviqore-viewer .` succeeds from the repo root.
 - [ ] The built container serves the Vite app correctly: `docker run -p 8080:80
-    naviqore-viewer` and opening `http://localhost:8080` returns the app with the correct
+naviqore-viewer` and opening `http://localhost:8080` returns the app with the correct
       title.
 - [ ] Client-side routing works inside the container (navigating to a deep route and
       refreshing does not return 404).

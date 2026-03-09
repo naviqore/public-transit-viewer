@@ -24,13 +24,6 @@ const StopSearch: React.FC<StopSearchProps> = ({
     useStopSearch();
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Keep effect to react to external selection changes if needed later.
-  useEffect(() => {
-    if (selectedStop) {
-      // We intentionally do not set query here to avoid triggering a search.
-    }
-  }, [selectedStop]);
-
   // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -74,7 +67,7 @@ const StopSearch: React.FC<StopSearchProps> = ({
         </div>
 
         <input
-          className={`w-full h-9 pl-9 pr-8 py-2 text-base rounded-lg border transition-all focus:ring-2 focus:ring-brand-500 focus:outline-none 
+          className={`w-full h-9 pl-9 pr-8 py-2 text-base rounded-lg border transition-all focus:ring-2 focus:ring-brand-500 focus:outline-none
           ${
             selectedStop
               ? 'font-bold text-brand-700 bg-brand-50 border-brand-200 dark:bg-brand-900/20 dark:text-brand-300 dark:border-brand-800'

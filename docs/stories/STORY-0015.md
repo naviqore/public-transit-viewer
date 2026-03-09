@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -51,17 +51,17 @@ The goal is a consistent, minimal commenting style: remove what is obvious, add 
 
 ## Acceptance Criteria
 
-- [ ] All obvious section-divider or self-evident inline comments listed in **Scope → Remove**
+- [x] All obvious section-divider or self-evident inline comments listed in **Scope → Remove**
       are deleted; no functional code is changed.
-- [ ] Each high-priority item has a concise `/** ... */` block (≤ 5 lines) that explains the
+- [x] Each high-priority item has a concise `/** ... */` block (≤ 5 lines) that explains the
       _concept_, not the implementation steps. Adding more than 5 lines is a signal to split
       the component instead.
-- [ ] Each medium-priority item has at minimum a one-liner JSDoc sentence.
-- [ ] Comment style rule applied uniformly: `/** ... */` for exported API docs, `//` for
+- [x] Each medium-priority item has at minimum a one-liner JSDoc sentence.
+- [x] Comment style rule applied uniformly: `/** ... */` for exported API docs, `//` for
       single-line implementation notes, no `/* */` block comments for inline usage.
-- [ ] No new comments introduced that restate what variable names already say.
-- [ ] `npm run check` passes with no type errors or lint warnings.
-- [ ] `npm run test:run` passes (comment-only changes should not affect tests).
+- [x] No new comments introduced that restate what variable names already say.
+- [x] `npm run check` passes with no type errors or lint warnings.
+- [x] `npm run test:run` passes (comment-only changes should not affect tests).
 
 ## Implementation Notes
 
@@ -72,6 +72,12 @@ The goal is a consistent, minimal commenting style: remove what is obvious, add 
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-09
+- Outcome: All ~30 obvious section-divider comments removed across 10 components and 2 contexts.
+  High-priority JSDoc added to `UseMapLayersProps`, `useMapLayers`, `MapProps`, `NaviqoreService`,
+  `preloadStops`, `generateRandomRequest`, and `runWorker`. Medium-priority one-liners added to
+  `getLegStopTimes`, 5 `dateUtils` exports, `isValidCoordinate`, `createStopIcon`,
+  `RealDataProvider.fetch`, `normalizeUrlPath`, `aggregateLogs`, and `formatLogUrl`.
+  A now-empty no-op `useEffect` in `StopSearch` was also removed (triggered `no-empty` lint error).
+  `npm run check` passes (0 errors); 30/30 tests pass.
+- Descoped ACs: none

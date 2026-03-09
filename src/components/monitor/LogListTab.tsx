@@ -62,6 +62,7 @@ const LogListTab: React.FC<LogListTabProps> = ({ logs }) => {
     }
   }, [filteredLogs, autoScroll]);
 
+  /** Strips the scheme and host from a URL string, retaining only path + query for compact display. */
   const formatLogUrl = (urlStr: string) => {
     if (urlStr === 'SYSTEM') return 'System Event';
     try {

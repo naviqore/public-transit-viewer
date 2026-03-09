@@ -72,6 +72,10 @@ const formatParams = (params: Record<string, QueryParamValue>): string => {
   return str ? `?${str}` : '';
 };
 
+/**
+ * Facade over the active data provider (real or mock).
+ * Emits {@link RequestLog} events to all subscribers and notifies config listeners on mode/URL changes.
+ */
 class NaviqoreService {
   private listeners: ServiceListener[] = [];
   private configListeners: ConfigListener[] = [];

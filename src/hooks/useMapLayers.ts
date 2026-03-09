@@ -11,6 +11,7 @@ import {
 } from './mapLayers/stopIcons';
 import { IsolineColorMode, getTransferColor } from '../utils/isolineColorUtils';
 
+/** Props for the {@link useMapLayers} hook, describing the full map state to render. */
 interface UseMapLayersProps {
   map: L.Map | null;
   layerGroup: L.LayerGroup | null;
@@ -36,6 +37,10 @@ interface UseMapLayersProps {
   onConnectionClick?: (connection: Connection) => void;
 }
 
+/**
+ * Clears and redraws all Leaflet layers whenever the relevant props change.
+ * Handles stop markers, connection polylines, isoline colour-coding, and popup bindings.
+ */
 export const useMapLayers = ({
   map,
   layerGroup,

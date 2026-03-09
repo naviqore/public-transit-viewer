@@ -36,7 +36,6 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
     }
   }, [isSelected]);
 
-  // --- Statistics Calculation ---
   const { totalDurationMs, dominantMode, transferCount } = useMemo(() => {
     let total = 0;
     const modeDurations: Record<string, number> = {};
@@ -52,13 +51,11 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
       const mode = leg.trip?.route?.transportMode || 'WALK';
       modeDurations[mode] = (modeDurations[mode] || 0) + legDur;
 
-      // Count public transport legs for transfers
       if (leg.type === 'ROUTE') {
         routeLegCount++;
       }
     });
 
-    // Find mode with highest duration
     let maxDur = -1;
     let domMode = 'WALK';
 
@@ -69,7 +66,6 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
       }
     });
 
-    // Transfers = (Number of PT legs) - 1. If < 0, it's 0.
     const calculatedTransfers = Math.max(0, routeLegCount - 1);
 
     return {
@@ -110,9 +106,6 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
     return null;
   };
 
-  // --- Render Helpers ---
-
-  // Helper to render the vertical line (solid or dotted)
   const renderVerticalLine = (
     type: 'SOLID' | 'DOTTED' | 'TRANSPARENT',
     color?: string

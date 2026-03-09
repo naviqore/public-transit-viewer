@@ -95,7 +95,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </button>
         </div>
 
-        {/* Links */}
         <div className="flex flex-1 md:flex-none md:flex-col gap-1 md:gap-2 w-full md:w-auto px-2 md:px-0 justify-around md:justify-start">
           <NavLink
             to="/"

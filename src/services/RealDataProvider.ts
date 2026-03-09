@@ -177,6 +177,10 @@ export class RealDataProvider implements IDataProvider {
     });
   }
 
+  /**
+   * Constructs and fires the HTTP GET request, appending `params` as query string entries.
+   * Normalises non-OK responses through {@link readError}; network-level failures return status 0.
+   */
   private async fetch<T>(
     endpoint: string,
     params: Record<string, QueryParamValue> = {}

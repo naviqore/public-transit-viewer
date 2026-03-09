@@ -9,7 +9,6 @@ interface ToastProps {
 
 const Toast: React.FC<ToastProps> = ({ notification, onDismiss }) => {
   useEffect(() => {
-    // Auto dismiss after 3 seconds
     const timer = setTimeout(() => {
       onDismiss(notification.id);
     }, 3000);

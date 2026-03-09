@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 
+/** Returns all IANA timezone identifiers supported by the browser's Intl API, falling back to UTC. */
 export const getAllTimezones = (): string[] => {
   const intlWithSupportedValues = Intl as typeof Intl & {
     supportedValuesOf?: (key: 'timeZone') => string[];
@@ -11,10 +12,12 @@ export const getAllTimezones = (): string[] => {
   return ['UTC'];
 };
 
+/** Returns the local timezone identifier from the browser's Intl API. */
 export const getLocalTimezone = (): string => {
   return Intl.DateTimeFormat().resolvedOptions().timeZone;
 };
 
+/** Formats an ISO timestamp for display; uses station-embedded offset when `useStationTime` is true, otherwise converts to `targetZone`. */
 export const formatDisplayTime = (
   isoString: string,
   targetZone: string,
@@ -29,6 +32,7 @@ export const formatDisplayTime = (
   }
 };
 
+/** Converts a local datetime-string from a `<input type="datetime-local">` to a timezone-aware ISO string in `targetZone`. */
 export const inputDateToIso = (
   localDateStr: string,
   targetZone: string
@@ -39,6 +43,7 @@ export const inputDateToIso = (
   );
 };
 
+/** Returns the current local time formatted for `<input type="datetime-local">` in the user's selected `targetZone`. */
 export const getCurrentInputTime = (targetZone: string): string => {
   return DateTime.now().setZone(targetZone).toFormat("yyyy-MM-dd'T'HH:mm");
 };
