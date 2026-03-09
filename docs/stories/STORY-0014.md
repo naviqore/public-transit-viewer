@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -23,18 +23,18 @@ A toggle control should appear on the isoline as a map overlay control and the m
 
 ## Acceptance Criteria
 
-- [ ] A visible toggle (two buttons or a segmented control) labelled "Travel time" and
+- [x] A visible toggle (two buttons or a segmented control) labelled "Travel time" and
       "Transfers" is present in the isoline map area.
-- [ ] Default mode is "Travel time" — existing gradient behaviour is preserved unchanged.
-- [ ] Switching to "Transfers" re-colors every stop marker and path on the map.
-- [ ] The legend renders the correct color chips and labels for the active mode.
-- [ ] The stop marker tooltip in transfers mode shows transfer count (e.g. "2 transfers")
+- [x] Default mode is "Travel time" — existing gradient behaviour is preserved unchanged.
+- [x] Switching to "Transfers" re-colors every stop marker and path on the map.
+- [x] The legend renders the correct color chips and labels for the active mode.
+- [x] The stop marker tooltip in transfers mode shows transfer count (e.g. "2 transfers")
       instead of minutes.
-- [ ] Stops with `transfers === 0` are highlighted green/indigo consistently with the "Direct"
+- [x] Stops with `transfers === 0` are highlighted green/indigo consistently with the "Direct"
       chip in the legend.
-- [ ] Switching mode back to "Travel time" restores the gradient colors.
-- [ ] `npm run check` passes with no type errors.
-- [ ] Unit or integration tests cover the color-lookup logic (pure function mapping transfer
+- [x] Switching mode back to "Travel time" restores the gradient colors.
+- [x] `npm run check` passes with no type errors.
+- [x] Unit or integration tests cover the color-lookup logic (pure function mapping transfer
       count to color string).
 
 ## Implementation Notes
@@ -45,5 +45,9 @@ A toggle control should appear on the isoline as a map overlay control and the m
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-09
+- Outcome: Implemented. Segmented toggle added to the isoline map overlay; color mode state
+  managed in IsolinePage and propagated through Map → useMapLayers via resolver functions.
+  Pure utility helpers (`getTransferColor`, `getIsolineColor`) extracted to
+  `src/utils/isolineColorUtils.ts` with 11 unit tests, all green. `npm run check` passes.
+  Committed: `8a03684 feat(isoline): add travel-time / transfers color-mode toggle`.
