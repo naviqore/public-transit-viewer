@@ -20,7 +20,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 
 | ID         | Status      | Title                                           | Owner      | Notes                                                                                                           |
 | ---------- | ----------- | ----------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
-| STORY-0021 | IN_PROGRESS | Mobile fullscreen dialog pages                  | unassigned | Replace modal dialogs with fullscreen pages + back button on mobile; keep desktop modals unchanged              |
+| STORY-0021 | CLOSED | Mobile fullscreen dialog pages                  | unassigned | Replace modal dialogs with fullscreen pages + back button on mobile; keep desktop modals unchanged              |
 | STORY-0020 | CLOSED      | Remove obsolete files and fix stale story index | unassigned | Completed 2026-03-10: deleted INSTRUCTIONS.md stub; STORY-0018/0019 rows were already CLOSED in index           |
 | STORY-0019 | CLOSED      | Improve unit tests for utils and service layer  | unassigned | Add/extend tests for `dataUtils`, `dateUtils`, `naviqoreService`; raise coverage thresholds after               |
 | STORY-0018 | CLOSED      | Fix CI quality gate and pre-commit coverage gap | unassigned | Lower vitest coverage thresholds to current actuals; add `test:coverage` to pre-commit hook                     |

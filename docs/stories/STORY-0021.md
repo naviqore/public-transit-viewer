@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -46,6 +46,6 @@ Desktop behavior must be preserved exactly: floating modal with backdrop and an 
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: Introduced `ResponsiveDialog` wrapper and `useMediaQuery` hook. All three dialogs (AboutDialog, QueryConfigDialog, ExploreConfigDialog) now render fullscreen with a back button on mobile (< 768 px) and as the existing centered modal on desktop. All 53 tests pass, `npm run check` clean.
+- Descoped ACs: none
