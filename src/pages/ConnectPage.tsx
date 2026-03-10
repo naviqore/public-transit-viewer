@@ -21,6 +21,7 @@ import {
   getCurrentInputTime,
   inputDateToIso,
 } from '../utils/dateUtils';
+import { scrollCardIntoView } from '../utils/domUtils';
 import './PageStyles.css';
 
 const ConnectPage: React.FC = () => {
@@ -37,6 +38,8 @@ const ConnectPage: React.FC = () => {
     date,
     timeType,
     maxTravelDuration,
+    lastQueriedKey,
+    mapBounds,
   } = routingState;
 
   const [loading, setLoading] = useState(false);
@@ -79,8 +82,25 @@ const ConnectPage: React.FC = () => {
 
   useEffect(() => {
     if (fromStop && toStop && date) {
+      const queryKey = JSON.stringify({
+        fromStopId: fromStop.id,
+        toStopId: toStop.id,
+        date,
+        timeType,
+        queryConfig,
+        maxTravelDuration,
+      });
+
+      if (lastQueriedKey === queryKey) {
+        // If no connection is selected, restore overview bounds.
+        // If a connection is selected, leave customBounds null so the Map auto-fits to it.
+        if (mapBounds && !selectedConnection)
+          setCustomBounds(L.latLngBounds(mapBounds));
+        return;
+      }
+
       setLoading(true);
-      updateState({ selectedConnection: null });
+      updateState({ selectedConnection: null, lastQueriedKey: null });
 
       // Immediately set bounds to Origin and Destination to prevent map jumping to default center
       // This ensures the map focuses on the context of the search while loading
@@ -105,9 +125,10 @@ const ConnectPage: React.FC = () => {
             timeType,
             effectiveConfig
           );
-          updateState({ connections: res.data });
 
           // Calculate bounds to fit all connections
+          let storedMapBounds: [[number, number], [number, number]] | null =
+            null;
           if (res.data.length > 0) {
             const latLngs: [number, number][] = [];
             // Ensure origin/dest are included
@@ -139,12 +160,28 @@ const ConnectPage: React.FC = () => {
             });
 
             if (latLngs.length > 0) {
-              setCustomBounds(L.latLngBounds(latLngs));
+              const computedBounds = L.latLngBounds(latLngs);
+              setCustomBounds(computedBounds);
+              storedMapBounds = [
+                [
+                  computedBounds.getSouthWest().lat,
+                  computedBounds.getSouthWest().lng,
+                ],
+                [
+                  computedBounds.getNorthEast().lat,
+                  computedBounds.getNorthEast().lng,
+                ],
+              ];
             }
           }
+          updateState({
+            connections: res.data,
+            lastQueriedKey: queryKey,
+            mapBounds: storedMapBounds,
+          });
         } catch (e) {
           console.error(e);
-          updateState({ connections: [] });
+          updateState({ connections: [], lastQueriedKey: null });
           addToast({
             id: crypto.randomUUID(),
             type: 'error',
@@ -179,12 +216,7 @@ const ConnectPage: React.FC = () => {
     // provided customBounds is null or we explicitly set it for the connection.
     // Resetting customBounds allows MapComponent to take over with selectedConnection focus.
     setCustomBounds(null);
-
-    const idx = connections.indexOf(conn);
-    if (idx !== -1) {
-      const el = document.getElementById(`conn-${idx}`);
-      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    // scrolling is handled by the selectedConnection useEffect above
   };
 
   const handleLegClick = (leg: Leg) => {
@@ -204,6 +236,16 @@ const ConnectPage: React.FC = () => {
     }
     setCustomBounds(bounds);
   };
+
+  // Scroll to selected connection on restore or when a new connection is selected
+  useEffect(() => {
+    if (!selectedConnection || connections.length === 0) return;
+    const idx = connections.indexOf(selectedConnection);
+    if (idx === -1) return;
+    setTimeout(() => {
+      scrollCardIntoView(`conn-${idx}`);
+    }, 100);
+  }, [selectedConnection, connections]);
 
   return (
     <div className="page-wrapper flex flex-col h-full overflow-hidden">

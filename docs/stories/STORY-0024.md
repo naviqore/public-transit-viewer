@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -34,17 +34,17 @@ page skips the fetch and renders the cached results straight away.
 
 ## Acceptance Criteria
 
-- [ ] AC1 — Navigating from any page and back does **not** trigger a new
+- [x] AC1 — Navigating from any page and back does **not** trigger a new
       backend request when no input has changed (verifiable via network tab /
       service spy).
-- [ ] AC2 — Changing any input (stop, date, config parameter) on any page
+- [x] AC2 — Changing any input (stop, date, config parameter) on any page
       **does** trigger a fresh backend request.
-- [ ] AC3 — A failed fetch clears the key (leaves it `null`) so the next mount
+- [x] AC3 — A failed fetch clears the key (leaves it `null`) so the next mount
       retries the query.
-- [ ] AC4 — `ExploreState`, `RoutingState`, and `IsolineState` types each gain
+- [x] AC4 — `ExploreState`, `RoutingState`, and `IsolineState` types each gain
       a `lastQueriedKey: string | null` field; all existing TypeScript usages
       compile without errors.
-- [ ] AC5 — `npm run ci` passes (lint + build + tests).
+- [x] AC5 — `npm run ci` passes (lint + build + tests).
 
 ## Implementation Notes
 
@@ -61,6 +61,13 @@ page skips the fetch and renders the cached results straight away.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: Implemented `lastQueriedKey` guard in all three pages (Explore,
+  Connect, Isoline). Extended scope beyond the original AC to also persist and
+  restore map bounds (`mapBounds`), expanded selection state
+  (`expandedTripIndex`, `selectedConnection`, `expandedStopId`), and the
+  paginated window position. On cache-hit, each page restores the exact view
+  the user left — including scroll position (via `scrollCardIntoView` helper
+  in `src/utils/domUtils.ts` that accounts for the sticky panel header). Tests
+  added for all three fetch-guard paths. `npm run ci` passes (80/80 tests).
+- Descoped ACs: none

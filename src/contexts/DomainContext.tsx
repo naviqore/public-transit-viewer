@@ -39,6 +39,8 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     nearbyStops: [],
     date: new Date().toISOString().slice(0, 16),
     config: DEFAULT_EXPLORE_CONFIG,
+    lastQueriedKey: null,
+    expandedTripIndex: null,
   });
 
   const [routingState, setRoutingState] = useState<RoutingState>({
@@ -49,6 +51,8 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     date: new Date().toISOString().slice(0, 16),
     timeType: TimeType.DEPARTURE,
     maxTravelDuration: undefined,
+    lastQueriedKey: null,
+    mapBounds: null,
   });
 
   const [isolineState, setIsolineState] = useState<IsolineState>({
@@ -56,6 +60,9 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     isolines: [],
     maxDuration: 30,
     date: new Date().toISOString().slice(0, 16),
+    lastQueriedKey: null,
+    mapBounds: null,
+    expandedStopId: null,
   });
 
   useEffect(() => {

@@ -26,6 +26,7 @@ import {
   getCurrentInputTime,
   inputDateToIso,
 } from '../utils/dateUtils';
+import { scrollCardIntoView } from '../utils/domUtils';
 import { IsolineColorMode } from '../utils/isolineColorUtils';
 import './PageStyles.css';
 
@@ -38,14 +39,21 @@ const IsolinePage: React.FC = () => {
   const { isolineState, setIsolineState } = useDomain();
   const { addToast } = useMonitoring();
 
-  const { centerStop, isolines, maxDuration, date } = isolineState;
+  const {
+    centerStop,
+    isolines,
+    maxDuration,
+    date,
+    lastQueriedKey,
+    mapBounds,
+    expandedStopId,
+  } = isolineState;
 
   const [loading, setLoading] = useState(false);
   const [timeType, setTimeType] = useState<TimeType>(TimeType.DEPARTURE);
   const [highlightedStopId, setHighlightedStopId] = useState<string | null>(
     null
   );
-  const [expandedStopId, setExpandedStopId] = useState<string | null>(null);
   const [expandedConnection, setExpandedConnection] =
     useState<Connection | null>(null);
   const [showConfig, setShowConfig] = useState(false);
@@ -89,6 +97,50 @@ const IsolinePage: React.FC = () => {
 
   useEffect(() => {
     if (centerStop) {
+      const queryKey = JSON.stringify({
+        centerStopId: centerStop.id,
+        date,
+        timeType,
+        maxDuration,
+        queryConfig,
+      });
+
+      if (lastQueriedKey === queryKey) {
+        // Restore selection and map extent so the page shows the same view as before navigation
+        if (expandedStopId) {
+          setHighlightedStopId(expandedStopId);
+          // Ensure the expanded stop falls within the paginated window
+          const index = isolines.findIndex((i) => i.stop.id === expandedStopId);
+          if (index !== -1) {
+            const newStart = Math.max(0, index - Math.floor(PAGE_SIZE / 2));
+            const newEnd = Math.min(isolines.length, newStart + PAGE_SIZE);
+            setDisplayRange({ start: newStart, end: newEnd });
+          }
+          const iso = isolines.find((i) => i.stop.id === expandedStopId);
+          if (iso) {
+            const fullConnection = reconstructConnection(iso);
+            setExpandedConnection(fullConnection);
+            const bounds = L.latLngBounds([]);
+            fullConnection.legs.forEach((leg) => {
+              bounds.extend([leg.from.latitude, leg.from.longitude]);
+              bounds.extend([leg.to.latitude, leg.to.longitude]);
+              if (leg.trip) {
+                getLegStopTimes(leg).forEach((st) => {
+                  bounds.extend([
+                    st.stop.coordinates.latitude,
+                    st.stop.coordinates.longitude,
+                  ]);
+                });
+              }
+            });
+            if (bounds.isValid()) setCustomBounds(bounds);
+          }
+        } else if (mapBounds) {
+          setCustomBounds(L.latLngBounds(mapBounds));
+        }
+        return;
+      }
+
       setLoading(true);
       setMapCenter([
         centerStop.coordinates.latitude,
@@ -96,8 +148,7 @@ const IsolinePage: React.FC = () => {
       ]);
       setCustomBounds(null); // Reset bounds on new search
       setExpandedConnection(null);
-      setExpandedStopId(null);
-      updateState({ isolines: [] });
+      updateState({ isolines: [], lastQueriedKey: null, expandedStopId: null });
       setDisplayRange({ start: 0, end: PAGE_SIZE }); // Reset pagination
 
       const timeoutId = setTimeout(async () => {
@@ -138,8 +189,9 @@ const IsolinePage: React.FC = () => {
             (a, b) =>
               (b.connection?.duration || 0) - (a.connection?.duration || 0)
           );
-          updateState({ isolines: sorted });
 
+          let storedMapBounds: [[number, number], [number, number]] | null =
+            null;
           if (sorted.length > 0) {
             const latLngs = sorted.map(
               (i) =>
@@ -152,8 +204,24 @@ const IsolinePage: React.FC = () => {
               centerStop.coordinates.latitude,
               centerStop.coordinates.longitude,
             ]);
-            setCustomBounds(L.latLngBounds(latLngs));
+            const computedBounds = L.latLngBounds(latLngs);
+            setCustomBounds(computedBounds);
+            storedMapBounds = [
+              [
+                computedBounds.getSouthWest().lat,
+                computedBounds.getSouthWest().lng,
+              ],
+              [
+                computedBounds.getNorthEast().lat,
+                computedBounds.getNorthEast().lng,
+              ],
+            ];
           }
+          updateState({
+            isolines: sorted,
+            lastQueriedKey: queryKey,
+            mapBounds: storedMapBounds,
+          });
         } catch (e) {
           console.error(e);
           addToast({
@@ -244,7 +312,7 @@ const IsolinePage: React.FC = () => {
   const handleListItemToggle = (stop: Stop) => {
     const isCurrentlyExpanded = expandedStopId === stop.id;
     const nextExpandedId = isCurrentlyExpanded ? null : stop.id;
-    setExpandedStopId(nextExpandedId);
+    updateState({ expandedStopId: nextExpandedId });
     setHighlightedStopId(stop.id);
 
     if (nextExpandedId) {
@@ -293,6 +361,15 @@ const IsolinePage: React.FC = () => {
   const formatTime = (isoString: string) => {
     return formatDisplayTime(isoString, timezone, useStationTime);
   };
+
+  // Scroll to the expanded stop after every change (restore and normal toggle)
+  useEffect(() => {
+    if (!expandedStopId) return;
+    // Allow a render cycle for displayRange update before scrolling
+    setTimeout(() => {
+      scrollCardIntoView(`iso-stop-${expandedStopId}`);
+    }, 150);
+  }, [expandedStopId]);
 
   // --- Pagination Logic ---
 

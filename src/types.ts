@@ -142,6 +142,8 @@ export interface ExploreState {
   nearbyStops: Stop[];
   date: string;
   config: ExploreQueryConfig;
+  lastQueriedKey: string | null;
+  expandedTripIndex: number | null;
 }
 
 export interface RoutingState {
@@ -152,6 +154,8 @@ export interface RoutingState {
   date: string;
   timeType: TimeType;
   maxTravelDuration?: number;
+  lastQueriedKey: string | null;
+  mapBounds: [[number, number], [number, number]] | null;
 }
 
 export interface IsolineState {
@@ -159,6 +163,9 @@ export interface IsolineState {
   isolines: StopConnection[];
   maxDuration: number;
   date: string;
+  lastQueriedKey: string | null;
+  mapBounds: [[number, number], [number, number]] | null;
+  expandedStopId: string | null;
 }
 
 export interface ServerInfo {

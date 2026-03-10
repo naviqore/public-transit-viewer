@@ -27,6 +27,7 @@ import {
   getCurrentInputTime,
   inputDateToIso,
 } from '../utils/dateUtils';
+import { scrollCardIntoView } from '../utils/domUtils';
 
 import './PageStyles.css';
 
@@ -35,7 +36,15 @@ const ExplorePage: React.FC = () => {
   const { exploreState, setExploreState } = useDomain();
   const { addToast } = useMonitoring();
 
-  const { selectedStop, departures, nearbyStops, date, config } = exploreState;
+  const {
+    selectedStop,
+    departures,
+    nearbyStops,
+    date,
+    config,
+    lastQueriedKey,
+    expandedTripIndex,
+  } = exploreState;
 
   const [mapCenter, setMapCenter] = useState<[number, number]>(
     selectedStop
@@ -44,9 +53,6 @@ const ExplorePage: React.FC = () => {
   );
   const [loading, setLoading] = useState(false);
   const [timeType, setTimeType] = useState<TimeType>(TimeType.DEPARTURE);
-  const [expandedTripIndex, setExpandedTripIndex] = useState<number | null>(
-    null
-  );
   const [customBounds, setCustomBounds] = useState<L.LatLngBounds | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
@@ -66,12 +72,22 @@ const ExplorePage: React.FC = () => {
 
   useEffect(() => {
     if (selectedStop && date) {
+      const queryKey = JSON.stringify({
+        stopId: selectedStop.id,
+        date,
+        timeType,
+        config,
+      });
+
+      if (lastQueriedKey === queryKey) return;
+
       setLoading(true);
       setMapCenter([
         selectedStop.coordinates.latitude,
         selectedStop.coordinates.longitude,
       ]);
       setCustomBounds(null);
+      updateState({ lastQueriedKey: null, expandedTripIndex: null });
 
       const fetchDepartures = async () => {
         try {
@@ -92,10 +108,10 @@ const ExplorePage: React.FC = () => {
             config.stopScope,
             config.limit
           );
-          updateState({ departures: res.data });
+          updateState({ departures: res.data, lastQueriedKey: queryKey });
         } catch (e) {
           console.error(e);
-          updateState({ departures: [] });
+          updateState({ departures: [], lastQueriedKey: null });
           addToast({
             id: crypto.randomUUID(),
             type: 'error',
@@ -117,8 +133,10 @@ const ExplorePage: React.FC = () => {
       const res = await naviqoreService.getNearestStops(lat, lon);
       updateState({ nearbyStops: res.data.map((d: DistanceToStop) => d.stop) });
       if (res.data.length > 0) {
-        updateState({ selectedStop: res.data[0].stop });
-        setExpandedTripIndex(null);
+        updateState({
+          selectedStop: res.data[0].stop,
+          expandedTripIndex: null,
+        });
       }
     } catch (e) {
       console.error(e);
@@ -132,12 +150,13 @@ const ExplorePage: React.FC = () => {
   };
 
   const handleStopSelect = (stop: Stop | null) => {
-    updateState({ selectedStop: stop });
-    setExpandedTripIndex(null);
+    updateState({ selectedStop: stop, expandedTripIndex: null });
   };
 
   const toggleTrip = (index: number) => {
-    setExpandedTripIndex(expandedTripIndex === index ? null : index);
+    updateState({
+      expandedTripIndex: expandedTripIndex === index ? null : index,
+    });
   };
 
   const expandedConnection = useMemo<Connection | null>(() => {
@@ -254,6 +273,14 @@ const ExplorePage: React.FC = () => {
     }
   }, [selectedStop, nextStops, expandedTripIndex]);
 
+  // Scroll to the expanded departure on restore or when a trip is expanded
+  useEffect(() => {
+    if (expandedTripIndex === null) return;
+    setTimeout(() => {
+      scrollCardIntoView(`dep-${expandedTripIndex}`);
+    }, 100);
+  }, [expandedTripIndex, departures.length]);
+
   const mapStops = useMemo(() => {
     const base = selectedStop ? [selectedStop] : [];
     // Combine nearby stops and next stops, deduplicating by ID
@@ -310,6 +337,7 @@ const ExplorePage: React.FC = () => {
                       return (
                         <div
                           key={i}
+                          id={`dep-${i}`}
                           className={`result-item rounded-xl border transition-all overflow-hidden ${isExpanded ? 'bg-slate-100 dark:bg-slate-900 border-brand-200 dark:border-brand-800 shadow-md' : 'bg-transparent border-transparent hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:border-slate-100 dark:hover:border-slate-800'}`}
                         >
                           <button
