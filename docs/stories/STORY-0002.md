@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+chore
+
 ## Context
 
 The repository targets VS Code workflows. JetBrains project metadata in `.idea/` is editor-specific noise and should not be committed.

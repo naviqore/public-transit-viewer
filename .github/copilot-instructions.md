@@ -77,9 +77,13 @@ Examples:
 - Use `docs/stories/INDEX.md` as the local source of truth for story status in this repo.
 - Story IDs must be sequential (`STORY-0001`, `STORY-0002`, ...).
 - Always pick the highest-numbered story marked `OPEN` unless explicitly directed otherwise.
-- Story-first rule for new features:
-  - if no story exists, write/update story docs first and stop for user review before implementation
-  - do not start coding a new feature until the user approves the story text
+- Every intentional change — feature, fix, style, refactor, perf, test, chore, build, ci, docs —
+  requires a story. The story `Type` field (single value) determines the conventional commit type
+  used when closing the story.
+- Story-first rule — applies to all changes:
+  - if no story exists, create one using `docs/stories/STORY_TEMPLATE.md` and stop for user
+    review before writing any code
+  - do not start implementation until the user approves the story text
 - Acceptance criteria (AC) notation:
   - `- [ ]` — not yet done; **blocks closure**
   - `- [x]` — satisfied and verified during implementation

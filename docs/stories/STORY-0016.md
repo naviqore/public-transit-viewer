@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+ci
+
 ## Context
 
 The application has no containerisation strategy. Adding a production-ready `Dockerfile`

@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 The project targets strict TypeScript usage, but some local `any` usage remains and weakens maintainability.

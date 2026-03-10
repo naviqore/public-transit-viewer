@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 `ErrorBoundary` is currently embedded in `App.tsx`. Moving it into `src/components/common/` improves reusability and keeps `App.tsx` focused on composition.

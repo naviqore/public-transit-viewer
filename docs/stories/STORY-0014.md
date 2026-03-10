@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+feat
+
 ## Context
 
 The isoline map currently colors every stop marker and path segment using a continuous gradient

@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+test
+
 ## Context
 
 STORY-0018 reset the coverage thresholds to match current actuals, unblocking CI.

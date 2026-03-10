@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+feat
+
 ## Context
 
 When the frontend fails to reach the backend at startup (or after a settings

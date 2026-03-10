@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+ci
+
 ## Context
 
 CI is currently broken by two independent issues, and the local/CI/pre-commit quality gates are not in sync:

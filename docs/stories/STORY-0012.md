@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+chore
+
 ## Context
 
 The story index table in `docs/stories/INDEX.md` currently lists stories in ascending order (oldest at the top, newest at the bottom). As the backlog grows, contributors and agents must scroll to the end to find the most recent or active stories. Reversing the order — newest story at the top — aligns with common backlog and changelog conventions and improves discoverability.

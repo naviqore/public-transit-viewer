@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 Tailwind is already integrated through `@tailwindcss/vite`. Configuration should live in a root config file, not inline in `index.html`.

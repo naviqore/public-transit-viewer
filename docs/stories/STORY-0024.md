@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+perf
+
 ## Context
 
 Each feature page (Explore, Connect, Isoline) runs a `useEffect` that fires on

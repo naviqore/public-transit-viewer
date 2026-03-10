@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+fix
+
 ## Context
 
 The current toast notification system fires for every HTTP 4xx/5xx and network failure, which is good, but the messages it shows are too generic to be actionable:

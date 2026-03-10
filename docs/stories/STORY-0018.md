@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+ci
+
 ## Context
 
 The quality CI job fails on every push because the coverage thresholds in `vitest.config.ts`

@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 `useMapLayers` is handling many responsibilities and is difficult to evolve safely.

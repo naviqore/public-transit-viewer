@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 Data fetching is currently hand-managed in multiple pages/contexts. TanStack Query can reduce boilerplate and improve caching/retry behavior.

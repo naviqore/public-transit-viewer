@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+docs
+
 ## Context
 
 A full-codebase documentation audit (2026-03-09) found no dead code or unused files —

@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+style
+
 ## Context
 
 Layout scaffolding currently depends on manual calc-based CSS. The codebase style favors utility-driven layout in components.

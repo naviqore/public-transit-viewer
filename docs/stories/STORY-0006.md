@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 `PortalTooltip` in `src/components/BenchmarkTab.tsx` is custom position/portal logic with high maintenance cost.

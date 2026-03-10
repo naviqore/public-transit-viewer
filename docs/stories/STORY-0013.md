@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+fix
+
 ## Context
 
 The isoline page shows stop cards in a sorted list (left panel) and colored markers on the map.

@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+chore
+
 ## Context
 
 A routine housekeeping sweep found two things worth cleaning up:

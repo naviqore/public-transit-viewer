@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+refactor
+
 ## Context
 
 Current data provider/service flow can normalize failures too loosely, making UI-level error handling less actionable.

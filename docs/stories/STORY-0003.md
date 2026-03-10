@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+chore
+
 ## Context
 
 The app is already a Vite + npm build. Import maps in `index.html` indicate prototype loading behavior and can conflict with bundled module resolution.

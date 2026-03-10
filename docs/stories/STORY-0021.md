@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+feat
+
 ## Context
 
 On mobile, the current modal dialogs (`AboutDialog`, `QueryConfigDialog`, `ExploreConfigDialog`) feel out of place: they appear as floating cards inside a dark overlay, which is cramped on small screens. Modern native apps (iOS/Android) replace modal dialogs with fullscreen pages that slide in and have a "back" arrow in the top-left corner.

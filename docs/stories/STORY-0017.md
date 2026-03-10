@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+style
+
 ## Context
 
 The browser tab currently shows "Public Transit Viewer". Adding the product brand name

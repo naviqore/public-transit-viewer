@@ -4,6 +4,10 @@
 
 CLOSED
 
+## Type
+
+chore
+
 ## Context
 
 This story bootstrapped the repository from a Python/Streamlit-oriented setup into a production-ready Vite + React + TypeScript frontend workflow, with quality gates, release automation, and an agent-friendly story process.
