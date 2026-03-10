@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -55,6 +55,6 @@ The goal is to make the toast layer genuinely informative: tell the user what th
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: All 8 ACs satisfied. Extended error toast dismiss to 6s; sanitised auto-toast details (stripped requestId/type metadata); added contextual page-level error toasts to ConnectPage, ExplorePage (departures + map click), and IsolinePage; added Toast.test.tsx and MonitoringContext.test.ts (65 tests pass, npm run ci clean).
+- Descoped ACs: none
