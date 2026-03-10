@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Context
 
@@ -26,13 +26,13 @@ Desktop behavior must be preserved exactly: floating modal with backdrop and an 
 
 ## Acceptance Criteria
 
-- [ ] A `ResponsiveDialog` component exists in `src/components/common/ResponsiveDialog.tsx`.
-- [ ] On a viewport < 768 px wide, each dialog renders fullscreen (no visible backdrop or card border-radius) with an `ArrowLeft` icon button in the top-left header.
-- [ ] On a viewport ≥ 768 px wide, each dialog renders as the current centered modal (dark backdrop, rounded corners, × button top-right), unchanged from today.
-- [ ] Clicking the back button (mobile) calls `onClose`, identical to the × button (desktop).
-- [ ] `AboutDialog`, `QueryConfigDialog`, and `ExploreConfigDialog` all use `ResponsiveDialog` for their outer shell.
-- [ ] No layout regressions: existing form content, scroll behaviour, and footer buttons are unaffected.
-- [ ] `npm run check` passes with no type errors or lint violations.
+- [x] A `ResponsiveDialog` component exists in `src/components/common/ResponsiveDialog.tsx`.
+- [x] On a viewport < 768 px wide, each dialog renders fullscreen (no visible backdrop or card border-radius) with an `ArrowLeft` icon button in the top-left header.
+- [x] On a viewport ≥ 768 px wide, each dialog renders as the current centered modal (dark backdrop, rounded corners, × button top-right), unchanged from today.
+- [x] Clicking the back button (mobile) calls `onClose`, identical to the × button (desktop).
+- [x] `AboutDialog`, `QueryConfigDialog`, and `ExploreConfigDialog` all use `ResponsiveDialog` for their outer shell.
+- [x] No layout regressions: existing form content, scroll behaviour, and footer buttons are unaffected.
+- [x] `npm run check` passes with no type errors or lint violations.
 
 ## Implementation Notes
 
