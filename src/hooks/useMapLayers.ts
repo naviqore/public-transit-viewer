@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
 import L from 'leaflet';
-import { Connection, Leg, Stop } from '../types';
+import { useEffect } from 'react';
+
 import { COLORS, getGradientColor, TRANSPORT_COLORS } from '../constants';
+import { Connection, Leg, Stop } from '../types';
 import { getLegStopTimes } from '../utils/dataUtils';
 import { bindRichStopPopup, bindRichLinePopup } from './mapLayers/popups';
 import {

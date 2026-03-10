@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Check,
   Clock,
@@ -11,10 +10,12 @@ import {
   Settings,
   Sun,
 } from 'lucide-react';
-import { useSettings } from '../contexts/SettingsContext';
-import { IS_API_URL_CONFIGURED } from '../constants';
-import { getAllTimezones } from '../utils/dateUtils';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import PageHeader from '../components/common/PageHeader';
+import { IS_API_URL_CONFIGURED } from '../constants';
+import { useSettings } from '../contexts/SettingsContext';
+import { getAllTimezones } from '../utils/dateUtils';
 import './PageStyles.css';
 
 const SettingsPage: React.FC = () => {

@@ -1,5 +1,3 @@
-import React, { useEffect, useMemo, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
 import {
   Activity,
   CalendarDays,
@@ -9,9 +7,12 @@ import {
   Route as RouteIcon,
   Settings,
 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+
+import AboutDialog from './AboutDialog';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
-import AboutDialog from './AboutDialog';
 
 interface LayoutProps {
   children: React.ReactNode;

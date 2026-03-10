@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -43,18 +43,18 @@ npm run test:coverage` (= `npm run ci`). A broken production build can therefore
 
 ## Acceptance Criteria
 
-- [ ] `formatDisplayTime` uses `{ setZone: true }` so the embedded ISO offset is always
+- [x] `formatDisplayTime` uses `{ setZone: true }` so the embedded ISO offset is always
       preserved; the existing test passes in any server timezone (UTC or otherwise).
-- [ ] `import/order` is promoted from `warn` to `error` in `eslint.config.js`.
-- [ ] All pre-existing `import/order` violations in `src/` and project-root files
+- [x] `import/order` is promoted from `warn` to `error` in `eslint.config.js`.
+- [x] All pre-existing `import/order` violations in `src/` and project-root files
       (`vite.config.ts`) are fixed.
-- [ ] The pre-commit hook (`.husky/pre-commit`) runs exactly `npm run ci`; no other
+- [x] The pre-commit hook (`.husky/pre-commit`) runs exactly `npm run ci`; no other
       command sequence.
-- [ ] `copilot-instructions.md` "Required checks before handoff" section is updated to
+- [x] `copilot-instructions.md` "Required checks before handoff" section is updated to
       specify `npm run ci` as the single canonical local check command.
-- [ ] `.github/instructions/frontend.instructions.md` "Workflow guardrail" section is
+- [x] `.github/instructions/frontend.instructions.md` "Workflow guardrail" section is
       updated accordingly.
-- [ ] `npm run ci` exits 0 locally with no errors or warnings.
+- [x] `npm run ci` exits 0 locally with no errors or warnings.
 
 ## Implementation Notes
 
@@ -70,6 +70,6 @@ npm run test:coverage` (= `npm run ci`). A broken production build can therefore
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: All ACs satisfied. `formatDisplayTime` now uses `{ setZone: true }` for timezone-deterministic behaviour. `import/order` promoted to `error` and all violations fixed. Pre-commit hook and agent instructions unified to `npm run ci`. Added `Loader.test.tsx` to stabilise function-coverage threshold after import reordering changed module-load side effects. `npm run ci` exits 0.
+- Descoped ACs: none

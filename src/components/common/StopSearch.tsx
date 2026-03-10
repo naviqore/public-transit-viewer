@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
 import { Loader2, MapPin, X } from 'lucide-react';
-import { Stop } from '../../types';
+import React, { useEffect, useRef } from 'react';
+
 import { useStopSearch } from '../../hooks/useStopSearch';
+import { Stop } from '../../types';
 
 interface StopSearchProps {
   label?: string;

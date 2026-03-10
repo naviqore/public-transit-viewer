@@ -1,8 +1,9 @@
-import React from 'react';
 import { ChevronDown, ChevronUp, MapPin } from 'lucide-react';
-import { Connection, StopConnection } from '../../types';
+import React from 'react';
+
 import TransportIcon from './TransportIcon';
 import { TRANSPORT_COLORS } from '../../constants';
+import { Connection, StopConnection } from '../../types';
 
 interface IsolineCardProps {
   id: string;

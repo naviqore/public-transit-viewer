@@ -22,8 +22,7 @@ This repository is a production Vite + React + TypeScript frontend.
 
 ## Required checks before handoff
 
-- Run `npm run check` for every non-trivial change.
-- Run `npm run build` when changing build/tooling/runtime behavior.
+- Run `npm run ci` as the single canonical local check before any handoff (runs lint, build, and tests in the same sequence as CI).
 - Add or update tests for changed business logic (`src/services`, `src/utils`, important hooks).
 
 ## Test Baseline (Lean + Modern)

@@ -1,7 +1,8 @@
 import React, { ReactNode } from 'react';
-import { SettingsProvider } from './contexts/SettingsContext';
-import { MonitoringProvider } from './contexts/MonitoringContext';
+
 import { DomainProvider } from './contexts/DomainContext';
+import { MonitoringProvider } from './contexts/MonitoringContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 interface ProvidersProps {
   children: ReactNode;

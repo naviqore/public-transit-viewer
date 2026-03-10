@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
 import { Activity, BarChart3, Database, Zap } from 'lucide-react';
-import { RequestLog } from '../../types';
+import React, { useMemo } from 'react';
+
 import Sparkline from './Sparkline';
+import { RequestLog } from '../../types';
 
 interface PerformanceTabProps {
   logs: RequestLog[];

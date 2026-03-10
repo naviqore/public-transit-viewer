@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ChevronDown, ChevronUp, Footprints } from 'lucide-react';
-import { Connection, Leg, StopTime } from '../../types';
+import React, { useEffect, useMemo, useState } from 'react';
+
 import TransportIcon from './TransportIcon';
 import { TRANSPORT_COLORS } from '../../constants';
+import { useSettings } from '../../contexts/SettingsContext';
+import { Connection, Leg, StopTime } from '../../types';
 import { getLegStopTimes } from '../../utils/dataUtils';
 import { getDayDifference } from '../../utils/dateUtils';
-import { useSettings } from '../../contexts/SettingsContext';
 
 interface ConnectionCardProps {
   id?: string;

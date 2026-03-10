@@ -1,9 +1,10 @@
 import React from 'react';
+
 import { RequestLog } from '../types';
 import BenchmarkTab from './BenchmarkTab';
+import { DISABLE_BENCHMARK } from '../constants';
 import LogListTab from './monitor/LogListTab';
 import PerformanceTab from './monitor/PerformanceTab';
-import { DISABLE_BENCHMARK } from '../constants';
 
 interface SystemMonitorPanelProps {
   logs: RequestLog[];

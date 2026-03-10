@@ -23,7 +23,7 @@ export const formatDisplayTime = (
   targetZone: string,
   useStationTime: boolean
 ): string => {
-  const dt = DateTime.fromISO(isoString);
+  const dt = DateTime.fromISO(isoString, { setZone: true });
 
   if (useStationTime) {
     return dt.toFormat('HH:mm');

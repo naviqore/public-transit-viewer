@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import { ArrowUpDown, Route, SlidersHorizontal } from 'lucide-react';
-import MapComponent from '../components/Map';
-import { naviqoreService } from '../services/naviqoreService';
-import { useSettings } from '../contexts/SettingsContext';
-import { useDomain } from '../contexts/DomainContext';
-import { Connection, Leg, QueryConfig, TimeType } from '../types';
-import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
-import QueryConfigDialog from '../components/QueryConfigDialog';
-import StopSearch from '../components/common/StopSearch';
-import DateTimeSelector from '../components/common/DateTimeSelector';
+import React, { useEffect, useState } from 'react';
+
 import ConnectionCard from '../components/common/ConnectionCard';
+import DateTimeSelector from '../components/common/DateTimeSelector';
 import Loader from '../components/common/Loader';
 import PageHeader from '../components/common/PageHeader';
+import StopSearch from '../components/common/StopSearch';
+import MapComponent from '../components/Map';
+import QueryConfigDialog from '../components/QueryConfigDialog';
+import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
+import { useDomain } from '../contexts/DomainContext';
+import { useSettings } from '../contexts/SettingsContext';
+import { naviqoreService } from '../services/naviqoreService';
+import { Connection, Leg, QueryConfig, TimeType } from '../types';
 import { getLegStopTimes } from '../utils/dataUtils';
 import {
   formatDisplayTime,

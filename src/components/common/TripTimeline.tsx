@@ -1,6 +1,7 @@
 import React from 'react';
-import { Trip } from '../../types';
+
 import { useSettings } from '../../contexts/SettingsContext';
+import { Trip } from '../../types';
 import { formatDisplayTime } from '../../utils/dateUtils';
 
 interface TripTimelineProps {

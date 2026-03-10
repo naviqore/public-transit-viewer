@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowDownCircle,
   Filter,
@@ -6,6 +5,8 @@ import {
   Settings,
   Terminal,
 } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+
 import { RequestLog } from '../../types';
 
 interface LogListTabProps {

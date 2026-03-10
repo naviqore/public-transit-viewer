@@ -63,7 +63,7 @@ export default tseslint.config(
         },
       ],
       'import/order': [
-        'warn',
+        'error',
         {
           alphabetize: { order: 'asc', caseInsensitive: true },
           groups: [

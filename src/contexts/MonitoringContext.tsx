@@ -6,6 +6,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
+
+import Toast from '../components/Toast';
 import { naviqoreService } from '../services/naviqoreService';
 import {
   BenchmarkConfig,
@@ -17,7 +19,6 @@ import {
   TimeType,
   TransportMode,
 } from '../types';
-import Toast from '../components/Toast';
 import { useDomain } from './DomainContext';
 
 interface MonitoringContextType {

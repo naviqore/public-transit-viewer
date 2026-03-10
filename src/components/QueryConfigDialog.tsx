@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
 import { Check, RotateCcw } from 'lucide-react';
-import { QueryConfig, TransportMode } from '../types';
+import React, { useState } from 'react';
+
 import { DEFAULT_QUERY_CONFIG } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
+import { QueryConfig, TransportMode } from '../types';
 import ResponsiveDialog from './common/ResponsiveDialog';
 
 interface QueryConfigDialogProps {

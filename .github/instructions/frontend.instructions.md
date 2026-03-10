@@ -37,4 +37,5 @@ Testing conventions for frontend work:
 
 Workflow guardrail:
 
+- Run `npm run ci` as the single canonical local check before any handoff (runs lint, build, and tests in the same sequence as CI).
 - For new features without an existing story, write the story first and wait for user approval before implementing code.

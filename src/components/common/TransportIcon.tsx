@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Bus,
   CableCar,
@@ -7,6 +6,8 @@ import {
   Train,
   TrainFront,
 } from 'lucide-react';
+import React from 'react';
+
 import { TRANSPORT_COLORS } from '../../constants';
 
 interface TransportIconProps {

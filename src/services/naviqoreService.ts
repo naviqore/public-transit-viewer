@@ -19,8 +19,8 @@ import {
   ProviderFailureResponse,
   ProviderResult,
 } from './IDataProvider';
-import { RealDataProvider } from './RealDataProvider';
 import { MockDataProvider } from './MockDataProvider';
+import { RealDataProvider } from './RealDataProvider';
 
 type ServiceListener = (log: RequestLog) => void;
 type ConfigListener = () => void;

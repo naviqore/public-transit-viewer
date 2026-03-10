@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
 import { Check, RotateCcw } from 'lucide-react';
-import { ExploreQueryConfig, StopScope } from '../types';
+import React, { useState } from 'react';
+
 import { DEFAULT_EXPLORE_CONFIG } from '../constants';
+import { ExploreQueryConfig, StopScope } from '../types';
 import ResponsiveDialog from './common/ResponsiveDialog';
 
 interface ExploreConfigDialogProps {

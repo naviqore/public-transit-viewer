@@ -12,7 +12,6 @@ import {
   useInteractions,
   useRole,
 } from '@floating-ui/react';
-import React, { useEffect, useRef, useState } from 'react';
 import {
   AlertTriangle,
   ArrowDownCircle,
@@ -31,6 +30,8 @@ import {
   Trash2,
   Users,
 } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { BenchmarkScenario } from '../types';
 

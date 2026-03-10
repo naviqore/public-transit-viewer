@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import { DEFAULT_EXPLORE_CONFIG } from '../constants';
+import { naviqoreService } from '../services/naviqoreService';
 import {
   ExploreState,
   IsolineState,
@@ -6,8 +9,6 @@ import {
   ServerInfo,
   TimeType,
 } from '../types';
-import { naviqoreService } from '../services/naviqoreService';
-import { DEFAULT_EXPLORE_CONFIG } from '../constants';
 
 interface DomainContextType {
   serverInfo: ServerInfo;

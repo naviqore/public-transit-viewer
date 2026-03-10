@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useMonitoring } from '../contexts/MonitoringContext';
+
 import BenchmarkTab from './BenchmarkTab';
+import { useMonitoring } from '../contexts/MonitoringContext';
 
 vi.mock('../contexts/MonitoringContext', () => ({
   useMonitoring: vi.fn(),

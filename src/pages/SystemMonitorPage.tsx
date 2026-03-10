@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
 import { Activity, BarChart3, Gauge, Terminal, Trash2 } from 'lucide-react';
-import { useMonitoring } from '../contexts/MonitoringContext';
+import React, { useState } from 'react';
+
+import PageHeader from '../components/common/PageHeader';
 import SystemMonitorPanel from '../components/SystemMonitorPanel';
 import { DISABLE_BENCHMARK } from '../constants';
-import PageHeader from '../components/common/PageHeader';
+import { useMonitoring } from '../contexts/MonitoringContext';
 import './PageStyles.css';
 
 const SystemMonitorPage: React.FC = () => {

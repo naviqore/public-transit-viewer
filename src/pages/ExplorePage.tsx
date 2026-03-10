@@ -1,30 +1,32 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import L from 'leaflet';
 import {
   CalendarDays,
   ChevronDown,
   ChevronUp,
   SlidersHorizontal,
 } from 'lucide-react';
-import PageHeader from '../components/common/PageHeader';
-import L from 'leaflet';
-import MapComponent from '../components/Map';
-import { naviqoreService } from '../services/naviqoreService';
-import { useSettings } from '../contexts/SettingsContext';
-import { useDomain } from '../contexts/DomainContext';
-import { Connection, DistanceToStop, Leg, Stop, TimeType } from '../types';
-import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
-import StopSearch from '../components/common/StopSearch';
+import { DateTime } from 'luxon';
+import React, { useEffect, useMemo, useState } from 'react';
+
 import DateTimeSelector from '../components/common/DateTimeSelector';
-import TripTimeline from '../components/common/TripTimeline';
 import Loader from '../components/common/Loader';
+import PageHeader from '../components/common/PageHeader';
+import StopSearch from '../components/common/StopSearch';
 import TransportIcon from '../components/common/TransportIcon';
+import TripTimeline from '../components/common/TripTimeline';
 import ExploreConfigDialog from '../components/ExploreConfigDialog';
+import MapComponent from '../components/Map';
+import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
+import { useDomain } from '../contexts/DomainContext';
+import { useSettings } from '../contexts/SettingsContext';
+import { naviqoreService } from '../services/naviqoreService';
+import { Connection, DistanceToStop, Leg, Stop, TimeType } from '../types';
 import {
   formatDisplayTime,
   getCurrentInputTime,
   inputDateToIso,
 } from '../utils/dateUtils';
-import { DateTime } from 'luxon';
+
 import './PageStyles.css';
 
 const ExplorePage: React.FC = () => {

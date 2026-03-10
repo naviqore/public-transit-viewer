@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   Ban,
   Check,
@@ -8,6 +7,8 @@ import {
   Github,
   Globe,
 } from 'lucide-react';
+import React, { useState } from 'react';
+
 import { useDomain } from '../contexts/DomainContext';
 import ResponsiveDialog from './common/ResponsiveDialog';
 
