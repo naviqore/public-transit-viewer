@@ -6,7 +6,13 @@ import { TimeType } from '../types';
 import { DomainProvider, useDomain } from './DomainContext';
 
 const DomainConsumer = () => {
-  const { serverInfo, exploreState, routingState, isolineState } = useDomain();
+  const {
+    serverInfo,
+    backendStatus,
+    exploreState,
+    routingState,
+    isolineState,
+  } = useDomain();
 
   return (
     <>
@@ -23,6 +29,7 @@ const DomainConsumer = () => {
       <span data-testid="explore-stop-selected">
         {String(exploreState.selectedStop === null)}
       </span>
+      <span data-testid="backend-status">{backendStatus}</span>
     </>
   );
 };
@@ -104,5 +111,42 @@ describe('DomainContext', () => {
         'true'
       );
     });
+  });
+
+  it('starts with backendStatus "loading" and transitions to "ok" on success', async () => {
+    render(
+      <DomainProvider>
+        <DomainConsumer />
+      </DomainProvider>
+    );
+
+    expect(screen.getByTestId('backend-status')).toHaveTextContent('loading');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('backend-status')).toHaveTextContent('ok');
+    });
+  });
+
+  it('transitions backendStatus to "error" when fetch fails', async () => {
+    vi.spyOn(naviqoreService, 'getScheduleInfo').mockRejectedValue(
+      new Error('Network error')
+    );
+    const consoleErrorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    render(
+      <DomainProvider>
+        <DomainConsumer />
+      </DomainProvider>
+    );
+
+    expect(screen.getByTestId('backend-status')).toHaveTextContent('loading');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('backend-status')).toHaveTextContent('error');
+    });
+
+    consoleErrorSpy.mockRestore();
   });
 });

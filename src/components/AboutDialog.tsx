@@ -6,6 +6,7 @@ import {
   ExternalLink,
   Github,
   Globe,
+  WifiOff,
 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -37,7 +38,7 @@ const FeatureRow: React.FC<{ label: string; supported: boolean }> = ({
 );
 
 const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
-  const { serverInfo } = useDomain();
+  const { serverInfo, backendStatus } = useDomain();
   const [logoError, setLogoError] = useState(false);
 
   return (
@@ -83,7 +84,18 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
             <Database size={14} className="hidden md:block" /> Schedule Info
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3 border border-slate-200/50 dark:border-slate-700/50">
-            {serverInfo.schedule ? (
+            {backendStatus === 'loading' && (
+              <div className="flex items-center justify-center py-2">
+                <span className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-indigo-500 animate-spin" />
+              </div>
+            )}
+            {backendStatus === 'error' && (
+              <div className="flex items-center justify-center gap-2 py-2 text-red-500 dark:text-red-400">
+                <WifiOff size={16} />
+                <span className="text-sm font-medium">Unreachable</span>
+              </div>
+            )}
+            {backendStatus === 'ok' && serverInfo.schedule ? (
               <>
                 <div className="flex items-center justify-between py-1.5 border-b border-slate-200/50 dark:border-slate-700/50 pb-2.5 mb-1">
                   <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -111,9 +123,11 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
                 </div>
               </>
             ) : (
-              <div className="text-center text-sm text-slate-400 italic py-2">
-                Loading schedule info...
-              </div>
+              backendStatus === 'ok' && (
+                <div className="text-center text-sm text-slate-400 italic py-2">
+                  Loading schedule info...
+                </div>
+              )
             )}
           </div>
         </div>
@@ -124,7 +138,18 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
             <Cpu size={14} className="hidden md:block" /> Router Capabilities
           </h3>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-1 border border-slate-200/50 dark:border-slate-700/50">
-            {serverInfo.routing ? (
+            {backendStatus === 'loading' && (
+              <div className="flex items-center justify-center py-2">
+                <span className="w-5 h-5 rounded-full border-2 border-slate-300 border-t-indigo-500 animate-spin" />
+              </div>
+            )}
+            {backendStatus === 'error' && (
+              <div className="flex items-center justify-center gap-2 py-2 text-red-500 dark:text-red-400">
+                <WifiOff size={16} />
+                <span className="text-sm font-medium">Unreachable</span>
+              </div>
+            )}
+            {backendStatus === 'ok' && serverInfo.routing ? (
               <>
                 <FeatureRow
                   label="Max Transfers Limit"
@@ -156,9 +181,11 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
                 />
               </>
             ) : (
-              <div className="text-center text-sm text-slate-400 italic py-2">
-                Loading router info...
-              </div>
+              backendStatus === 'ok' && (
+                <div className="text-center text-sm text-slate-400 italic py-2">
+                  Loading router info...
+                </div>
+              )
             )}
           </div>
         </div>

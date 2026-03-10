@@ -10,8 +10,11 @@ import {
   TimeType,
 } from '../types';
 
+type BackendStatus = 'loading' | 'ok' | 'error';
+
 interface DomainContextType {
   serverInfo: ServerInfo;
+  backendStatus: BackendStatus;
 
   exploreState: ExploreState;
   setExploreState: React.Dispatch<React.SetStateAction<ExploreState>>;
@@ -32,6 +35,7 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     schedule: null,
     routing: null,
   });
+  const [backendStatus, setBackendStatus] = useState<BackendStatus>('loading');
 
   const [exploreState, setExploreState] = useState<ExploreState>({
     selectedStop: null,
@@ -67,6 +71,7 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      setBackendStatus('loading');
       try {
         const [sched, rout] = await Promise.all([
           naviqoreService.getScheduleInfo(),
@@ -76,8 +81,10 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
           schedule: sched.data,
           routing: rout.data,
         });
+        setBackendStatus('ok');
       } catch (e: unknown) {
         console.error('Failed to load server capabilities', e);
+        setBackendStatus('error');
       }
     };
 
@@ -101,6 +108,7 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     <DomainContext.Provider
       value={{
         serverInfo,
+        backendStatus,
         exploreState,
         setExploreState,
         routingState,

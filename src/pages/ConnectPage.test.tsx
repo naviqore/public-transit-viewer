@@ -53,6 +53,7 @@ const makeDomainValue = (
   isolineState: {} as never,
   setIsolineState: vi.fn(),
   serverInfo: { schedule: null, routing: null },
+  backendStatus: 'ok' as const,
 });
 
 beforeEach(() => {

@@ -14,11 +14,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import PageHeader from '../components/common/PageHeader';
 import { IS_API_URL_CONFIGURED } from '../constants';
+import { useDomain } from '../contexts/DomainContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getAllTimezones } from '../utils/dateUtils';
 import './PageStyles.css';
 
 const SettingsPage: React.FC = () => {
+  const { backendStatus } = useDomain();
   const {
     timezone,
     setTimezone,
@@ -73,31 +75,39 @@ const SettingsPage: React.FC = () => {
                 onClick={() => setShowAbout(true)}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                    <img
-                      src="/logo.png"
-                      alt="Naviqore"
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        const parent = target.parentElement;
-                        if (parent) {
-                          target.style.display = 'none';
-                          parent.classList.remove(
-                            'bg-white',
-                            'border-slate-100',
-                            'dark:bg-slate-800',
-                            'dark:border-slate-700'
-                          );
-                          parent.classList.add(
-                            'bg-brand-600',
-                            'text-white',
-                            'font-bold'
-                          );
-                          parent.innerText = 'N';
-                        }
-                      }}
-                    />
+                  <div className="relative w-10 h-10 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                      <img
+                        src="/logo.png"
+                        alt="Naviqore"
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const parent = target.parentElement;
+                          if (parent) {
+                            target.style.display = 'none';
+                            parent.classList.remove(
+                              'bg-white',
+                              'border-slate-100',
+                              'dark:bg-slate-800',
+                              'dark:border-slate-700'
+                            );
+                            parent.classList.add(
+                              'bg-brand-600',
+                              'text-white',
+                              'font-bold'
+                            );
+                            parent.innerText = 'N';
+                          }
+                        }}
+                      />
+                    </div>
+                    {backendStatus === 'error' && (
+                      <span
+                        aria-label="Backend unreachable"
+                        className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-800 pointer-events-none"
+                      />
+                    )}
                   </div>
                   <div>
                     <div className="font-medium text-slate-900 dark:text-white text-base">

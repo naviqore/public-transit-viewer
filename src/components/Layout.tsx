@@ -11,6 +11,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 import AboutDialog from './AboutDialog';
+import { useDomain } from '../contexts/DomainContext';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -20,6 +21,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logs } = useMonitoring();
+  const { backendStatus } = useDomain();
   const { mobileMapOpen, setMobileMapOpen, showAbout, setShowAbout } =
     useSettings();
 
@@ -66,33 +68,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="hidden md:flex mb-6 justify-center">
           <button
             onClick={() => setShowAbout(true)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:scale-105 transition-transform cursor-pointer active:scale-95"
+            className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-sm overflow-visible bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:scale-105 transition-transform cursor-pointer active:scale-95"
             title="About Naviqore"
           >
-            <img
-              src="/logo.png"
-              alt="Naviqore"
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                const target = e.currentTarget;
-                const parent = target.parentElement;
-                if (parent) {
-                  target.style.display = 'none';
-                  parent.classList.remove(
-                    'bg-white',
-                    'border-slate-100',
-                    'dark:bg-slate-800',
-                    'dark:border-slate-700'
-                  );
-                  parent.classList.add(
-                    'bg-brand-600',
-                    'text-white',
-                    'font-bold'
-                  );
-                  parent.innerText = 'N';
-                }
-              }}
-            />
+            <span className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="Naviqore"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  const parent = target.parentElement;
+                  if (parent) {
+                    target.style.display = 'none';
+                    parent.classList.remove(
+                      'bg-white',
+                      'border-slate-100',
+                      'dark:bg-slate-800',
+                      'dark:border-slate-700'
+                    );
+                    parent.classList.add(
+                      'bg-brand-600',
+                      'text-white',
+                      'font-bold'
+                    );
+                    parent.innerText = 'N';
+                  }
+                }}
+              />
+            </span>
+            {backendStatus === 'error' && (
+              <span
+                aria-label="Backend unreachable"
+                className="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900 pointer-events-none"
+              />
+            )}
           </button>
         </div>
 

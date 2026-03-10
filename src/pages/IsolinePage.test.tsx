@@ -46,6 +46,7 @@ const makeDomainValue = (
   isolineState,
   setIsolineState,
   serverInfo: { schedule: null, routing: null },
+  backendStatus: 'ok' as const,
 });
 
 beforeEach(() => {
