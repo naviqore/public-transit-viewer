@@ -20,6 +20,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 
 | ID         | Status | Title                                             | Owner      | Notes                                                                                                           |
 | ---------- | ------ | ------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
+| STORY-0023 | OPEN   | Fix CI failures and unify the quality gate        | unassigned | Fix timezone bug in dateUtils; promote import/order to error; unify pre-commit, CI, and agent instructions      |
 | STORY-0022 | OPEN   | Improve toast error messages for backend failures | unassigned | Extend error dismiss to 6 s; strip raw metadata from details; add contextual page-level toasts for each feature |
 | STORY-0021 | CLOSED | Mobile fullscreen dialog pages                    | unassigned | Replace modal dialogs with fullscreen pages + back button on mobile; keep desktop modals unchanged              |
 | STORY-0020 | CLOSED | Remove obsolete files and fix stale story index   | unassigned | Completed 2026-03-10: deleted INSTRUCTIONS.md stub; STORY-0018/0019 rows were already CLOSED in index           |
