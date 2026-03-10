@@ -85,6 +85,7 @@ Examples:
   - `- [x]` — satisfied and verified during implementation
   - `- [~]` — intentionally descoped or deferred; **must** include a written justification in the Completion section
   - An agent must never check `- [x]` without having actually satisfied the criterion.
+  - An agent must never mark `- [~]` without asking the user for explicit approval for each individual AC being descoped.
 - For each implementation PR/commit series:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts

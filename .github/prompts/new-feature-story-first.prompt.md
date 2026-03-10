@@ -14,4 +14,4 @@ First steps:
 Then:
 
 - Stop and ask for my review/approval of the story text.
-- Only after approval, start implementation.
+- Only after approval, commit the story and updated index, follow the commit guidelines in `.github/copilot-instructions.md`.
