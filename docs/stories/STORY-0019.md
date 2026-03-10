@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -34,24 +34,24 @@ without tying tests to DOM structure or Leaflet internals.
 
 ## Acceptance Criteria
 
-- [ ] `src/utils/dataUtils.test.ts` exists and tests all major branches of `getLegStopTimes`:
+- [x] `src/utils/dataUtils.test.ts` exists and tests all major branches of `getLegStopTimes`:
   - trip is missing/empty → returns `[]`
   - exact start+end index match → returns correct slice
   - fallback to stop-id-only match (no time match)
   - `startIdx === -1` or `endIdx === -1` with fromStop/toStop available → returns synthetic two-stop array
   - `startIdx === -1` with no fromStop/toStop → returns full `stopTimes`
-- [ ] `dateUtils.test.ts` is extended to cover:
+- [x] `dateUtils.test.ts` is extended to cover:
   - `getDayDifference` with same day, next day, and cross-midnight timezone cases
   - `formatDisplayTime` with `useStationTime = false` (zone conversion branch)
   - `inputDateToIso` round-trip
-- [ ] `naviqoreService.test.ts` is extended (or a focused new file added) to cover:
+- [x] `naviqoreService.test.ts` is extended (or a focused new file added) to cover:
   - `setMockMode(true)` → provider switches, config listeners notified, log entry emitted
   - `setBaseUrl` with same URL → no listener notification (idempotent guard)
   - `subscribe` unsubscribe → subsequent calls don't reach removed listener
   - `onConfigChange` unsubscribe behaves symmetrically
   - `getScheduleInfo` with mocked provider throwing → `execute` catches and rethrows `ServiceRequestError`
-- [ ] `npm run test:coverage` passes with updated thresholds after new tests land.
-- [ ] No test uses snapshot testing, broad DOM assertions, or mocks internal implementation details
+- [x] `npm run test:coverage` passes with updated thresholds after new tests land.
+- [x] No test uses snapshot testing, broad DOM assertions, or mocks internal implementation details
       (prefer testing observable outputs and thrown errors).
 
 ## Implementation Notes
@@ -66,6 +66,6 @@ without tying tests to DOM structure or Leaflet internals.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: All ACs satisfied. Added 8 tests for `getLegStopTimes`, 7 tests extending `dateUtils`, and 8 tests extending `naviqoreService`. Coverage thresholds raised to lines/stmts 21 %, functions 51 %, branches 67 %. Committed as `abfa498`.
+- Descoped ACs: none
