@@ -22,7 +22,8 @@ This repository is a production Vite + React + TypeScript frontend.
 
 ## Required checks before handoff
 
-- Run `npm run ci` as the single canonical local check before any handoff (runs lint, build, and tests in the same sequence as CI).
+- Run `npm run check` before committing (typecheck + lint + format + unit tests).
+- `npm run ci` (which adds build + coverage) runs in remote CI only — do not run it locally as a gate.
 - Add or update tests for changed business logic (`src/services`, `src/utils`, important hooks).
 
 ## Test Baseline (Lean + Modern)
@@ -34,8 +35,7 @@ This repository is a production Vite + React + TypeScript frontend.
 - Reuse shared setup from `src/test/setup.ts`.
 - For new stories:
   - add or update tests for the changed logic
-  - run `npm run test:run` locally
-  - use `npm run test:coverage` only when story scope requires coverage verification
+  - `npm run check` covers tests; `npm run test:coverage` only when story scope requires it
 
 ## Project conventions
 
@@ -62,7 +62,7 @@ This repository is a production Vite + React + TypeScript frontend.
 - Every commit body line must be ≤ 100 characters (`body-max-line-length` commitlint rule).
 - Releases are managed by `.github/workflows/release-please.yml` and parsed from commit history.
 - Keep git author identity as the user's configured name/email.
-- For commits created by an AI agent, add a commit-message trailer for transparency: `Generated-by: GitHub Copilot (GPT-5.3-Codex)`.
+- For commits created by an AI agent, add a commit-message trailer for transparency: `Generated-by: GitHub Copilot (<actual model name>)`.
 
 Examples:
 
@@ -87,7 +87,7 @@ Examples:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts
   - check each AC as `- [x]` in the story file **as it is satisfied** during implementation
-  - when implementation is done, verify with lean tests (`npm run test:run` minimum for changed logic)
+  - when implementation is done, run `npm run check` to validate (typecheck + lint + format + tests)
   - before committing, present the proposed commit message and ask one combined approval question for both actions: commit and close story
   - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]` remain, the agent must ask the user whether to satisfy, descope (`- [~]`), or block closure
   - only after user approval: commit changes and update story status to `CLOSED`
