@@ -59,6 +59,7 @@ This repository is a production Vite + React + TypeScript frontend.
 - Allowed commit types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - Use `!` or `BREAKING CHANGE:` footer for breaking changes.
 - Keep commits atomic and focused to improve changelog quality.
+- Every commit body line must be ≤ 100 characters (`body-max-line-length` commitlint rule).
 - Releases are managed by `.github/workflows/release-please.yml` and parsed from commit history.
 - Keep git author identity as the user's configured name/email.
 - For commits created by an AI agent, add a commit-message trailer for transparency: `Generated-by: GitHub Copilot (GPT-5.3-Codex)`.
