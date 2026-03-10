@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -41,23 +41,23 @@ Settings → About entry. The About dialog itself replaces the infinite
 
 ## Acceptance Criteria
 
-- [ ] `DomainContext` exposes `backendStatus: 'loading' | 'ok' | 'error'`
+- [x] `DomainContext` exposes `backendStatus: 'loading' | 'ok' | 'error'`
       and sets it correctly based on the fetch outcome.
-- [ ] A red dot badge (absolute-positioned, aria-labelled) appears on the
+- [x] A red dot badge (absolute-positioned, aria-labelled) appears on the
       desktop logo button when the backend is unreachable and disappears once
       the backend is reachable again.
-- [ ] The same red dot badge appears on the About logo in the mobile Settings
+- [x] The same red dot badge appears on the About logo in the mobile Settings
       page when the backend is unreachable.
-- [ ] The About dialog shows a brief spinner while `backendStatus === 'loading'`
+- [x] The About dialog shows a brief spinner while `backendStatus === 'loading'`
       instead of the "Loading…" text, giving users a clear transient signal.
-- [ ] The About dialog shows a clearly styled "Unreachable" / "N/A" state (not
+- [x] The About dialog shows a clearly styled "Unreachable" / "N/A" state (not
       a spinner and not the existing italic grey text) for schedule and router
       sections when `backendStatus === 'error'`.
-- [ ] When the backend becomes reachable again (e.g. URL changed in settings),
+- [x] When the backend becomes reachable again (e.g. URL changed in settings),
       `backendStatus` resets to `'loading'` and then resolves to `'ok'`.
-- [ ] Unit tests cover: initial `'loading'` state, transition to `'ok'` on
+- [x] Unit tests cover: initial `'loading'` state, transition to `'ok'` on
       success, transition to `'error'` on fetch failure.
-- [ ] `npm run ci` passes.
+- [x] `npm run ci` passes.
 
 ## Implementation Notes
 
@@ -75,6 +75,11 @@ Settings → About entry. The About dialog itself replaces the infinite
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: All ACs satisfied. `DomainContext` now tracks `backendStatus`
+  ('loading' | 'ok' | 'error'). Red dot badges added to the desktop sidebar
+  logo (Layout.tsx) and mobile Settings About logo (SettingsPage.tsx).
+  AboutDialog updated with a spinner for loading state and a WifiOff
+  "Unreachable" banner for error state. Three new unit tests cover the state
+  transitions. `npm run ci` passes (15 test files, 82 tests).
+- Descoped ACs: none
