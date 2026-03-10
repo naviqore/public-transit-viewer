@@ -22,7 +22,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 | ---------- | ------ | ----------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
 | STORY-0019 | OPEN   | Improve unit tests for utils and service layer  | unassigned | Add/extend tests for `dataUtils`, `dateUtils`, `naviqoreService`; raise coverage thresholds after               |
 | STORY-0018 | OPEN   | Fix CI quality gate and pre-commit coverage gap | unassigned | Lower vitest coverage thresholds to current actuals; add `test:coverage` to pre-commit hook                     |
-| STORY-0017 | OPEN   | Rename browser tab title                        | unassigned | Change `<title>` to "Naviqore \| Public Transit Viewer"                                                         |
+| STORY-0017 | CLOSED | Rename browser tab title                        | unassigned | Change `<title>` to "Naviqore \| Public Transit Viewer"                                                         |
 | STORY-0016 | CLOSED | Production-ready Docker image and CI/CD         | unassigned | Multi-stage Dockerfile, PR build-check workflow, release-publish to ghcr.io                                     |
 | STORY-0015 | OPEN   | Documentation and comment style cleanup         | unassigned | Remove obvious comments; add JSDoc to complex hooks, services, utilities; enforce consistent style              |
 | STORY-0014 | CLOSED | Isoline map colour-mode toggle                  | unassigned | Toggle between travel-time gradient and transfer-count discrete palette; add matching legend                    |

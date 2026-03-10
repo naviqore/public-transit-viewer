@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -28,6 +28,6 @@ Single-line change in `index.html`. No component or TypeScript changes required.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: Single-line change in `index.html`. All ACs satisfied. `npm run check` and `npm run build` passed.
+- Descoped ACs: none
