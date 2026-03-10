@@ -67,6 +67,13 @@ const toErrorMessage = (error: unknown): string => {
   return String(error);
 };
 
+// Strips requestId= and type= metadata suffixes added by toLogErrorMessage
+export const sanitiseToastDetail = (detail: string): string =>
+  detail
+    .replace(/ \| requestId=\S+/g, '')
+    .replace(/ \| type=\S+/g, '')
+    .trim();
+
 // Box-Muller transform for Gaussian distribution
 const gaussianRandom = (mean: number, stdev: number) => {
   let u = 0,
@@ -163,7 +170,9 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({
             log.status === 0
               ? 'Network Request Failed'
               : `API Error ${log.status}`,
-          details: log.error || `Failed to fetch ${log.url}`,
+          details: log.error
+            ? sanitiseToastDetail(log.error)
+            : 'The server could not complete the request.',
         };
         setToasts((prev) => [notification, ...prev]);
       }

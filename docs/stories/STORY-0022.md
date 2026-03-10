@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Context
 
@@ -33,14 +33,14 @@ The goal is to make the toast layer genuinely informative: tell the user what th
 
 ## Acceptance Criteria
 
-- [ ] Error toasts auto-dismiss after **6 seconds** (not 3); success/warning/info remain at 3 s.
-- [ ] The auto-toast `details` field never shows a raw URL or `requestId=` / `type=` metadata suffix.
-- [ ] `ConnectPage` shows a toast with message `"Could not load connections"` when the connections API call fails.
-- [ ] `ExplorePage` shows a toast with message `"Could not load departures"` when the departures API call fails.
-- [ ] `IsolinePage` shows a toast with message `"Could not load isolines"` when the isolines API call fails.
-- [ ] `ExplorePage` map click shows a toast with message `"Could not find nearby stops"` when the nearest-stops call fails.
-- [ ] No toast is shown on pages when a search is not yet active (e.g., no stop selected, inputs empty).
-- [ ] `npm run check` passes with no type errors or lint violations.
+- [x] Error toasts auto-dismiss after **6 seconds** (not 3); success/warning/info remain at 3 s.
+- [x] The auto-toast `details` field never shows a raw URL or `requestId=` / `type=` metadata suffix.
+- [x] `ConnectPage` shows a toast with message `"Could not load connections"` when the connections API call fails.
+- [x] `ExplorePage` shows a toast with message `"Could not load departures"` when the departures API call fails.
+- [x] `IsolinePage` shows a toast with message `"Could not load isolines"` when the isolines API call fails.
+- [x] `ExplorePage` map click shows a toast with message `"Could not find nearby stops"` when the nearest-stops call fails.
+- [x] No toast is shown on pages when a search is not yet active (e.g., no stop selected, inputs empty).
+- [x] `npm run check` passes with no type errors or lint violations.
 
 ## Implementation Notes
 

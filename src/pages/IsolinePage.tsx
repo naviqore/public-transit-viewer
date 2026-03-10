@@ -16,6 +16,7 @@ import MapComponent from '../components/Map';
 import QueryConfigDialog from '../components/QueryConfigDialog';
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
+import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
 import { Connection, Leg, Stop, StopConnection, TimeType } from '../types';
@@ -35,6 +36,7 @@ const IsolinePage: React.FC = () => {
   const { timezone, queryConfig, setQueryConfig, useStationTime } =
     useSettings();
   const { isolineState, setIsolineState } = useDomain();
+  const { addToast } = useMonitoring();
 
   const { centerStop, isolines, maxDuration, date } = isolineState;
 
@@ -154,6 +156,12 @@ const IsolinePage: React.FC = () => {
           }
         } catch (e) {
           console.error(e);
+          addToast({
+            id: crypto.randomUUID(),
+            type: 'error',
+            message: 'Could not load isolines',
+            details: e instanceof Error ? e.message : undefined,
+          });
         } finally {
           setLoading(false);
         }

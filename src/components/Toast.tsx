@@ -10,11 +10,12 @@ interface ToastProps {
 
 const Toast: React.FC<ToastProps> = ({ notification, onDismiss }) => {
   useEffect(() => {
+    const duration = notification.type === 'error' ? 6000 : 3000;
     const timer = setTimeout(() => {
       onDismiss(notification.id);
-    }, 3000);
+    }, duration);
     return () => clearTimeout(timer);
-  }, [notification.id, onDismiss]);
+  }, [notification.id, notification.type, onDismiss]);
 
   const getStyles = (type: NotificationType) => {
     switch (type) {

@@ -18,6 +18,7 @@ import ExploreConfigDialog from '../components/ExploreConfigDialog';
 import MapComponent from '../components/Map';
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
+import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
 import { Connection, DistanceToStop, Leg, Stop, TimeType } from '../types';
@@ -32,6 +33,7 @@ import './PageStyles.css';
 const ExplorePage: React.FC = () => {
   const { timezone, useStationTime } = useSettings();
   const { exploreState, setExploreState } = useDomain();
+  const { addToast } = useMonitoring();
 
   const { selectedStop, departures, nearbyStops, date, config } = exploreState;
 
@@ -94,6 +96,12 @@ const ExplorePage: React.FC = () => {
         } catch (e) {
           console.error(e);
           updateState({ departures: [] });
+          addToast({
+            id: crypto.randomUUID(),
+            type: 'error',
+            message: 'Could not load departures',
+            details: e instanceof Error ? e.message : undefined,
+          });
         } finally {
           setLoading(false);
         }
@@ -114,6 +122,12 @@ const ExplorePage: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
+      addToast({
+        id: crypto.randomUUID(),
+        type: 'error',
+        message: 'Could not find nearby stops',
+        details: e instanceof Error ? e.message : undefined,
+      });
     }
   };
 

@@ -11,6 +11,7 @@ import MapComponent from '../components/Map';
 import QueryConfigDialog from '../components/QueryConfigDialog';
 import { DEFAULT_MAP_CENTER, DEFAULT_ZOOM } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
+import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
 import { Connection, Leg, QueryConfig, TimeType } from '../types';
@@ -26,6 +27,7 @@ const ConnectPage: React.FC = () => {
   const { timezone, queryConfig, setQueryConfig, useStationTime } =
     useSettings();
   const { routingState, setRoutingState } = useDomain();
+  const { addToast } = useMonitoring();
 
   const {
     fromStop,
@@ -143,6 +145,12 @@ const ConnectPage: React.FC = () => {
         } catch (e) {
           console.error(e);
           updateState({ connections: [] });
+          addToast({
+            id: crypto.randomUUID(),
+            type: 'error',
+            message: 'Could not load connections',
+            details: e instanceof Error ? e.message : undefined,
+          });
         } finally {
           setLoading(false);
         }
