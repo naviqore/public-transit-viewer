@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Context
 
@@ -55,6 +55,6 @@ acceptable.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: Coverage thresholds realigned to floor values (stmts/lines 20 %, functions 44 %, branches 52 %), unblocking CI. Pre-commit hook now runs `npm run test:coverage` after `npm run check`.
+- Descoped ACs: none
