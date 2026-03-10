@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Context
 
@@ -28,10 +28,10 @@ No application logic or build configuration is affected by either change.
 
 ## Acceptance Criteria
 
-- [ ] `INSTRUCTIONS.md` no longer exists in the repository (file deleted, change staged).
-- [ ] `docs/stories/INDEX.md` shows STORY-0018 as `CLOSED`.
-- [ ] `docs/stories/INDEX.md` shows STORY-0019 as `CLOSED`.
-- [ ] `npm run check` passes after the changes.
+- [x] `INSTRUCTIONS.md` no longer exists in the repository (file deleted, change staged).
+- [x] `docs/stories/INDEX.md` shows STORY-0018 as `CLOSED`.
+- [x] `docs/stories/INDEX.md` shows STORY-0019 as `CLOSED`.
+- [x] `npm run check` passes after the changes.
 
 ## Implementation Notes
 
@@ -41,6 +41,6 @@ No application logic or build configuration is affected by either change.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-10
+- Outcome: Deleted obsolete INSTRUCTIONS.md stub; INDEX.md STORY-0018/0019 rows were already CLOSED. All 4 ACs satisfied; 53/53 tests pass.
+- Descoped ACs: none

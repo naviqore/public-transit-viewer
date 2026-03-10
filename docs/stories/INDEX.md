@@ -20,7 +20,7 @@ Use this file as the local agent-readable backlog. Keep IDs sequential and never
 
 | ID         | Status | Title                                           | Owner      | Notes                                                                                                           |
 | ---------- | ------ | ----------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
-| STORY-0020 | OPEN   | Remove obsolete files and fix stale story index | unassigned | Delete `INSTRUCTIONS.md`; mark STORY-0018 and STORY-0019 CLOSED in index                                        |
+| STORY-0020 | CLOSED | Remove obsolete files and fix stale story index | unassigned | Completed 2026-03-10: deleted INSTRUCTIONS.md stub; STORY-0018/0019 rows were already CLOSED in index           |
 | STORY-0019 | CLOSED | Improve unit tests for utils and service layer  | unassigned | Add/extend tests for `dataUtils`, `dateUtils`, `naviqoreService`; raise coverage thresholds after               |
 | STORY-0018 | CLOSED | Fix CI quality gate and pre-commit coverage gap | unassigned | Lower vitest coverage thresholds to current actuals; add `test:coverage` to pre-commit hook                     |
 | STORY-0017 | CLOSED | Rename browser tab title                        | unassigned | Change `<title>` to "Naviqore \| Public Transit Viewer"                                                         |
