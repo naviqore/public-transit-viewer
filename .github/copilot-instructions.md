@@ -20,22 +20,24 @@ This repository is a production Vite + React + TypeScript frontend.
   - I/O and API calls in `src/services`
   - pure transforms/formatting in `src/utils`
 
-## Required checks before handoff
+## Quality gate
 
-- Run `npm run check` before committing (typecheck + lint + format + unit tests).
-- `npm run ci` (which adds build + coverage) runs in remote CI only — do not run it locally as a gate.
+`npm run ci` is the single canonical gate — typecheck → lint → format → build → tests with
+coverage. Identical locally (pre-commit hook) and in remote CI.
+
+- **Humans:** `git commit` triggers the gate automatically via the pre-commit hook.
+- **Agents:** run `npm run ci` to validate and surface results, then commit with
+  `HUSKY=0 git commit` to avoid re-running the same gate (intentional deduplication, not a
+  bypass). Use a terminal timeout of at least 120 s for `npm run ci`.
 - Add or update tests for changed business logic (`src/services`, `src/utils`, important hooks).
 
-## Test Baseline (Lean + Modern)
+## Test stack
 
-- Test stack: `Vitest` + `@testing-library/react` + `jsdom` + `@testing-library/jest-dom`.
+- `Vitest` + `@testing-library/react` + `jsdom` + `@testing-library/jest-dom`.
+- Co-locate tests as `*.test.ts` / `*.test.tsx` near source files.
+- Reuse shared setup from `src/test/setup.ts`.
 - Keep tests focused on behavior and business logic, not implementation details.
 - Prefer small, fast unit tests; add integration tests only when multiple parts interact.
-- Co-locate tests with source as `*.test.ts` / `*.test.tsx`.
-- Reuse shared setup from `src/test/setup.ts`.
-- For new stories:
-  - add or update tests for the changed logic
-  - `npm run check` covers tests; `npm run test:coverage` only when story scope requires it
 
 ## Project conventions
 
@@ -87,8 +89,11 @@ Examples:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts
   - check each AC as `- [x]` in the story file **as it is satisfied** during implementation
-  - when implementation is done, run `npm run check` to validate (typecheck + lint + format + tests)
-  - before committing, present the proposed commit message and ask one combined approval question for both actions: commit and close story
-  - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]` remain, the agent must ask the user whether to satisfy, descope (`- [~]`), or block closure
-  - only after user approval: commit changes and update story status to `CLOSED`
-  - add completion date and short outcome note; if any ACs were descoped, document the reason there
+  - run `npm run ci` (see Quality gate), present results, proposed commit message, and ask once:
+    _"Do you want me to commit and close the story?"_
+  - wait for explicit user approval before committing
+  - on approval: `HUSKY=0 git commit` for the implementation commit
+  - then a separate `docs(stories):` commit: set status `CLOSED`, change the story row in
+    `docs/stories/INDEX.md` to `CLOSED`, add completion date and short outcome note
+  - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]`
+    remain, ask the user whether to satisfy, descope (`- [~]`), or block closure

@@ -1,6 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Fast local gate: typecheck + lint + format + unit tests.
-# Build and coverage run only in remote CI (see .github/workflows).
-npm run check
+npm run ci

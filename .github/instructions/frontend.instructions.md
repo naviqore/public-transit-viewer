@@ -34,8 +34,3 @@ Testing conventions for frontend work:
 - Keep tests deterministic: mock time/network where needed.
 - Keep tests small and story-scoped; avoid broad end-to-end style tests in unit suites.
 - For story-driven work, validate changed acceptance criteria with lean tests before asking for commit approval.
-
-Workflow guardrail:
-
-- Run `npm run check` before committing (typecheck + lint + format + unit tests). `npm run ci` runs in remote CI only.
-- For new features without an existing story, write the story first and wait for user approval before implementing code.

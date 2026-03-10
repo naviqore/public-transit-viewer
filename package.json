@@ -17,7 +17,7 @@
     "test:coverage": "vitest run --coverage",
     "commitlint": "commitlint --from=HEAD~1 --to=HEAD",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test:run",
-    "ci": "npm run check && npm run build && npm run test:coverage",
+    "ci": "npm run typecheck && npm run lint && npm run format:check && npm run build && npm run test:coverage",
     "prepare": "husky install"
   },
   "dependencies": {
