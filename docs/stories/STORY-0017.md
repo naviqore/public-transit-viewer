@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Context
 
@@ -18,9 +18,9 @@ tab title with the project identity visible in the UI and repository name.
 
 ## Acceptance Criteria
 
-- [ ] `index.html` `<title>` reads exactly `Naviqore | Public Transit Viewer`.
-- [ ] `npm run check` passes.
-- [ ] `npm run build` succeeds and the built `dist/index.html` contains the updated title.
+- [x] `index.html` `<title>` reads exactly `Naviqore | Public Transit Viewer`.
+- [x] `npm run check` passes.
+- [x] `npm run build` succeeds and the built `dist/index.html` contains the updated title.
 
 ## Implementation Notes
 
