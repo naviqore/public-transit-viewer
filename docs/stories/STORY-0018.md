@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Context
 
@@ -32,10 +32,10 @@ and is out of scope for this story.
 
 ## Acceptance Criteria
 
-- [ ] `npm run test:coverage` exits with code 0 locally (thresholds not breached).
-- [ ] `.husky/pre-commit` runs `npm run test:coverage` after the existing `npm run check`.
-- [ ] `npm run ci` (`check` + `build` + `test:coverage`) passes end-to-end locally without errors.
-- [ ] The CI quality gate (`quality-ci.yml`) is expected to pass on a branch that includes these changes.
+- [x] `npm run test:coverage` exits with code 0 locally (thresholds not breached).
+- [x] `.husky/pre-commit` runs `npm run test:coverage` after the existing `npm run check`.
+- [x] `npm run ci` (`check` + `build` + `test:coverage`) passes end-to-end locally without errors.
+- [x] The CI quality gate (`quality-ci.yml`) is expected to pass on a branch that includes these changes.
 
 ## Implementation Notes
 
