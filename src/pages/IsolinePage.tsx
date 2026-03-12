@@ -5,7 +5,13 @@ import {
   CircleDot,
   SlidersHorizontal,
 } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import DateTimeSelector from '../components/common/DateTimeSelector';
 import IsolineCard from '../components/common/IsolineCard';
@@ -82,10 +88,30 @@ const IsolinePage: React.FC = () => {
         date: getCurrentInputTime(timezone),
       }));
     }
-  }, [timezone]);
+  }, [isolineState.date, setIsolineState, timezone]);
 
-  const updateState = (updates: Partial<typeof isolineState>) => {
-    setIsolineState((prev) => ({ ...prev, ...updates }));
+  const updateState = useCallback(
+    (updates: Partial<typeof isolineState>) => {
+      setIsolineState((prev) => ({ ...prev, ...updates }));
+    },
+    [setIsolineState]
+  );
+
+  // Stable refs — keep restore-only state and addToast accessible inside the
+  // query effect without making them effect triggers.
+  const addToastRef = useRef(addToast);
+  addToastRef.current = addToast;
+  const queryRestoreRef = useRef({
+    lastQueriedKey,
+    isolines,
+    expandedStopId,
+    mapBounds,
+  });
+  queryRestoreRef.current = {
+    lastQueriedKey,
+    isolines,
+    expandedStopId,
+    mapBounds,
   };
 
   // Lookup Map for Connection Reconstruction
@@ -94,6 +120,55 @@ const IsolinePage: React.FC = () => {
     isolines.forEach((iso) => map.set(iso.stop.id, iso));
     return map;
   }, [isolines]);
+
+  const reconstructConnection = useCallback(
+    (startIso: StopConnection): Connection => {
+      const legs: Leg[] = [];
+      let currentIso: StopConnection | undefined = startIso;
+      const visited = new Set<string>();
+
+      while (
+        currentIso &&
+        !visited.has(currentIso.stop.id) &&
+        legs.length < 50
+      ) {
+        visited.add(currentIso.stop.id);
+        const leg = currentIso.connectingLeg;
+
+        if (timeType === TimeType.ARRIVAL) {
+          legs.push(leg);
+          const nextStopId = leg.toStop?.id;
+          if (!nextStopId || nextStopId === centerStop?.id) break;
+          currentIso = isolineMap.get(nextStopId);
+        } else {
+          legs.unshift(leg);
+          const prevStopId = leg.fromStop?.id;
+          if (!prevStopId || prevStopId === centerStop?.id) break;
+          currentIso = isolineMap.get(prevStopId);
+        }
+      }
+
+      const firstLeg = legs[0];
+      const lastLeg = legs[legs.length - 1];
+      const startTime =
+        firstLeg?.departureTime || startIso.connectingLeg.departureTime;
+      const endTime =
+        lastLeg?.arrivalTime || startIso.connectingLeg.arrivalTime;
+
+      return {
+        legs,
+        departureTime: startTime,
+        arrivalTime: endTime,
+        duration:
+          (new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000,
+        transfers: Math.max(
+          0,
+          legs.filter((l) => l.type === 'ROUTE').length - 1
+        ),
+      };
+    },
+    [timeType, centerStop, isolineMap]
+  );
 
   useEffect(() => {
     if (centerStop) {
@@ -104,6 +179,9 @@ const IsolinePage: React.FC = () => {
         maxDuration,
         queryConfig,
       });
+
+      const { lastQueriedKey, isolines, expandedStopId, mapBounds } =
+        queryRestoreRef.current;
 
       if (lastQueriedKey === queryKey) {
         // Restore selection and map extent so the page shows the same view as before navigation
@@ -227,7 +305,7 @@ const IsolinePage: React.FC = () => {
         } catch (e) {
           if (!cancelled) {
             console.error(e);
-            addToast({
+            addToastRef.current({
               id: crypto.randomUUID(),
               type: 'error',
               message: 'Could not load isolines',
@@ -243,9 +321,19 @@ const IsolinePage: React.FC = () => {
         clearTimeout(timeoutId);
       };
     } else {
-      if (isolines.length > 0) updateState({ isolines: [] });
+      if (queryRestoreRef.current.isolines.length > 0)
+        updateState({ isolines: [] });
     }
-  }, [centerStop, maxDuration, date, timeType, queryConfig, timezone]);
+  }, [
+    centerStop,
+    maxDuration,
+    date,
+    timeType,
+    queryConfig,
+    timezone,
+    updateState,
+    reconstructConnection,
+  ]);
 
   // Handle map click: Synchronize list view
   const handleMapStopClick = useCallback(
@@ -277,44 +365,6 @@ const IsolinePage: React.FC = () => {
     },
     [isolines, displayRange]
   );
-
-  const reconstructConnection = (startIso: StopConnection): Connection => {
-    const legs: Leg[] = [];
-    let currentIso: StopConnection | undefined = startIso;
-    const visited = new Set<string>();
-
-    while (currentIso && !visited.has(currentIso.stop.id) && legs.length < 50) {
-      visited.add(currentIso.stop.id);
-      const leg = currentIso.connectingLeg;
-
-      if (timeType === TimeType.ARRIVAL) {
-        legs.push(leg);
-        const nextStopId = leg.toStop?.id;
-        if (!nextStopId || nextStopId === centerStop?.id) break;
-        currentIso = isolineMap.get(nextStopId);
-      } else {
-        legs.unshift(leg);
-        const prevStopId = leg.fromStop?.id;
-        if (!prevStopId || prevStopId === centerStop?.id) break;
-        currentIso = isolineMap.get(prevStopId);
-      }
-    }
-
-    const firstLeg = legs[0];
-    const lastLeg = legs[legs.length - 1];
-    const startTime =
-      firstLeg?.departureTime || startIso.connectingLeg.departureTime;
-    const endTime = lastLeg?.arrivalTime || startIso.connectingLeg.arrivalTime;
-
-    return {
-      legs,
-      departureTime: startTime,
-      arrivalTime: endTime,
-      duration:
-        (new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000,
-      transfers: Math.max(0, legs.filter((l) => l.type === 'ROUTE').length - 1),
-    };
-  };
 
   const handleListItemToggle = (stop: Stop) => {
     const isCurrentlyExpanded = expandedStopId === stop.id;
