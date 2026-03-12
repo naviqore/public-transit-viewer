@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import { ArrowUpDown, Route, SlidersHorizontal } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import ConnectionCard from '../components/common/ConnectionCard';
 import DateTimeSelector from '../components/common/DateTimeSelector';
@@ -56,9 +56,12 @@ const ConnectPage: React.FC = () => {
     }
   }, [timezone]);
 
-  const updateState = (updates: Partial<typeof routingState>) => {
-    setRoutingState((prev) => ({ ...prev, ...updates }));
-  };
+  const updateState = useCallback(
+    (updates: Partial<typeof routingState>) => {
+      setRoutingState((prev) => ({ ...prev, ...updates }));
+    },
+    [setRoutingState]
+  );
 
   const effectiveConfig: QueryConfig = {
     ...queryConfig,
@@ -210,6 +213,7 @@ const ConnectPage: React.FC = () => {
     queryConfig,
     maxTravelDuration,
     timezone,
+    updateState,
   ]);
 
   const formatTime = (isoString: string) => {

@@ -170,6 +170,9 @@ const IsolinePage: React.FC = () => {
     [timeType, centerStop, isolineMap]
   );
 
+  const reconstructConnectionRef = useRef(reconstructConnection);
+  reconstructConnectionRef.current = reconstructConnection;
+
   useEffect(() => {
     if (centerStop) {
       const queryKey = JSON.stringify({
@@ -196,7 +199,7 @@ const IsolinePage: React.FC = () => {
           }
           const iso = isolines.find((i) => i.stop.id === expandedStopId);
           if (iso) {
-            const fullConnection = reconstructConnection(iso);
+            const fullConnection = reconstructConnectionRef.current(iso);
             setExpandedConnection(fullConnection);
             const bounds = L.latLngBounds([]);
             fullConnection.legs.forEach((leg) => {
@@ -332,7 +335,6 @@ const IsolinePage: React.FC = () => {
     queryConfig,
     timezone,
     updateState,
-    reconstructConnection,
   ]);
 
   // Handle map click: Synchronize list view

@@ -6,7 +6,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { DateTime } from 'luxon';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import DateTimeSelector from '../components/common/DateTimeSelector';
 import Loader from '../components/common/Loader';
@@ -66,9 +66,12 @@ const ExplorePage: React.FC = () => {
     }
   }, [timezone]);
 
-  const updateState = (updates: Partial<typeof exploreState>) => {
-    setExploreState((prev) => ({ ...prev, ...updates }));
-  };
+  const updateState = useCallback(
+    (updates: Partial<typeof exploreState>) => {
+      setExploreState((prev) => ({ ...prev, ...updates }));
+    },
+    [setExploreState]
+  );
 
   useEffect(() => {
     if (selectedStop && date) {
@@ -133,7 +136,7 @@ const ExplorePage: React.FC = () => {
     } else {
       if (departures.length > 0) updateState({ departures: [] });
     }
-  }, [selectedStop, date, timeType, timezone, config]);
+  }, [selectedStop, date, timeType, timezone, config, updateState]);
 
   const handleMapClick = async (lat: number, lon: number) => {
     try {
