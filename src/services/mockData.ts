@@ -4,6 +4,7 @@ import {
   ScheduleInfo,
   Stop,
   StopConnection,
+  TransportMode,
 } from '../types';
 
 export const MOCK_STOPS: Stop[] = [
@@ -91,7 +92,7 @@ const createBernDepartures = () => {
       },
       trip: {
         headSign: 'Interlaken Ost',
-        route: { shortName: 'IC 61', transportMode: 'RAIL' },
+        route: { shortName: 'IC 61', transportMode: TransportMode.RAIL },
         stopTimes: [
           {
             stop: MOCK_STOPS[2],
@@ -124,7 +125,7 @@ const createBernDepartures = () => {
       },
       trip: {
         headSign: 'Genève',
-        route: { shortName: 'IC 1', transportMode: 'RAIL' },
+        route: { shortName: 'IC 1', transportMode: TransportMode.RAIL },
         stopTimes: [
           {
             stop: MOCK_STOPS[0],
@@ -157,7 +158,7 @@ const createBernDepartures = () => {
       },
       trip: {
         headSign: 'Zürich HB',
-        route: { shortName: 'IR 15', transportMode: 'RAIL' },
+        route: { shortName: 'IR 15', transportMode: TransportMode.RAIL },
         stopTimes: [
           {
             stop: MOCK_STOPS[8],
@@ -191,7 +192,7 @@ const createZurichDepartures = () => {
       },
       trip: {
         headSign: 'Bern',
-        route: { shortName: 'IC 8', transportMode: 'RAIL' },
+        route: { shortName: 'IC 8', transportMode: TransportMode.RAIL },
         stopTimes: [
           {
             stop: MOCK_STOPS[0],
@@ -219,7 +220,7 @@ const createZurichDepartures = () => {
       },
       trip: {
         headSign: 'Zürich Flughafen',
-        route: { shortName: 'S 16', transportMode: 'RAIL' },
+        route: { shortName: 'S 16', transportMode: TransportMode.RAIL },
         stopTimes: [
           {
             stop: MOCK_STOPS[0],
@@ -242,7 +243,7 @@ const createZurichDepartures = () => {
       },
       trip: {
         headSign: 'Wollishofen',
-        route: { shortName: 'Tram 7', transportMode: 'TRAM' },
+        route: { shortName: 'Tram 7', transportMode: TransportMode.TRAM },
         stopTimes: [
           {
             stop: MOCK_STOPS[0],
@@ -296,7 +297,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'IC8',
             name: 'IC 8',
             shortName: 'IC 8',
-            transportMode: 'RAIL',
+            transportMode: TransportMode.RAIL,
           },
           bikesAllowed: true,
           wheelchairAccessible: true,
@@ -343,7 +344,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'IC8',
             name: 'IC 8',
             shortName: 'IC 8',
-            transportMode: 'RAIL',
+            transportMode: TransportMode.RAIL,
           },
           bikesAllowed: true,
           wheelchairAccessible: true,
@@ -395,7 +396,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'IC61',
             name: 'IC 61',
             shortName: 'IC 61',
-            transportMode: 'RAIL',
+            transportMode: TransportMode.RAIL,
           },
           bikesAllowed: true,
           wheelchairAccessible: true,
@@ -448,7 +449,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'BAT',
             name: 'Schiff',
             shortName: 'BAT',
-            transportMode: 'SHIP',
+            transportMode: TransportMode.SHIP,
           },
           bikesAllowed: true,
           wheelchairAccessible: false,
@@ -494,7 +495,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'IC6',
             name: 'IC 6',
             shortName: 'IC 6',
-            transportMode: 'RAIL',
+            transportMode: TransportMode.RAIL,
           },
           bikesAllowed: true,
           wheelchairAccessible: true,
@@ -529,7 +530,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'IC1',
             name: 'IC 1',
             shortName: 'IC 1',
-            transportMode: 'RAIL',
+            transportMode: TransportMode.RAIL,
           },
           bikesAllowed: true,
           wheelchairAccessible: true,
@@ -569,7 +570,7 @@ export const MOCK_CONNECTIONS: Connection[] = [
             id: 'T7',
             name: 'Tram 7',
             shortName: 'T 7',
-            transportMode: 'TRAM',
+            transportMode: TransportMode.TRAM,
           },
           bikesAllowed: false,
           wheelchairAccessible: true,
@@ -611,7 +612,12 @@ export const MOCK_ISOLINES: StopConnection[] = MOCK_STOPS.slice(1).map(
       duration: 30,
       trip: {
         headSign: stop.name,
-        route: { id: '1', name: 'Mock', shortName: 'M1', transportMode: 'BUS' },
+        route: {
+          id: '1',
+          name: 'Mock',
+          shortName: 'M1',
+          transportMode: TransportMode.BUS,
+        },
         bikesAllowed: true,
         wheelchairAccessible: true,
         stopTimes: [

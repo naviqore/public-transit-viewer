@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+IN_PROGRESS
 
 ## Type
 
@@ -24,9 +24,9 @@ filtering without any compiler error.
 
 ## Acceptance Criteria
 
-- [ ] `Route.transportMode` is typed as `TransportMode` (not `string`).
-- [ ] `npm run typecheck` passes with no new errors.
-- [ ] No runtime behaviour changes; existing tests pass.
+- [x] `Route.transportMode` is typed as `TransportMode` (not `string`).
+- [x] `npm run typecheck` passes with no new errors.
+- [x] No runtime behaviour changes; existing tests pass.
 
 ## Implementation Notes
 

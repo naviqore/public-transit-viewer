@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { Leg, Stop, StopTime } from '../types';
+import { Leg, Stop, StopTime, TransportMode } from '../types';
 import { getLegStopTimes } from './dataUtils';
 
 const makeStop = (id: string): Stop => ({
@@ -38,7 +38,12 @@ describe('getLegStopTimes', () => {
       ...baseLeg,
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         bikesAllowed: false,
         wheelchairAccessible: false,
       },
@@ -51,7 +56,12 @@ describe('getLegStopTimes', () => {
       ...baseLeg,
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes: [],
         bikesAllowed: false,
         wheelchairAccessible: false,
@@ -96,7 +106,12 @@ describe('getLegStopTimes', () => {
       arrivalTime: '2026-03-06T09:00:00+01:00',
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes,
         bikesAllowed: false,
         wheelchairAccessible: false,
@@ -142,7 +157,12 @@ describe('getLegStopTimes', () => {
       arrivalTime: '2026-03-06T09:00:00+01:00',
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes,
         bikesAllowed: false,
         wheelchairAccessible: false,
@@ -178,7 +198,12 @@ describe('getLegStopTimes', () => {
       arrivalTime: '2026-03-06T09:00:00+01:00',
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes,
         bikesAllowed: false,
         wheelchairAccessible: false,
@@ -215,7 +240,12 @@ describe('getLegStopTimes', () => {
       arrivalTime: '2026-03-06T09:00:00+01:00',
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes,
         bikesAllowed: false,
         wheelchairAccessible: false,
@@ -253,7 +283,12 @@ describe('getLegStopTimes', () => {
       arrivalTime: '2026-03-06T09:00:00+01:00',
       trip: {
         headSign: 'X',
-        route: { id: 'r1', name: 'R1', shortName: 'R1', transportMode: 'BUS' },
+        route: {
+          id: 'r1',
+          name: 'R1',
+          shortName: 'R1',
+          transportMode: TransportMode.BUS,
+        },
         stopTimes,
         bikesAllowed: false,
         wheelchairAccessible: false,

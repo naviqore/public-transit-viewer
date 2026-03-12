@@ -18,7 +18,7 @@ export interface Route {
   id: string;
   name: string;
   shortName: string;
-  transportMode: string; // 'BUS' | 'TRAM' | 'RAIL' etc
+  transportMode: TransportMode;
   transportModeDescription?: string;
 }
 
