@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -27,10 +27,10 @@ belongs to an older query. The `setTimeout` wrapper in `ConnectPage` and
 
 ## Acceptance Criteria
 
-- [ ] Changing a stop or date in quick succession does not produce a visible
+- [x] Changing a stop or date in quick succession does not produce a visible
       state update from a stale (earlier) response.
-- [ ] No TypeScript errors introduced.
-- [ ] Existing tests continue to pass; add or extend a test that confirms stale
+- [x] No TypeScript errors introduced.
+- [x] Existing tests continue to pass; add or extend a test that confirms stale
       responses are ignored.
 
 ## Implementation Notes
@@ -42,6 +42,11 @@ the signal through the provider is out of scope.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-12
+- Outcome: Added `cancelled` boolean flag to all three data-fetching `useEffect`
+  hooks (ExplorePage, ConnectPage, IsolinePage). Cleanup sets the flag; all
+  state writes (`updateState`, `setLoading`, `addToast`, `setCustomBounds`) are
+  guarded by `if (!cancelled)`. Added one stale-response cancellation unit test
+  per page confirming that resolving a deferred promise after cleanup does not
+  trigger further state updates.
+- Descoped ACs: none
