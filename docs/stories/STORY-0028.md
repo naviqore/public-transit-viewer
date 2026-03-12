@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -33,10 +33,10 @@ outdated values without re-running.
 
 ## Acceptance Criteria
 
-- [ ] `npm run typecheck` reports no errors in `IsolinePage.tsx`.
-- [ ] `npm run lint` reports no `react-hooks/exhaustive-deps` warnings for
+- [x] `npm run typecheck` reports no errors in `IsolinePage.tsx`.
+- [x] `npm run lint` reports no `react-hooks/exhaustive-deps` warnings for
       `IsolinePage.tsx`.
-- [ ] Isoline page behaviour is unchanged (existing E2E / unit tests pass).
+- [x] Isoline page behaviour is unchanged (existing E2E / unit tests pass).
 
 ## Implementation Notes
 
@@ -49,6 +49,8 @@ make it a stable reference, then add the remaining deps.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-12
+- Outcome: Added src/vite-env.d.ts to resolve CSS side-effect import type error;
+  wrapped updateState and reconstructConnection in useCallback; moved volatile
+  deps to refs; fixed both useEffect dependency arrays. All ACs satisfied.
+- Descoped ACs: none
