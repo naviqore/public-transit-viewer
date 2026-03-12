@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Type
 
@@ -37,6 +37,7 @@ at the single deserialization boundary rather than widening the type.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-12
+- Outcome: `Route.transportMode` changed to `TransportMode` enum; all 14 raw string literals in
+  mockData.ts and 7 in dataUtils.test.ts replaced with enum values; CI green (85/85 tests).
+- Descoped ACs: none
