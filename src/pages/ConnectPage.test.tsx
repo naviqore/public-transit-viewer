@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_QUERY_CONFIG } from '../constants';
@@ -7,7 +7,7 @@ import { useDomain } from '../contexts/DomainContext';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
-import { RoutingState, Stop, TimeType } from '../types';
+import { Connection, RoutingState, Stop, TimeType } from '../types';
 
 vi.mock('../components/Map', () => ({ default: () => null }));
 vi.mock('../components/QueryConfigDialog', () => ({ default: () => null }));
@@ -168,5 +168,55 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     render(<ConnectPage />);
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('ConnectPage stale response cancellation (STORY-0026)', () => {
+  it('ignores response when effect cleanup runs while fetch is in-flight', async () => {
+    let resolveDeferred!: (v: {
+      data: Connection[];
+      duration: number;
+      status: number;
+    }) => void;
+    const deferred = new Promise<{
+      data: Connection[];
+      duration: number;
+      status: number;
+    }>((resolve) => {
+      resolveDeferred = resolve;
+    });
+    vi.mocked(naviqoreService.getConnections).mockReturnValueOnce(
+      deferred as never
+    );
+
+    let routingState = makeRoutingState({ lastQueriedKey: null });
+    const setRoutingState = vi.fn((updater: unknown) => {
+      routingState =
+        typeof updater === 'function'
+          ? updater(routingState)
+          : { ...routingState, ...(updater as Partial<RoutingState>) };
+    });
+    vi.mocked(useDomain).mockImplementation(() =>
+      makeDomainValue(routingState, setRoutingState)
+    );
+
+    const { unmount } = render(<ConnectPage />);
+    // Advance fake timers so the 500 ms timeout fires and fetch starts
+    await vi.runAllTimersAsync();
+    expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
+
+    const callsBeforeCancel = setRoutingState.mock.calls.length;
+
+    // Dep change: cleanup → cancelled = true
+    unmount();
+
+    // Resolve the stale response
+    await act(async () => {
+      resolveDeferred({ data: [], duration: 1, status: 200 });
+      await Promise.resolve();
+    });
+
+    // No new calls to setRoutingState should have happened after cancel
+    expect(setRoutingState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });

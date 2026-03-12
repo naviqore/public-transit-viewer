@@ -114,6 +114,7 @@ const ConnectPage: React.FC = () => {
       ];
       setCustomBounds(L.latLngBounds([startLatLng, endLatLng]));
 
+      let cancelled = false;
       const timeoutId = setTimeout(async () => {
         try {
           // Convert the "wall clock" input string to an ISO string with offset in the selected timezone
@@ -161,7 +162,7 @@ const ConnectPage: React.FC = () => {
 
             if (latLngs.length > 0) {
               const computedBounds = L.latLngBounds(latLngs);
-              setCustomBounds(computedBounds);
+              if (!cancelled) setCustomBounds(computedBounds);
               storedMapBounds = [
                 [
                   computedBounds.getSouthWest().lat,
@@ -174,26 +175,32 @@ const ConnectPage: React.FC = () => {
               ];
             }
           }
-          updateState({
-            connections: res.data,
-            lastQueriedKey: queryKey,
-            mapBounds: storedMapBounds,
-          });
+          if (!cancelled)
+            updateState({
+              connections: res.data,
+              lastQueriedKey: queryKey,
+              mapBounds: storedMapBounds,
+            });
         } catch (e) {
-          console.error(e);
-          updateState({ connections: [], lastQueriedKey: null });
-          addToast({
-            id: crypto.randomUUID(),
-            type: 'error',
-            message: 'Could not load connections',
-            details: e instanceof Error ? e.message : undefined,
-          });
+          if (!cancelled) {
+            console.error(e);
+            updateState({ connections: [], lastQueriedKey: null });
+            addToast({
+              id: crypto.randomUUID(),
+              type: 'error',
+              message: 'Could not load connections',
+              details: e instanceof Error ? e.message : undefined,
+            });
+          }
         } finally {
-          setLoading(false);
+          if (!cancelled) setLoading(false);
         }
       }, 500);
 
-      return () => clearTimeout(timeoutId);
+      return () => {
+        cancelled = true;
+        clearTimeout(timeoutId);
+      };
     }
   }, [
     fromStop,

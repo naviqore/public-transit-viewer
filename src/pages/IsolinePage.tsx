@@ -151,6 +151,7 @@ const IsolinePage: React.FC = () => {
       updateState({ isolines: [], lastQueriedKey: null, expandedStopId: null });
       setDisplayRange({ start: 0, end: PAGE_SIZE }); // Reset pagination
 
+      let cancelled = false;
       const timeoutId = setTimeout(async () => {
         try {
           const isoDate = inputDateToIso(date, timezone);
@@ -205,7 +206,7 @@ const IsolinePage: React.FC = () => {
               centerStop.coordinates.longitude,
             ]);
             const computedBounds = L.latLngBounds(latLngs);
-            setCustomBounds(computedBounds);
+            if (!cancelled) setCustomBounds(computedBounds);
             storedMapBounds = [
               [
                 computedBounds.getSouthWest().lat,
@@ -217,24 +218,30 @@ const IsolinePage: React.FC = () => {
               ],
             ];
           }
-          updateState({
-            isolines: sorted,
-            lastQueriedKey: queryKey,
-            mapBounds: storedMapBounds,
-          });
+          if (!cancelled)
+            updateState({
+              isolines: sorted,
+              lastQueriedKey: queryKey,
+              mapBounds: storedMapBounds,
+            });
         } catch (e) {
-          console.error(e);
-          addToast({
-            id: crypto.randomUUID(),
-            type: 'error',
-            message: 'Could not load isolines',
-            details: e instanceof Error ? e.message : undefined,
-          });
+          if (!cancelled) {
+            console.error(e);
+            addToast({
+              id: crypto.randomUUID(),
+              type: 'error',
+              message: 'Could not load isolines',
+              details: e instanceof Error ? e.message : undefined,
+            });
+          }
         } finally {
-          setLoading(false);
+          if (!cancelled) setLoading(false);
         }
       }, 500);
-      return () => clearTimeout(timeoutId);
+      return () => {
+        cancelled = true;
+        clearTimeout(timeoutId);
+      };
     } else {
       if (isolines.length > 0) updateState({ isolines: [] });
     }

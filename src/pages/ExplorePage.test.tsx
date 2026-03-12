@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_EXPLORE_CONFIG } from '../constants';
@@ -7,7 +7,7 @@ import { useDomain } from '../contexts/DomainContext';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
-import { ExploreState, Stop, TimeType } from '../types';
+import { ExploreState, Stop, StopDeparture, TimeType } from '../types';
 
 vi.mock('../components/Map', () => ({ default: () => null }));
 vi.mock('../components/ExploreConfigDialog', () => ({ default: () => null }));
@@ -164,5 +164,56 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
     await waitFor(() =>
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(2)
     );
+  });
+});
+
+describe('ExplorePage stale response cancellation (STORY-0026)', () => {
+  it('ignores response when effect cleanup runs before fetch resolves', async () => {
+    let resolveDeferred!: (v: {
+      data: StopDeparture[];
+      duration: number;
+      status: number;
+    }) => void;
+    const deferred = new Promise<{
+      data: StopDeparture[];
+      duration: number;
+      status: number;
+    }>((resolve) => {
+      resolveDeferred = resolve;
+    });
+    vi.mocked(naviqoreService.getStopDepartures).mockReturnValueOnce(
+      deferred as never
+    );
+
+    let exploreState = makeExploreState({ lastQueriedKey: null });
+    const setExploreState = vi.fn((updater: unknown) => {
+      exploreState =
+        typeof updater === 'function'
+          ? updater(exploreState)
+          : { ...exploreState, ...(updater as Partial<ExploreState>) };
+    });
+    vi.mocked(useDomain).mockImplementation(() =>
+      makeDomainValue(exploreState, setExploreState)
+    );
+
+    const { unmount } = render(<ExplorePage />);
+    // Wait for service to be invoked (fetch in-flight, deferred not yet resolved)
+    await waitFor(() =>
+      expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
+    );
+
+    const callsBeforeCancel = setExploreState.mock.calls.length;
+
+    // Simulate dep change: cleanup runs → cancelled = true
+    unmount();
+
+    // Resolve the stale response
+    await act(async () => {
+      resolveDeferred({ data: [], duration: 1, status: 200 });
+      await Promise.resolve();
+    });
+
+    // No new calls to setExploreState should have happened after cancel
+    expect(setExploreState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });

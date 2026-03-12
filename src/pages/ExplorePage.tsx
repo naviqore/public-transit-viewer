@@ -81,6 +81,7 @@ const ExplorePage: React.FC = () => {
 
       if (lastQueriedKey === queryKey) return;
 
+      let cancelled = false;
       setLoading(true);
       setMapCenter([
         selectedStop.coordinates.latitude,
@@ -108,21 +109,27 @@ const ExplorePage: React.FC = () => {
             config.stopScope,
             config.limit
           );
-          updateState({ departures: res.data, lastQueriedKey: queryKey });
+          if (!cancelled)
+            updateState({ departures: res.data, lastQueriedKey: queryKey });
         } catch (e) {
-          console.error(e);
-          updateState({ departures: [], lastQueriedKey: null });
-          addToast({
-            id: crypto.randomUUID(),
-            type: 'error',
-            message: 'Could not load departures',
-            details: e instanceof Error ? e.message : undefined,
-          });
+          if (!cancelled) {
+            console.error(e);
+            updateState({ departures: [], lastQueriedKey: null });
+            addToast({
+              id: crypto.randomUUID(),
+              type: 'error',
+              message: 'Could not load departures',
+              details: e instanceof Error ? e.message : undefined,
+            });
+          }
         } finally {
-          setLoading(false);
+          if (!cancelled) setLoading(false);
         }
       };
       fetchDepartures();
+      return () => {
+        cancelled = true;
+      };
     } else {
       if (departures.length > 0) updateState({ departures: [] });
     }

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DEFAULT_QUERY_CONFIG } from '../constants';
@@ -7,7 +7,7 @@ import { useDomain } from '../contexts/DomainContext';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { naviqoreService } from '../services/naviqoreService';
-import { IsolineState, Stop, TimeType } from '../types';
+import { IsolineState, Stop, StopConnection, TimeType } from '../types';
 
 vi.mock('../components/Map', () => ({ default: () => null }));
 vi.mock('../components/QueryConfigDialog', () => ({ default: () => null }));
@@ -160,5 +160,55 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     render(<IsolinePage />);
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('IsolinePage stale response cancellation (STORY-0026)', () => {
+  it('ignores response when effect cleanup runs while fetch is in-flight', async () => {
+    let resolveDeferred!: (v: {
+      data: StopConnection[];
+      duration: number;
+      status: number;
+    }) => void;
+    const deferred = new Promise<{
+      data: StopConnection[];
+      duration: number;
+      status: number;
+    }>((resolve) => {
+      resolveDeferred = resolve;
+    });
+    vi.mocked(naviqoreService.getIsolines).mockReturnValueOnce(
+      deferred as never
+    );
+
+    let isolineState = makeIsolineState({ lastQueriedKey: null });
+    const setIsolineState = vi.fn((updater: unknown) => {
+      isolineState =
+        typeof updater === 'function'
+          ? updater(isolineState)
+          : { ...isolineState, ...(updater as Partial<IsolineState>) };
+    });
+    vi.mocked(useDomain).mockImplementation(() =>
+      makeDomainValue(isolineState, setIsolineState)
+    );
+
+    const { unmount } = render(<IsolinePage />);
+    // Advance fake timers so the 500 ms timeout fires and fetch starts
+    await vi.runAllTimersAsync();
+    expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
+
+    const callsBeforeCancel = setIsolineState.mock.calls.length;
+
+    // Dep change: cleanup → cancelled = true
+    unmount();
+
+    // Resolve the stale response
+    await act(async () => {
+      resolveDeferred({ data: [], duration: 1, status: 200 });
+      await Promise.resolve();
+    });
+
+    // No new calls to setIsolineState should have happened after cancel
+    expect(setIsolineState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });
