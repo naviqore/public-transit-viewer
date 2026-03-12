@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -27,9 +27,9 @@ component props that receive the function.
 
 ## Acceptance Criteria
 
-- [ ] `updateState` in each page component is wrapped in `useCallback`.
-- [ ] No ESLint `react-hooks/exhaustive-deps` warnings introduced.
-- [ ] All existing tests pass.
+- [x] `updateState` in each page component is wrapped in `useCallback`.
+- [x] No ESLint `react-hooks/exhaustive-deps` warnings introduced.
+- [x] All existing tests pass.
 
 ## Implementation Notes
 
@@ -38,6 +38,6 @@ the `useCallback` dependency array should contain only the relevant setter.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-12
+- Outcome: Wrapped updateState in useCallback in ExplorePage and ConnectPage; fixed infinite re-render loop in IsolinePage by moving reconstructConnection behind a ref.
+- Descoped ACs: none
