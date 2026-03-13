@@ -39,10 +39,22 @@ const ConnectPage: React.FC = () => {
     timeType,
     maxTravelDuration,
     lastQueriedKey,
-    mapBounds,
   } = routingState;
 
   const [loading, setLoading] = useState(false);
+  const [mapCenter] = useState<[number, number]>(() => {
+    if (fromStop && toStop) {
+      return [
+        (fromStop.coordinates.latitude + toStop.coordinates.latitude) / 2,
+        (fromStop.coordinates.longitude + toStop.coordinates.longitude) / 2,
+      ];
+    }
+    if (fromStop)
+      return [fromStop.coordinates.latitude, fromStop.coordinates.longitude];
+    if (toStop)
+      return [toStop.coordinates.latitude, toStop.coordinates.longitude];
+    return DEFAULT_MAP_CENTER;
+  });
   const [customBounds, setCustomBounds] = useState<L.LatLngBounds | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
@@ -95,10 +107,31 @@ const ConnectPage: React.FC = () => {
       });
 
       if (lastQueriedKey === queryKey) {
-        // If no connection is selected, restore overview bounds.
-        // If a connection is selected, leave customBounds null so the Map auto-fits to it.
-        if (mapBounds && !selectedConnection)
-          setCustomBounds(L.latLngBounds(mapBounds));
+        // Recompute bounds from existing data on restore
+        if (fromStop && toStop && connections.length > 0) {
+          const latLngs: [number, number][] = [
+            [fromStop.coordinates.latitude, fromStop.coordinates.longitude],
+            [toStop.coordinates.latitude, toStop.coordinates.longitude],
+          ];
+          const source = selectedConnection
+            ? [selectedConnection]
+            : connections;
+          source.forEach((conn) => {
+            conn.legs.forEach((leg) => {
+              latLngs.push([leg.from.latitude, leg.from.longitude]);
+              latLngs.push([leg.to.latitude, leg.to.longitude]);
+              if (leg.trip) {
+                getLegStopTimes(leg).forEach((st) => {
+                  latLngs.push([
+                    st.stop.coordinates.latitude,
+                    st.stop.coordinates.longitude,
+                  ]);
+                });
+              }
+            });
+          });
+          setCustomBounds(L.latLngBounds(latLngs));
+        }
         return;
       }
 
@@ -131,8 +164,6 @@ const ConnectPage: React.FC = () => {
           );
 
           // Calculate bounds to fit all connections
-          let storedMapBounds: [[number, number], [number, number]] | null =
-            null;
           if (res.data.length > 0) {
             const latLngs: [number, number][] = [];
             // Ensure origin/dest are included
@@ -166,23 +197,12 @@ const ConnectPage: React.FC = () => {
             if (latLngs.length > 0) {
               const computedBounds = L.latLngBounds(latLngs);
               if (!cancelled) setCustomBounds(computedBounds);
-              storedMapBounds = [
-                [
-                  computedBounds.getSouthWest().lat,
-                  computedBounds.getSouthWest().lng,
-                ],
-                [
-                  computedBounds.getNorthEast().lat,
-                  computedBounds.getNorthEast().lng,
-                ],
-              ];
             }
           }
           if (!cancelled)
             updateState({
               connections: res.data,
               lastQueriedKey: queryKey,
-              mapBounds: storedMapBounds,
             });
         } catch (e) {
           if (!cancelled) {
@@ -221,13 +241,9 @@ const ConnectPage: React.FC = () => {
   };
 
   const handleConnectionClick = (conn: Connection) => {
-    updateState({ selectedConnection: conn });
-    // When selecting a specific connection, we generally want the map to focus on that connection,
-    // which is handled by MapComponent's internal auto-fit logic when selectedConnection changes,
-    // provided customBounds is null or we explicitly set it for the connection.
-    // Resetting customBounds allows MapComponent to take over with selectedConnection focus.
+    const isDeselecting = selectedConnection === conn;
+    updateState({ selectedConnection: isDeselecting ? null : conn });
     setCustomBounds(null);
-    // scrolling is handled by the selectedConnection useEffect above
   };
 
   const handleLegClick = (leg: Leg) => {
@@ -257,6 +273,31 @@ const ConnectPage: React.FC = () => {
       scrollCardIntoView(`conn-${idx}`);
     }, 100);
   }, [selectedConnection, connections]);
+
+  // Recompute overview bounds when a connection is deselected
+  useEffect(() => {
+    if (selectedConnection || connections.length === 0 || !fromStop || !toStop)
+      return;
+    const latLngs: [number, number][] = [
+      [fromStop.coordinates.latitude, fromStop.coordinates.longitude],
+      [toStop.coordinates.latitude, toStop.coordinates.longitude],
+    ];
+    connections.forEach((conn) => {
+      conn.legs.forEach((leg) => {
+        latLngs.push([leg.from.latitude, leg.from.longitude]);
+        latLngs.push([leg.to.latitude, leg.to.longitude]);
+        if (leg.trip) {
+          getLegStopTimes(leg).forEach((st) => {
+            latLngs.push([
+              st.stop.coordinates.latitude,
+              st.stop.coordinates.longitude,
+            ]);
+          });
+        }
+      });
+    });
+    setCustomBounds(L.latLngBounds(latLngs));
+  }, [selectedConnection, connections, fromStop, toStop]);
 
   return (
     <div className="page-wrapper flex flex-col h-full overflow-hidden">
@@ -349,7 +390,7 @@ const ConnectPage: React.FC = () => {
       </div>
       <div className="map-section">
         <MapComponent
-          center={DEFAULT_MAP_CENTER}
+          center={mapCenter}
           zoom={DEFAULT_ZOOM}
           connections={connections}
           selectedConnection={selectedConnection}

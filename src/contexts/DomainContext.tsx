@@ -56,7 +56,6 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     timeType: TimeType.DEPARTURE,
     maxTravelDuration: undefined,
     lastQueriedKey: null,
-    mapBounds: null,
   });
 
   const [isolineState, setIsolineState] = useState<IsolineState>({
@@ -65,7 +64,6 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({
     maxDuration: 30,
     date: new Date().toISOString().slice(0, 16),
     lastQueriedKey: null,
-    mapBounds: null,
     expandedStopId: null,
   });
 

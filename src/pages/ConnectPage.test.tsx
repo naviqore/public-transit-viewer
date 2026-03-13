@@ -37,7 +37,6 @@ function makeRoutingState(overrides: Partial<RoutingState> = {}): RoutingState {
     timeType: TimeType.DEPARTURE,
     maxTravelDuration: undefined,
     lastQueriedKey: null,
-    mapBounds: null,
     ...overrides,
   };
 }

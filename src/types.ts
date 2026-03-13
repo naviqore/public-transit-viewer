@@ -155,7 +155,6 @@ export interface RoutingState {
   timeType: TimeType;
   maxTravelDuration?: number;
   lastQueriedKey: string | null;
-  mapBounds: [[number, number], [number, number]] | null;
 }
 
 export interface IsolineState {
@@ -164,7 +163,6 @@ export interface IsolineState {
   maxDuration: number;
   date: string;
   lastQueriedKey: string | null;
-  mapBounds: [[number, number], [number, number]] | null;
   expandedStopId: string | null;
 }
 

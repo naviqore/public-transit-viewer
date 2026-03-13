@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -31,12 +31,12 @@ whenever any page updates its ephemeral fields.
 
 ## Acceptance Criteria
 
-- [ ] Ephemeral UI fields (`expandedTripIndex`, `mapBounds`, `expandedStopId`)
+- [x] Ephemeral UI fields (`expandedTripIndex`, `mapBounds`, `expandedStopId`)
       are no longer stored in `DomainContext`.
-- [ ] Switching pages and returning still restores the selected stop and last
+- [x] Switching pages and returning still restores the selected stop and last
       search results.
-- [ ] `DomainContext.test.tsx` tests updated and passing.
-- [ ] No regressions in `ExplorePage`, `ConnectPage`, or `IsolinePage` tests.
+- [x] `DomainContext.test.tsx` tests updated and passing.
+- [x] No regressions in `ExplorePage`, `ConnectPage`, or `IsolinePage` tests.
 
 ## Implementation Notes
 
@@ -47,6 +47,6 @@ for a clean sequenced merge.
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-13
+- Outcome: Ephemeral UI fields moved to local state where appropriate; selection and restore logic improved for Explore, Isoline, and Connect pages. Map zoom/restore now matches user expectations across all pages. No ACs descoped.
 - Descoped ACs:

@@ -51,7 +51,6 @@ const IsolinePage: React.FC = () => {
     maxDuration,
     date,
     lastQueriedKey,
-    mapBounds,
     expandedStopId,
   } = isolineState;
 
@@ -105,13 +104,11 @@ const IsolinePage: React.FC = () => {
     lastQueriedKey,
     isolines,
     expandedStopId,
-    mapBounds,
   });
   queryRestoreRef.current = {
     lastQueriedKey,
     isolines,
     expandedStopId,
-    mapBounds,
   };
 
   // Lookup Map for Connection Reconstruction
@@ -183,14 +180,13 @@ const IsolinePage: React.FC = () => {
         queryConfig,
       });
 
-      const { lastQueriedKey, isolines, expandedStopId, mapBounds } =
+      const { lastQueriedKey, isolines, expandedStopId } =
         queryRestoreRef.current;
 
       if (lastQueriedKey === queryKey) {
         // Restore selection and map extent so the page shows the same view as before navigation
         if (expandedStopId) {
           setHighlightedStopId(expandedStopId);
-          // Ensure the expanded stop falls within the paginated window
           const index = isolines.findIndex((i) => i.stop.id === expandedStopId);
           if (index !== -1) {
             const newStart = Math.max(0, index - Math.floor(PAGE_SIZE / 2));
@@ -216,8 +212,19 @@ const IsolinePage: React.FC = () => {
             });
             if (bounds.isValid()) setCustomBounds(bounds);
           }
-        } else if (mapBounds) {
-          setCustomBounds(L.latLngBounds(mapBounds));
+        } else if (isolines.length > 0 && centerStop) {
+          const latLngs = isolines.map(
+            (i) =>
+              [i.stop.coordinates.latitude, i.stop.coordinates.longitude] as [
+                number,
+                number,
+              ]
+          );
+          latLngs.push([
+            centerStop.coordinates.latitude,
+            centerStop.coordinates.longitude,
+          ]);
+          setCustomBounds(L.latLngBounds(latLngs));
         }
         return;
       }
@@ -272,8 +279,6 @@ const IsolinePage: React.FC = () => {
               (b.connection?.duration || 0) - (a.connection?.duration || 0)
           );
 
-          let storedMapBounds: [[number, number], [number, number]] | null =
-            null;
           if (sorted.length > 0) {
             const latLngs = sorted.map(
               (i) =>
@@ -288,22 +293,11 @@ const IsolinePage: React.FC = () => {
             ]);
             const computedBounds = L.latLngBounds(latLngs);
             if (!cancelled) setCustomBounds(computedBounds);
-            storedMapBounds = [
-              [
-                computedBounds.getSouthWest().lat,
-                computedBounds.getSouthWest().lng,
-              ],
-              [
-                computedBounds.getNorthEast().lat,
-                computedBounds.getNorthEast().lng,
-              ],
-            ];
           }
           if (!cancelled)
             updateState({
               isolines: sorted,
               lastQueriedKey: queryKey,
-              mapBounds: storedMapBounds,
             });
         } catch (e) {
           if (!cancelled) {

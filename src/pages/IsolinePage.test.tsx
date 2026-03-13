@@ -29,7 +29,6 @@ function makeIsolineState(overrides: Partial<IsolineState> = {}): IsolineState {
     maxDuration: 30,
     date: DATE,
     lastQueriedKey: null,
-    mapBounds: null,
     expandedStopId: null,
     ...overrides,
   };

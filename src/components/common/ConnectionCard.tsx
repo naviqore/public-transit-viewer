@@ -84,7 +84,11 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isSelected) {
-      setExpanded(!expanded);
+      if (expanded) {
+        onClick();
+      } else {
+        setExpanded(true);
+      }
     } else {
       onClick();
     }
