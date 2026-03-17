@@ -1,0 +1,85 @@
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@config '../tailwind.config.js';
+@custom-variant dark (&:where(.dark, .dark *));
+@import 'tailwindcss';
+
+:root {
+  --nav-height-mobile: 60px;
+  --nav-width-desktop: 72px;
+  --panel-width-desktop: 400px;
+  --mobile-input-height: 45vh;
+  --tab-bar-height: 44px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300;
+  overflow: hidden;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input,
+select,
+textarea {
+  font-weight: 400;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-color: #e2e8f0;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+*:hover {
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  /* Visible on hover */
+}

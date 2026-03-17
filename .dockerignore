@@ -1,0 +1,20 @@
+# Dependencies (installed fresh inside the build stage)
+
+node_modules
+
+# Local build output (the build stage produces its own dist/)
+
+dist
+
+# Dev tooling and local config
+
+.git
+.gitignore
+.husky
+.vscode
+_.local
+.env_
+
+# Test / CI artefacts
+
+coverage

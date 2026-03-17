@@ -1,25 +1,47 @@
-# Stage 1: Builder Stage
-FROM python:3.12-slim AS builder
+# ── Build stage ──────────────────────────────────────────────────────────────
+FROM node:24-alpine AS build
 
 WORKDIR /app
 
+# Install dependencies first to leverage Docker layer caching
+COPY package*.json ./
+RUN npm ci
+
+# Build the Vite application
 COPY . .
+RUN npm run build
 
-RUN pip install --no-cache-dir poetry \
-    && poetry build -f wheel
+# ── Runtime stage ─────────────────────────────────────────────────────────────
+FROM nginx:1.27-alpine AS runtime
 
-# Stage 2: Production Stage
-FROM python:3.12-slim
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-WORKDIR /app
+# Copy built assets from the build stage
+COPY --from=build /app/dist /usr/share/nginx/html
 
-COPY --from=builder /app/dist/*.whl ./
-RUN pip install --no-cache-dir *.whl \
-    && rm *.whl
+# Copy entrypoint script that writes runtime env vars into env.js on startup
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-EXPOSE 8501
+# Create a non-root user and fix permissions on all directories nginx needs
+RUN adduser -S -D -u 1001 appuser \
+ && chmod +x /docker-entrypoint.sh \
+ && chown -R appuser /var/cache/nginx \
+                     /var/log/nginx \
+                     /usr/share/nginx/html \
+                     /etc/nginx/nginx.conf \
+                     /docker-entrypoint.sh
 
-RUN useradd --create-home appuser
+# OCI standard image labels (dynamic labels are added by the CI publish step)
+LABEL org.opencontainers.image.title="naviqore-public-transit-viewer" \
+      org.opencontainers.image.description="Naviqore public transit viewer frontend" \
+      org.opencontainers.image.url="https://github.com/naviqore/public-transit-viewer" \
+      org.opencontainers.image.source="https://github.com/naviqore/public-transit-viewer" \
+      org.opencontainers.image.licenses="MIT"
+
 USER appuser
 
-CMD ["ptv-deploy"]
+# nginx.conf listens on 8080 to avoid requiring root for privileged ports
+EXPOSE 8080
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

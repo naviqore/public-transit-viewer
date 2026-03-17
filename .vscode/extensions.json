@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "github.copilot",
+    "github.copilot-chat",
+    "usernamehw.errorlens"
+  ]
+}
