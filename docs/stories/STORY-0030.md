@@ -49,4 +49,4 @@ for a clean sequenced merge.
 
 - Date: 2026-03-13
 - Outcome: Ephemeral UI fields moved to local state where appropriate; selection and restore logic improved for Explore, Isoline, and Connect pages. Map zoom/restore now matches user expectations across all pages. No ACs descoped.
-- Descoped ACs:
+- Descoped ACs: none
