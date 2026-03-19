@@ -1,7 +1,7 @@
 {
-  "name": "naviqore-viewer",
+  "name": "public-transit-viewer",
   "version": "1.0.0",
-  "description": "A viewer for the Naviqore public transit routing engine.",
+  "description": "A viewer for the Naviqore public transit service and routing engine.",
   "type": "module",
   "scripts": {
     "dev": "vite",
