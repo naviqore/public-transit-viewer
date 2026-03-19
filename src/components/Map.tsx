@@ -94,7 +94,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
       mapInstanceRef.current?.remove();
       mapInstanceRef.current = null;
     };
-  }, []);
+  }, [props]);
 
   useEffect(() => {
     if (!mapContainerRef.current || !mapInstanceRef.current) return;

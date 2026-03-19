@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Dispatch, SetStateAction } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi, Mock } from 'vitest';
 
 import { DEFAULT_QUERY_CONFIG } from '../constants';
 import IsolinePage from './IsolinePage';
@@ -36,12 +37,12 @@ function makeIsolineState(overrides: Partial<IsolineState> = {}): IsolineState {
 
 const makeDomainValue = (
   isolineState: IsolineState,
-  setIsolineState: ReturnType<typeof vi.fn>
+  setIsolineState: Mock<Dispatch<SetStateAction<IsolineState>>>
 ) => ({
-  exploreState: {} as never,
-  setExploreState: vi.fn(),
-  routingState: {} as never,
-  setRoutingState: vi.fn(),
+  exploreState: {} as any,
+  setExploreState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
+  routingState: {} as any,
+  setRoutingState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
   isolineState,
   setIsolineState,
   serverInfo: { schedule: null, routing: null },
@@ -52,13 +53,13 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
-  } as never);
+  } as any);
   vi.mocked(useSettings).mockReturnValue({
     timezone: 'UTC',
     useStationTime: false,
     queryConfig: DEFAULT_QUERY_CONFIG,
     setQueryConfig: vi.fn(),
-  } as never);
+  } as any);
   vi.spyOn(naviqoreService, 'getIsolines').mockResolvedValue({
     data: [],
     duration: 1,
@@ -74,9 +75,13 @@ afterEach(() => {
 describe('IsolinePage fetch guard (STORY-0024)', () => {
   it('calls service on mount when lastQueriedKey is null', async () => {
     const state = makeIsolineState({ lastQueriedKey: null });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<IsolinePage />);
+    await act(async () => {
+      render(<IsolinePage />);
+    });
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
@@ -91,9 +96,14 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       queryConfig: DEFAULT_QUERY_CONFIG,
     });
     const state = makeIsolineState({ lastQueriedKey: queryKey });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<IsolinePage />);
+    await act(async () => {
+      render(<IsolinePage />);
+    });
+
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getIsolines).not.toHaveBeenCalled();
@@ -101,9 +111,13 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
 
   it('calls service when lastQueriedKey is stale (inputs changed)', async () => {
     const state = makeIsolineState({ lastQueriedKey: 'stale-key' });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<IsolinePage />);
+    await act(async () => {
+      render(<IsolinePage />);
+    });
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
@@ -111,12 +125,13 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
 
   it('calls service only once across two mount cycles with identical inputs', async () => {
     let isolineState = makeIsolineState({ lastQueriedKey: null });
-    const setIsolineState = vi.fn((updater: unknown) => {
+    const setIsolineState = vi.fn((updater: SetStateAction<IsolineState>) => {
       isolineState =
         typeof updater === 'function'
-          ? updater(isolineState)
-          : { ...isolineState, ...(updater as Partial<IsolineState>) };
-    });
+          ? (updater as (prevState: IsolineState) => IsolineState)(isolineState)
+          : (updater as IsolineState);
+    }) as unknown as Mock<Dispatch<SetStateAction<IsolineState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(isolineState, setIsolineState)
     );
@@ -125,10 +140,14 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
     expect(isolineState.lastQueriedKey).not.toBeNull();
-    unmount();
 
-    // Second mount — key matches, service skipped
-    render(<IsolinePage />);
+    await act(async () => {
+      unmount();
+    });
+
+    await act(async () => {
+      render(<IsolinePage />);
+    });
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
   });
@@ -139,12 +158,13 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       .mockResolvedValue({ data: [], duration: 1, status: 200 });
 
     let isolineState = makeIsolineState({ lastQueriedKey: null });
-    const setIsolineState = vi.fn((updater: unknown) => {
+    const setIsolineState = vi.fn((updater: SetStateAction<IsolineState>) => {
       isolineState =
         typeof updater === 'function'
-          ? updater(isolineState)
-          : { ...isolineState, ...(updater as Partial<IsolineState>) };
-    });
+          ? (updater as (prevState: IsolineState) => IsolineState)(isolineState)
+          : (updater as IsolineState);
+    }) as unknown as Mock<Dispatch<SetStateAction<IsolineState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(isolineState, setIsolineState)
     );
@@ -153,10 +173,15 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
     expect(isolineState.lastQueriedKey).toBeNull();
-    unmount();
 
-    // Second mount — key is null → retry
-    render(<IsolinePage />);
+    await act(async () => {
+      unmount();
+    });
+
+    await act(async () => {
+      render(<IsolinePage />);
+    });
+
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(2);
   });
@@ -176,38 +201,35 @@ describe('IsolinePage stale response cancellation (STORY-0026)', () => {
     }>((resolve) => {
       resolveDeferred = resolve;
     });
-    vi.mocked(naviqoreService.getIsolines).mockReturnValueOnce(
-      deferred as never
-    );
+    vi.mocked(naviqoreService.getIsolines).mockReturnValueOnce(deferred as any);
 
     let isolineState = makeIsolineState({ lastQueriedKey: null });
-    const setIsolineState = vi.fn((updater: unknown) => {
+    const setIsolineState = vi.fn((updater: SetStateAction<IsolineState>) => {
       isolineState =
         typeof updater === 'function'
-          ? updater(isolineState)
-          : { ...isolineState, ...(updater as Partial<IsolineState>) };
-    });
+          ? (updater as (prevState: IsolineState) => IsolineState)(isolineState)
+          : (updater as IsolineState);
+    }) as unknown as Mock<Dispatch<SetStateAction<IsolineState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(isolineState, setIsolineState)
     );
 
     const { unmount } = render(<IsolinePage />);
-    // Advance fake timers so the 500 ms timeout fires and fetch starts
     await vi.runAllTimersAsync();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
 
     const callsBeforeCancel = setIsolineState.mock.calls.length;
 
-    // Dep change: cleanup → cancelled = true
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Resolve the stale response
     await act(async () => {
       resolveDeferred({ data: [], duration: 1, status: 200 });
       await Promise.resolve();
     });
 
-    // No new calls to setIsolineState should have happened after cancel
     expect(setIsolineState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });

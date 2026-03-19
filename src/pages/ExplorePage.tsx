@@ -64,7 +64,7 @@ const ExplorePage: React.FC = () => {
         date: getCurrentInputTime(timezone),
       }));
     }
-  }, [timezone]);
+  }, [exploreState.date, setExploreState, timezone]);
 
   const updateState = useCallback(
     (updates: Partial<typeof exploreState>) => {
@@ -136,7 +136,17 @@ const ExplorePage: React.FC = () => {
     } else {
       if (departures.length > 0) updateState({ departures: [] });
     }
-  }, [selectedStop, date, timeType, timezone, config, updateState]);
+  }, [
+    selectedStop,
+    date,
+    timeType,
+    timezone,
+    config,
+    updateState,
+    lastQueriedKey,
+    addToast,
+    departures.length,
+  ]);
 
   const handleMapClick = async (lat: number, lon: number) => {
     try {

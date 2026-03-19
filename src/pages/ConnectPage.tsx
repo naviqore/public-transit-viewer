@@ -66,7 +66,7 @@ const ConnectPage: React.FC = () => {
         date: getCurrentInputTime(timezone),
       }));
     }
-  }, [timezone]);
+  }, [routingState.date, setRoutingState, timezone]);
 
   const updateState = useCallback(
     (updates: Partial<typeof routingState>) => {
@@ -75,10 +75,13 @@ const ConnectPage: React.FC = () => {
     [setRoutingState]
   );
 
-  const effectiveConfig: QueryConfig = {
-    ...queryConfig,
-    maxTravelDuration: maxTravelDuration,
-  };
+  const effectiveConfig = React.useMemo<QueryConfig>(
+    () => ({
+      ...queryConfig,
+      maxTravelDuration: maxTravelDuration,
+    }),
+    [queryConfig, maxTravelDuration]
+  );
 
   const handleConfigChange = (newConfig: QueryConfig) => {
     const { maxTravelDuration: newDuration, ...rest } = newConfig;
@@ -234,6 +237,11 @@ const ConnectPage: React.FC = () => {
     maxTravelDuration,
     timezone,
     updateState,
+    lastQueriedKey,
+    connections,
+    selectedConnection,
+    effectiveConfig,
+    addToast,
   ]);
 
   const formatTime = (isoString: string) => {

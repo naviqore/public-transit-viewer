@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Dispatch, SetStateAction } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi, Mock } from 'vitest';
 
 import { DEFAULT_QUERY_CONFIG } from '../constants';
 import ConnectPage from './ConnectPage';
@@ -43,14 +44,14 @@ function makeRoutingState(overrides: Partial<RoutingState> = {}): RoutingState {
 
 const makeDomainValue = (
   routingState: RoutingState,
-  setRoutingState: ReturnType<typeof vi.fn>
+  setRoutingState: Mock<Dispatch<SetStateAction<RoutingState>>>
 ) => ({
-  exploreState: {} as never,
-  setExploreState: vi.fn(),
+  exploreState: {} as any,
+  setExploreState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
   routingState,
   setRoutingState,
-  isolineState: {} as never,
-  setIsolineState: vi.fn(),
+  isolineState: {} as any,
+  setIsolineState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
   serverInfo: { schedule: null, routing: null },
   backendStatus: 'ok' as const,
 });
@@ -59,13 +60,13 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
-  } as never);
+  } as any);
   vi.mocked(useSettings).mockReturnValue({
     timezone: 'UTC',
     useStationTime: false,
     queryConfig: DEFAULT_QUERY_CONFIG,
     setQueryConfig: vi.fn(),
-  } as never);
+  } as any);
   vi.spyOn(naviqoreService, 'getConnections').mockResolvedValue({
     data: [],
     duration: 1,
@@ -81,9 +82,13 @@ afterEach(() => {
 describe('ConnectPage fetch guard (STORY-0024)', () => {
   it('calls service on mount when lastQueriedKey is null', async () => {
     const state = makeRoutingState({ lastQueriedKey: null });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ConnectPage />);
+    await act(async () => {
+      render(<ConnectPage />);
+    });
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
@@ -99,9 +104,14 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
       maxTravelDuration: undefined,
     });
     const state = makeRoutingState({ lastQueriedKey: queryKey });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ConnectPage />);
+    await act(async () => {
+      render(<ConnectPage />);
+    });
+
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getConnections).not.toHaveBeenCalled();
@@ -109,9 +119,13 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
 
   it('calls service when lastQueriedKey is stale (inputs changed)', async () => {
     const state = makeRoutingState({ lastQueriedKey: 'stale-key' });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ConnectPage />);
+    await act(async () => {
+      render(<ConnectPage />);
+    });
     await vi.runAllTimersAsync();
 
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
@@ -119,12 +133,13 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
 
   it('calls service only once across two mount cycles with identical inputs', async () => {
     let routingState = makeRoutingState({ lastQueriedKey: null });
-    const setRoutingState = vi.fn((updater: unknown) => {
+    const setRoutingState = vi.fn((updater: SetStateAction<RoutingState>) => {
       routingState =
         typeof updater === 'function'
-          ? updater(routingState)
-          : { ...routingState, ...(updater as Partial<RoutingState>) };
-    });
+          ? (updater as (prevState: RoutingState) => RoutingState)(routingState)
+          : (updater as RoutingState);
+    }) as unknown as Mock<Dispatch<SetStateAction<RoutingState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(routingState, setRoutingState)
     );
@@ -133,10 +148,13 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
     expect(routingState.lastQueriedKey).not.toBeNull();
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Second mount — key matches, service skipped
-    render(<ConnectPage />);
+    await act(async () => {
+      render(<ConnectPage />);
+    });
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
   });
@@ -147,12 +165,13 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
       .mockResolvedValue({ data: [], duration: 1, status: 200 });
 
     let routingState = makeRoutingState({ lastQueriedKey: null });
-    const setRoutingState = vi.fn((updater: unknown) => {
+    const setRoutingState = vi.fn((updater: SetStateAction<RoutingState>) => {
       routingState =
         typeof updater === 'function'
-          ? updater(routingState)
-          : { ...routingState, ...(updater as Partial<RoutingState>) };
-    });
+          ? (updater as (prevState: RoutingState) => RoutingState)(routingState)
+          : (updater as RoutingState);
+    }) as unknown as Mock<Dispatch<SetStateAction<RoutingState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(routingState, setRoutingState)
     );
@@ -161,10 +180,13 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
     expect(routingState.lastQueriedKey).toBeNull();
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Second mount — key is null → retry
-    render(<ConnectPage />);
+    await act(async () => {
+      render(<ConnectPage />);
+    });
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(2);
   });
@@ -185,37 +207,35 @@ describe('ConnectPage stale response cancellation (STORY-0026)', () => {
       resolveDeferred = resolve;
     });
     vi.mocked(naviqoreService.getConnections).mockReturnValueOnce(
-      deferred as never
+      deferred as any
     );
 
     let routingState = makeRoutingState({ lastQueriedKey: null });
-    const setRoutingState = vi.fn((updater: unknown) => {
+    const setRoutingState = vi.fn((updater: SetStateAction<RoutingState>) => {
       routingState =
         typeof updater === 'function'
-          ? updater(routingState)
-          : { ...routingState, ...(updater as Partial<RoutingState>) };
-    });
+          ? (updater as (prevState: RoutingState) => RoutingState)(routingState)
+          : (updater as RoutingState);
+    }) as unknown as Mock<Dispatch<SetStateAction<RoutingState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(routingState, setRoutingState)
     );
 
     const { unmount } = render(<ConnectPage />);
-    // Advance fake timers so the 500 ms timeout fires and fetch starts
     await vi.runAllTimersAsync();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
 
     const callsBeforeCancel = setRoutingState.mock.calls.length;
 
-    // Dep change: cleanup → cancelled = true
-    unmount();
-
-    // Resolve the stale response
+    await act(async () => {
+      unmount();
+    });
     await act(async () => {
       resolveDeferred({ data: [], duration: 1, status: 200 });
       await Promise.resolve();
     });
 
-    // No new calls to setRoutingState should have happened after cancel
     expect(setRoutingState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });

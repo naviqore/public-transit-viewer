@@ -1,5 +1,6 @@
 import { act, render, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Dispatch, SetStateAction } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi, Mock } from 'vitest';
 
 import { DEFAULT_EXPLORE_CONFIG } from '../constants';
 import ExplorePage from './ExplorePage';
@@ -37,14 +38,14 @@ function makeExploreState(overrides: Partial<ExploreState> = {}): ExploreState {
 
 const makeDomainValue = (
   exploreState: ExploreState,
-  setExploreState: ReturnType<typeof vi.fn>
+  setExploreState: Mock<Dispatch<SetStateAction<ExploreState>>>
 ) => ({
   exploreState,
   setExploreState,
-  routingState: {} as never,
-  setRoutingState: vi.fn(),
-  isolineState: {} as never,
-  setIsolineState: vi.fn(),
+  routingState: {} as any,
+  setRoutingState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
+  isolineState: {} as any,
+  setIsolineState: vi.fn() as unknown as Dispatch<SetStateAction<any>>,
   serverInfo: { schedule: null, routing: null },
   backendStatus: 'ok' as const,
 });
@@ -52,11 +53,11 @@ const makeDomainValue = (
 beforeEach(() => {
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
-  } as never);
+  } as any);
   vi.mocked(useSettings).mockReturnValue({
     timezone: 'UTC',
     useStationTime: false,
-  } as never);
+  } as any);
   vi.spyOn(naviqoreService, 'getStopDepartures').mockResolvedValue({
     data: [],
     duration: 1,
@@ -71,9 +72,13 @@ afterEach(() => {
 describe('ExplorePage fetch guard (STORY-0024)', () => {
   it('calls service on mount when lastQueriedKey is null', async () => {
     const state = makeExploreState({ lastQueriedKey: null });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ExplorePage />);
+    await act(async () => {
+      render(<ExplorePage />);
+    });
 
     await waitFor(() =>
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
@@ -88,9 +93,13 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
       config: DEFAULT_EXPLORE_CONFIG,
     });
     const state = makeExploreState({ lastQueriedKey: queryKey });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ExplorePage />);
+    await act(async () => {
+      render(<ExplorePage />);
+    });
 
     await new Promise((r) => setTimeout(r, 50));
     expect(naviqoreService.getStopDepartures).not.toHaveBeenCalled();
@@ -98,9 +107,13 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
 
   it('calls service when lastQueriedKey is stale (inputs changed)', async () => {
     const state = makeExploreState({ lastQueriedKey: 'stale-key' });
-    vi.mocked(useDomain).mockReturnValue(makeDomainValue(state, vi.fn()));
+    vi.mocked(useDomain).mockReturnValue(
+      makeDomainValue(state, vi.fn() as any)
+    );
 
-    render(<ExplorePage />);
+    await act(async () => {
+      render(<ExplorePage />);
+    });
 
     await waitFor(() =>
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
@@ -109,12 +122,13 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
 
   it('calls service only once across two mount cycles with identical inputs', async () => {
     let exploreState = makeExploreState({ lastQueriedKey: null });
-    const setExploreState = vi.fn((updater: unknown) => {
+    const setExploreState = vi.fn((updater: SetStateAction<ExploreState>) => {
       exploreState =
         typeof updater === 'function'
-          ? updater(exploreState)
-          : { ...exploreState, ...(updater as Partial<ExploreState>) };
-    });
+          ? (updater as (prevState: ExploreState) => ExploreState)(exploreState)
+          : (updater as ExploreState);
+    }) as unknown as Mock<Dispatch<SetStateAction<ExploreState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(exploreState, setExploreState)
     );
@@ -124,12 +138,15 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
     );
 
-    // After successful fetch, lastQueriedKey should be set
     expect(exploreState.lastQueriedKey).not.toBeNull();
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Second mount with same inputs — key matches, service skipped
-    render(<ExplorePage />);
+    await act(async () => {
+      render(<ExplorePage />);
+    });
+
     await new Promise((r) => setTimeout(r, 50));
     expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1);
   });
@@ -140,12 +157,13 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
       .mockResolvedValue({ data: [], duration: 1, status: 200 });
 
     let exploreState = makeExploreState({ lastQueriedKey: null });
-    const setExploreState = vi.fn((updater: unknown) => {
+    const setExploreState = vi.fn((updater: SetStateAction<ExploreState>) => {
       exploreState =
         typeof updater === 'function'
-          ? updater(exploreState)
-          : { ...exploreState, ...(updater as Partial<ExploreState>) };
-    });
+          ? (updater as (prevState: ExploreState) => ExploreState)(exploreState)
+          : (updater as ExploreState);
+    }) as unknown as Mock<Dispatch<SetStateAction<ExploreState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(exploreState, setExploreState)
     );
@@ -155,12 +173,15 @@ describe('ExplorePage fetch guard (STORY-0024)', () => {
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
     );
 
-    // After failure, key stays null
     expect(exploreState.lastQueriedKey).toBeNull();
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Second mount — key is null → service retried
-    render(<ExplorePage />);
+    await act(async () => {
+      render(<ExplorePage />);
+    });
+
     await waitFor(() =>
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(2)
     );
@@ -182,38 +203,37 @@ describe('ExplorePage stale response cancellation (STORY-0026)', () => {
       resolveDeferred = resolve;
     });
     vi.mocked(naviqoreService.getStopDepartures).mockReturnValueOnce(
-      deferred as never
+      deferred as any
     );
 
     let exploreState = makeExploreState({ lastQueriedKey: null });
-    const setExploreState = vi.fn((updater: unknown) => {
+    const setExploreState = vi.fn((updater: SetStateAction<ExploreState>) => {
       exploreState =
         typeof updater === 'function'
-          ? updater(exploreState)
-          : { ...exploreState, ...(updater as Partial<ExploreState>) };
-    });
+          ? (updater as (prevState: ExploreState) => ExploreState)(exploreState)
+          : (updater as ExploreState);
+    }) as unknown as Mock<Dispatch<SetStateAction<ExploreState>>>;
+
     vi.mocked(useDomain).mockImplementation(() =>
       makeDomainValue(exploreState, setExploreState)
     );
 
     const { unmount } = render(<ExplorePage />);
-    // Wait for service to be invoked (fetch in-flight, deferred not yet resolved)
     await waitFor(() =>
       expect(naviqoreService.getStopDepartures).toHaveBeenCalledTimes(1)
     );
 
     const callsBeforeCancel = setExploreState.mock.calls.length;
 
-    // Simulate dep change: cleanup runs → cancelled = true
-    unmount();
+    await act(async () => {
+      unmount();
+    });
 
-    // Resolve the stale response
     await act(async () => {
       resolveDeferred({ data: [], duration: 1, status: 200 });
       await Promise.resolve();
     });
 
-    // No new calls to setExploreState should have happened after cancel
     expect(setExploreState.mock.calls.length).toBe(callsBeforeCancel);
   });
 });

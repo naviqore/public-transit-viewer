@@ -211,6 +211,8 @@ export const useMapLayers = ({
     sourceStop,
     targetStop,
     highlightedStopId,
+    onStopClick,
+    onConnectionClick,
   ]);
 };
 
