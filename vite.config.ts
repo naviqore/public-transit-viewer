@@ -12,8 +12,5 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      external: ['/env.js'],
-    },
   },
 });
