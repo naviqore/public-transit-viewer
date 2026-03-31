@@ -33,6 +33,12 @@ export const ENABLE_MOCK_DATA = getEnv('VITE_ENABLE_MOCK_DATA') === 'true';
 export const DEFAULT_MAP_CENTER: [number, number] = [47.3769, 8.5417]; // Zurich default
 export const DEFAULT_ZOOM = 13;
 
+export const MAP_TILE_URL_LIGHT =
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+export const MAP_TILE_URL_DARK =
+  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+export const MAP_TILE_ATTRIBUTION = '&copy; CARTO';
+
 export const COLORS = {
   primary: '#4f46e5',
   secondary: '#64748b',
