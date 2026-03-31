@@ -100,6 +100,15 @@ const ScenarioTooltip: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+const SCENARIO_ACTIVE_STYLES: Record<BenchmarkScenario, string> = {
+  real_life:
+    'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 shadow-sm',
+  fixed:
+    'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 shadow-sm',
+  random:
+    'bg-fuchsia-50 dark:bg-fuchsia-900/30 border-fuchsia-200 dark:border-fuchsia-800 text-fuchsia-600 dark:text-fuchsia-400 shadow-sm',
+};
+
 const ScenarioButton: React.FC<{
   label: string;
   value: BenchmarkScenario;
@@ -115,11 +124,11 @@ const ScenarioButton: React.FC<{
       onClick={() => onClick(value)}
       className={`flex items-center px-2 py-1 text-[10px] md:px-3 md:py-1.5 md:text-xs font-bold rounded-lg transition-all border ${
         isSelected
-          ? `${color.replace('text-', 'bg-').replace('600', '50').replace('400', '900/30')} border-${color.split('-')[1]}-200 dark:border-${color.split('-')[1]}-800 ${color} shadow-sm`
+          ? SCENARIO_ACTIVE_STYLES[value]
           : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
       }`}
     >
-      <Icon size={12} className="mr-1 md:mr-1.5" />
+      <Icon size={12} className={`mr-1 md:mr-1.5 ${isSelected ? '' : color}`} />
       {label}
       <ScenarioTooltip text={description} />
     </button>

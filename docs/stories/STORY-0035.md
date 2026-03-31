@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -27,12 +27,12 @@ unstyled in production builds.
 
 ## Acceptance Criteria
 
-- [ ] All Tailwind classes for scenario button highlight states are statically
+- [x] All Tailwind classes for scenario button highlight states are statically
       present in source (no runtime string manipulation to form class names).
-- [ ] Production build (`npm run build`) renders scenario button highlight
+- [x] Production build (`npm run build`) renders scenario button highlight
       styles correctly.
-- [ ] No visual regression from the current design.
-- [ ] Existing `BenchmarkTab.test.tsx` tests pass.
+- [x] No visual regression from the current design.
+- [x] Existing `BenchmarkTab.test.tsx` tests pass.
 
 ## Implementation Notes
 
@@ -42,6 +42,6 @@ keeps style decisions collocated with the component.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Replaced dynamic class construction in ScenarioButton with SCENARIO_ACTIVE_STYLES static lookup map keyed by BenchmarkScenario.
+- Descoped ACs: none
