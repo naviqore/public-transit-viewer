@@ -10,6 +10,7 @@ import React, {
 
 import { useDomain } from './DomainContext';
 import Toast from '../components/Toast';
+import { DEFAULT_MAP_CENTER } from '../constants';
 import { naviqoreService } from '../services/naviqoreService';
 import {
   BenchmarkConfig,
@@ -165,26 +166,51 @@ export const MonitoringProvider: React.FC<{ children: React.ReactNode }> = ({
     addBmLog('Fetching stops for test queries...', 'info');
 
     const pool: Stop[] = [];
-    const promises = SEED_CITIES.map((city) =>
-      naviqoreService.autocompleteStops(city)
-    );
 
+    // 1. Try autocomplete with seed city names
     try {
-      const results = await Promise.all(promises);
-      results.forEach((res) => {
+      const autocompleteResults = await Promise.all(
+        SEED_CITIES.map((city) => naviqoreService.autocompleteStops(city))
+      );
+      autocompleteResults.forEach((res) => {
         if (res.data && Array.isArray(res.data)) pool.push(...res.data);
       });
-
-      const unique = Array.from(new Map(pool.map((s) => [s.id, s])).values());
-      stopsRef.current = unique;
-      if (unique.length > 0)
-        addBmLog(`Pool ready with ${unique.length} stops.`, 'success');
-      else addBmLog('Warning: Stop pool is empty.', 'error');
     } catch {
-      addBmLog('Failed to preload stops. Using fallback.', 'error');
-    } finally {
-      setBmIsPreloading(false);
+      addBmLog('Autocomplete seed fetch failed.', 'error');
     }
+
+    // 2. Fallback: fetch nearest stops from the default map center
+    if (pool.length === 0) {
+      addBmLog(
+        'Seed cities returned no stops, trying nearest stops...',
+        'info'
+      );
+      try {
+        const nearestRes = await naviqoreService.getNearestStops(
+          DEFAULT_MAP_CENTER[0],
+          DEFAULT_MAP_CENTER[1]
+        );
+        if (nearestRes.data && Array.isArray(nearestRes.data)) {
+          nearestRes.data.forEach((ds) => pool.push(ds.stop));
+        }
+      } catch {
+        addBmLog('Nearest-stops fallback also failed.', 'error');
+      }
+    }
+
+    const unique = Array.from(new Map(pool.map((s) => [s.id, s])).values());
+    stopsRef.current = unique;
+
+    if (unique.length > 0) {
+      addBmLog(`Pool ready with ${unique.length} stops.`, 'success');
+    } else {
+      addBmLog(
+        'Stop pool is empty — the benchmark cannot run. Check that the backend has valid stop data.',
+        'error'
+      );
+    }
+
+    setBmIsPreloading(false);
   }, [addBmLog]);
 
   const generateRandomRequest = useCallback(() => {
