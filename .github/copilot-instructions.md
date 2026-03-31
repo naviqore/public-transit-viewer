@@ -103,9 +103,9 @@ Examples:
   - run `npm run ci` (see Quality gate), verify output is warning-free, present results, proposed commit message, and ask once:
     _"Do you want me to commit and close the story?"_
   - wait for explicit user approval before committing
-  - on approval: `HUSKY=0 git commit` for the implementation commit
-  - then a separate `docs(stories):` commit: set status `CLOSED`, change the story row in
-    `docs/stories/INDEX.md` to `CLOSED`, add completion date and short outcome note, and keep the
-    index file formatted
+  - on approval: update the story file to `CLOSED` with completion date and outcome, update
+    `docs/stories/INDEX.md` row to `CLOSED` with completion note and keep formatted, then
+    commit with `HUSKY=0 git commit` in a **single commit** that includes both implementation
+    and story closure
   - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]`
     remain, ask the user whether to satisfy, descope (`- [~]`), or block closure
