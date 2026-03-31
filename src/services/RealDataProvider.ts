@@ -216,8 +216,7 @@ export class RealDataProvider implements IDataProvider {
 
       const response = await fetch(urlObj.toString());
       if (!response.ok) {
-        // For autocomplete, we often get 404s or empty results, handle gracefully
-        if (path.includes('autocomplete'))
+        if (path.includes('autocomplete') && response.status === 404)
           return { ok: true, data: [] as T, status: 200 };
 
         const error = await this.readError(response);
