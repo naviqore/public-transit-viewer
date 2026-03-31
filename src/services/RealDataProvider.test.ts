@@ -6,6 +6,8 @@ import { RealDataProvider } from './RealDataProvider';
 describe('RealDataProvider', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
   });
 
   it('converts minute-based routing query config values to seconds', async () => {

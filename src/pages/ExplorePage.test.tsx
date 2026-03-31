@@ -51,6 +51,7 @@ const makeDomainValue = (
 });
 
 beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
   } as any);

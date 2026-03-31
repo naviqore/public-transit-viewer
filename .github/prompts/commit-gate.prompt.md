@@ -4,8 +4,10 @@ Before committing, provide:
 
 1. Summary of changed files with references.
 2. AC checklist (satisfied / descoped / remaining).
-3. `npm run ci` outcome.
-4. Proposed commit message.
+3. `npm run ci` outcome, explicitly confirming warning-free output.
+4. Formatting status (`npm run format:check`).
+5. If closing a story: confirmation that `docs/stories/INDEX.md` was updated and formatted.
+6. Proposed commit message.
 
 Ask: _"Do you want me to commit and close the story?"_
 

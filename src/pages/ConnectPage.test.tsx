@@ -56,8 +56,18 @@ const makeDomainValue = (
   backendStatus: 'ok' as const,
 });
 
+async function flushReactUpdates(): Promise<void> {
+  await act(async () => {
+    await vi.runAllTimersAsync();
+  });
+  await act(async () => {
+    await Promise.resolve();
+  });
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
   } as any);
@@ -89,7 +99,7 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<ConnectPage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
   });
@@ -112,7 +122,7 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
       render(<ConnectPage />);
     });
 
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getConnections).not.toHaveBeenCalled();
   });
@@ -126,7 +136,7 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<ConnectPage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
   });
@@ -144,8 +154,11 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
       makeDomainValue(routingState, setRoutingState)
     );
 
-    const { unmount } = render(<ConnectPage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<ConnectPage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
     expect(routingState.lastQueriedKey).not.toBeNull();
     await act(async () => {
@@ -155,7 +168,7 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<ConnectPage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
   });
 
@@ -176,8 +189,11 @@ describe('ConnectPage fetch guard (STORY-0024)', () => {
       makeDomainValue(routingState, setRoutingState)
     );
 
-    const { unmount } = render(<ConnectPage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<ConnectPage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
     expect(routingState.lastQueriedKey).toBeNull();
     await act(async () => {
@@ -222,8 +238,11 @@ describe('ConnectPage stale response cancellation (STORY-0026)', () => {
       makeDomainValue(routingState, setRoutingState)
     );
 
-    const { unmount } = render(<ConnectPage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<ConnectPage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getConnections).toHaveBeenCalledTimes(1);
 
     const callsBeforeCancel = setRoutingState.mock.calls.length;

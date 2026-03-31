@@ -49,8 +49,18 @@ const makeDomainValue = (
   backendStatus: 'ok' as const,
 });
 
+async function flushReactUpdates(): Promise<void> {
+  await act(async () => {
+    await vi.runAllTimersAsync();
+  });
+  await act(async () => {
+    await Promise.resolve();
+  });
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
   vi.mocked(useMonitoring).mockReturnValue({
     addToast: vi.fn(),
   } as any);
@@ -82,7 +92,7 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<IsolinePage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
   });
@@ -104,7 +114,7 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       render(<IsolinePage />);
     });
 
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getIsolines).not.toHaveBeenCalled();
   });
@@ -118,7 +128,7 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<IsolinePage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
 
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
   });
@@ -136,8 +146,11 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       makeDomainValue(isolineState, setIsolineState)
     );
 
-    const { unmount } = render(<IsolinePage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<IsolinePage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
     expect(isolineState.lastQueriedKey).not.toBeNull();
 
@@ -148,7 +161,7 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
     await act(async () => {
       render(<IsolinePage />);
     });
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
   });
 
@@ -169,8 +182,11 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       makeDomainValue(isolineState, setIsolineState)
     );
 
-    const { unmount } = render(<IsolinePage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<IsolinePage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
     expect(isolineState.lastQueriedKey).toBeNull();
 
@@ -182,7 +198,7 @@ describe('IsolinePage fetch guard (STORY-0024)', () => {
       render(<IsolinePage />);
     });
 
-    await vi.runAllTimersAsync();
+    await flushReactUpdates();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(2);
   });
 });
@@ -215,8 +231,11 @@ describe('IsolinePage stale response cancellation (STORY-0026)', () => {
       makeDomainValue(isolineState, setIsolineState)
     );
 
-    const { unmount } = render(<IsolinePage />);
-    await vi.runAllTimersAsync();
+    let unmount!: () => void;
+    await act(async () => {
+      ({ unmount } = render(<IsolinePage />));
+    });
+    await flushReactUpdates();
     expect(naviqoreService.getIsolines).toHaveBeenCalledTimes(1);
 
     const callsBeforeCancel = setIsolineState.mock.calls.length;

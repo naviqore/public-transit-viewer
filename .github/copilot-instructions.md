@@ -25,10 +25,16 @@ This repository is a production Vite + React + TypeScript frontend.
 `npm run ci` is the single canonical gate — typecheck → lint → format → build → tests with
 coverage. Identical locally (pre-commit hook) and in remote CI.
 
+Warning policy: the canonical gate is warning-free. Any warnings in lint, build, or test output
+must be treated as blocking quality issues and resolved before commit approval.
+
 - **Humans:** `git commit` triggers the gate automatically via the pre-commit hook.
 - **Agents:** run `npm run ci` to validate and surface results, then commit with
   `HUSKY=0 git commit` to avoid re-running the same gate (intentional deduplication, not a
   bypass). Use a terminal timeout of at least 120 s for `npm run ci`.
+- **Agents:** if any warning appears in command output, continue implementation work to remove or
+  explicitly prevent that warning source before asking to commit.
+- **Agents:** before every commit, ensure formatting is clean (`npm run format:check` passes).
 - Add or update tests for changed business logic (`src/services`, `src/utils`, important hooks).
 
 ## Test stack
@@ -94,11 +100,12 @@ Examples:
   - reference the story ID in commit scope or footer (example: `Refs: STORY-0007`)
   - set status to `IN_PROGRESS` when implementation starts
   - check each AC as `- [x]` in the story file **as it is satisfied** during implementation
-  - run `npm run ci` (see Quality gate), present results, proposed commit message, and ask once:
+  - run `npm run ci` (see Quality gate), verify output is warning-free, present results, proposed commit message, and ask once:
     _"Do you want me to commit and close the story?"_
   - wait for explicit user approval before committing
   - on approval: `HUSKY=0 git commit` for the implementation commit
   - then a separate `docs(stories):` commit: set status `CLOSED`, change the story row in
-    `docs/stories/INDEX.md` to `CLOSED`, add completion date and short outcome note
+    `docs/stories/INDEX.md` to `CLOSED`, add completion date and short outcome note, and keep the
+    index file formatted
   - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]`
     remain, ask the user whether to satisfy, descope (`- [~]`), or block closure

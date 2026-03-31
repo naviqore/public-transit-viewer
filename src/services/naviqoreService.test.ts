@@ -6,6 +6,8 @@ import { naviqoreService } from './naviqoreService';
 describe('naviqoreService', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     naviqoreService.setMockMode(false);
     naviqoreService.setBaseUrl('http://localhost:8080');
   });
