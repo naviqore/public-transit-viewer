@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Type
 
@@ -32,6 +32,6 @@ Prefer explicit tooling settings (for example, ESLint max-warnings 0) over impli
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-31
+- Outcome: Enforced zero-warning lint policy in the canonical gate, removed current CI warning sources, and updated agent prompts/instructions to require warning-free and formatted commit-ready output including story index updates.
 - Descoped ACs:
