@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { COLORS, getGradientColor, TRANSPORT_COLORS } from '../constants';
 import { Connection, Leg, Stop } from '../types';
@@ -11,6 +11,11 @@ import {
   StopMarkerType,
 } from './mapLayers/stopIcons';
 import { IsolineColorMode, getTransferColor } from '../utils/isolineColorUtils';
+import {
+  filterStopsByBounds,
+  filterIsolinePathsByBounds,
+  GeoBounds,
+} from './mapLayers/viewportCulling';
 
 /** Props for the {@link useMapLayers} hook, describing the full map state to render. */
 interface UseMapLayersProps {
@@ -42,6 +47,9 @@ interface UseMapLayersProps {
 /**
  * Clears and redraws all Leaflet layers whenever the relevant props change.
  * Handles stop markers, connection polylines, isoline colour-coding, and popup bindings.
+ *
+ * Isoline layers use a dedicated Canvas renderer and viewport culling for performance.
+ * A debounced `moveend` listener updates visible isoline elements on pan/zoom.
  */
 export const useMapLayers = ({
   map,
@@ -65,45 +73,27 @@ export const useMapLayers = ({
   onStopClick,
   onConnectionClick,
 }: UseMapLayersProps) => {
+  const canvasRef = useRef<L.Canvas | null>(null);
+  const isolineGroupRef = useRef<L.LayerGroup | null>(null);
+  const renderIsolinesRef = useRef<(() => void) | null>(null);
+
+  // --- Isoline layer group lifecycle ---
+  useEffect(() => {
+    if (!map) return;
+    canvasRef.current ??= L.canvas();
+    const group = L.layerGroup().addTo(map);
+    isolineGroupRef.current = group;
+    return () => {
+      group.remove();
+      isolineGroupRef.current = null;
+    };
+  }, [map]);
+
+  // --- Main effect: non-isoline layers ---
   useEffect(() => {
     if (!map || !layerGroup) return;
 
     layerGroup.clearLayers();
-
-    // Colour resolvers for isoline mode — encapsulate mode + transfer map lookup
-    const mode = isolineColorMode ?? 'travelTime';
-
-    const resolveTransfers = (
-      toId: string | undefined,
-      fromId: string | undefined
-    ): number => {
-      if (toId && isolineTransfersMap?.has(toId))
-        return isolineTransfersMap.get(toId)!;
-      if (fromId && isolineTransfersMap?.has(fromId))
-        return isolineTransfersMap.get(fromId)!;
-      return 0;
-    };
-
-    const colorResolver = (
-      toId: string | undefined,
-      fromId: string | undefined,
-      durationMin: number
-    ): string =>
-      mode === 'transfers'
-        ? getTransferColor(resolveTransfers(toId, fromId))
-        : getGradientColor(durationMin, isolineMaxDuration);
-
-    const labelResolver = (
-      toId: string | undefined,
-      fromId: string | undefined,
-      durationMin: number
-    ): string => {
-      if (mode === 'transfers') {
-        const xfers = resolveTransfers(toId, fromId);
-        return `${xfers} transfer${xfers === 1 ? '' : 's'}`;
-      }
-      return `${Math.round(durationMin)} min`;
-    };
 
     // 1. Draw Lines
     if (selectedConnection) {
@@ -138,12 +128,8 @@ export const useMapLayers = ({
       );
     }
 
-    const isDimmed = !!selectedConnection;
-
     if (visConnections && Array.isArray(visConnections)) {
-      if (variant === 'isoline') {
-        drawIsolinePaths(layerGroup, visConnections, isDimmed, colorResolver);
-      } else if (!selectedConnection) {
+      if (variant !== 'isoline' && !selectedConnection) {
         // Overview mode for Explore page
         visConnections.forEach((c) =>
           drawConnection(
@@ -170,27 +156,6 @@ export const useMapLayers = ({
       );
     }
 
-    if (
-      isolines &&
-      Array.isArray(isolines) &&
-      visConnections &&
-      variant === 'isoline'
-    ) {
-      drawIsolineStops(
-        layerGroup,
-        isolines,
-        visConnections,
-        darkMode,
-        timezone,
-        useStationTime,
-        highlightedStopId,
-        isDimmed,
-        colorResolver,
-        labelResolver,
-        onStopClick
-      );
-    }
-
     drawSourceTargetStops(
       layerGroup,
       sourceStop,
@@ -206,21 +171,133 @@ export const useMapLayers = ({
     connections,
     selectedConnection,
     currentStopId,
-    isolines,
     visConnections,
     variant,
     darkMode,
     timezone,
     useStationTime,
-    isolineMaxDuration,
-    isolineColorMode,
-    isolineTransfersMap,
     sourceStop,
     targetStop,
-    highlightedStopId,
     onStopClick,
     onConnectionClick,
   ]);
+
+  // --- Isoline rendering with Canvas + viewport culling ---
+  useEffect(() => {
+    const group = isolineGroupRef.current;
+    if (!map || !group) return;
+
+    const mode = isolineColorMode ?? 'travelTime';
+
+    const resolveTransfers = (
+      toId: string | undefined,
+      fromId: string | undefined
+    ): number => {
+      if (toId && isolineTransfersMap?.has(toId))
+        return isolineTransfersMap.get(toId)!;
+      if (fromId && isolineTransfersMap?.has(fromId))
+        return isolineTransfersMap.get(fromId)!;
+      return 0;
+    };
+
+    const colorResolver = (
+      toId: string | undefined,
+      fromId: string | undefined,
+      durationMin: number
+    ): string =>
+      mode === 'transfers'
+        ? getTransferColor(resolveTransfers(toId, fromId))
+        : getGradientColor(durationMin, isolineMaxDuration);
+
+    const labelResolver = (
+      toId: string | undefined,
+      fromId: string | undefined,
+      durationMin: number
+    ): string => {
+      if (mode === 'transfers') {
+        const xfers = resolveTransfers(toId, fromId);
+        return `${xfers} transfer${xfers === 1 ? '' : 's'}`;
+      }
+      return `${Math.round(durationMin)} min`;
+    };
+
+    const doRender = () => {
+      group.clearLayers();
+      if (variant !== 'isoline') return;
+
+      const canvas = canvasRef.current ?? undefined;
+      const isDimmed = !!selectedConnection;
+      const paddedBounds = map.getBounds().pad(0.2);
+      const geo: GeoBounds = {
+        south: paddedBounds.getSouth(),
+        west: paddedBounds.getWest(),
+        north: paddedBounds.getNorth(),
+        east: paddedBounds.getEast(),
+      };
+
+      if (visConnections && Array.isArray(visConnections)) {
+        const visible = filterIsolinePathsByBounds(visConnections, geo);
+        drawIsolinePaths(group, visible, isDimmed, colorResolver, canvas);
+      }
+
+      if (
+        isolines &&
+        Array.isArray(isolines) &&
+        visConnections &&
+        Array.isArray(visConnections)
+      ) {
+        const visible = filterStopsByBounds(isolines, geo);
+        drawIsolineStops(
+          group,
+          visible,
+          visConnections,
+          darkMode,
+          timezone,
+          useStationTime,
+          highlightedStopId,
+          isDimmed,
+          colorResolver,
+          labelResolver,
+          onStopClick,
+          canvas
+        );
+      }
+    };
+
+    doRender();
+    renderIsolinesRef.current = doRender;
+  }, [
+    map,
+    variant,
+    selectedConnection,
+    visConnections,
+    isolines,
+    darkMode,
+    timezone,
+    useStationTime,
+    highlightedStopId,
+    isolineMaxDuration,
+    isolineColorMode,
+    isolineTransfersMap,
+    onStopClick,
+  ]);
+
+  // --- Debounced moveend listener for isoline viewport updates ---
+  useEffect(() => {
+    if (!map || variant !== 'isoline') return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const handler = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => renderIsolinesRef.current?.(), 150);
+    };
+
+    map.on('moveend', handler);
+    return () => {
+      map.off('moveend', handler);
+      clearTimeout(timeoutId);
+    };
+  }, [map, variant]);
 };
 
 // --- DRAWING IMPLEMENTATIONS (Private to Hook) ---
@@ -541,7 +618,8 @@ const drawIsolinePaths = (
     toId: string | undefined,
     fromId: string | undefined,
     durationMin: number
-  ) => string
+  ) => string,
+  renderer?: L.Renderer
 ) => {
   items.forEach((item) => {
     const leg = item.legs[0];
@@ -564,7 +642,8 @@ const drawIsolinePaths = (
         color: color,
         weight: 3,
         opacity: isDimmed ? 0.1 : 0.8,
-        className: 'pointer-events-none',
+        interactive: false,
+        renderer,
       }
     ).addTo(layers);
   });
@@ -589,7 +668,8 @@ const drawIsolineStops = (
     fromId: string | undefined,
     durationMin: number
   ) => string,
-  onClick?: (s: Stop) => void
+  onClick?: (s: Stop) => void,
+  renderer?: L.Renderer
 ) => {
   const stopDurationMap = new Map<string, number>();
   connections.forEach((c) => {
@@ -635,34 +715,40 @@ const drawIsolineStops = (
       // If mode is dimmed, make non-highlighted stops very subtle
       const opacity = isDimmed ? 0.2 : 1;
 
-      // Efficient Circle Marker for non-highlighted points
+      // Canvas-rendered circle marker for non-highlighted points
       const circle = L.circleMarker(
         [stop.coordinates.latitude, stop.coordinates.longitude],
         {
           radius: 5,
           fillColor: color,
           fillOpacity: opacity,
-          color: isDark ? '#1e293b' : '#ffffff', // Border color
+          color: isDark ? '#1e293b' : '#ffffff',
           weight: 1,
           opacity: opacity,
+          renderer,
         }
       );
 
-      // Only bind tooltip if not dimmed to avoid clutter when focusing on a path
+      // Lazy tooltip: bind on first hover instead of eagerly for every marker
       if (!isDimmed) {
-        const textColor = isDark ? '#fff' : '#0f172a';
-        circle.bindTooltip(
-          `
-                    <div class="text-center min-w-[60px] font-sans">
-                        <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
-                        <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${label}</span></div>
-                    </div>`,
-          {
-            direction: 'top',
-            offset: [0, -6],
-            className: `!bg-white/95 dark:!bg-slate-900/95 backdrop-blur-md !border-0 !shadow-xl rounded-lg px-2 py-1`,
+        circle.on('mouseover', () => {
+          if (!circle.getTooltip()) {
+            const textColor = isDark ? '#fff' : '#0f172a';
+            circle.bindTooltip(
+              `<div class="text-center min-w-[60px] font-sans">
+                <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
+                <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${label}</span></div>
+              </div>`,
+              {
+                direction: 'top',
+                offset: [0, -6],
+                className:
+                  '!bg-white/95 dark:!bg-slate-900/95 backdrop-blur-md !border-0 !shadow-xl rounded-lg px-2 py-1',
+              }
+            );
           }
-        );
+          circle.openTooltip();
+        });
       }
 
       if (onClick) circle.on('click', () => onClick(stop));
