@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useMonitoring } from '../contexts/MonitoringContext';
+import { useBenchmark } from '../hooks/useBenchmark';
 import { BenchmarkScenario } from '../types';
 
 const MAX_HISTORY = 60;
@@ -232,7 +232,7 @@ const BenchmarkTab: React.FC = () => {
     setBenchmarkConfig,
     toggleBenchmark,
     clearBenchmarkLogs,
-  } = useMonitoring();
+  } = useBenchmark();
 
   const { isRunning, isPreloading, config, stats, logs, latencyHistory } =
     benchmarkState;
