@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -27,12 +27,12 @@ ago). For a live transit tool, stale departure boards are actively misleading.
 
 ## Acceptance Criteria
 
-- [ ] A staleness indicator appears in the panel header when cached results are
+- [x] A staleness indicator appears in the panel header when cached results are
       older than 5 minutes.
-- [ ] The indicator shows a human-readable age (e.g., "12 min ago").
-- [ ] Clicking the refresh action clears the cache key and re-fetches.
-- [ ] The indicator is not shown when results are fresh or when no results exist.
-- [ ] No regressions in existing page tests.
+- [x] The indicator shows a human-readable age (e.g., "12 min ago").
+- [x] Clicking the refresh action clears the cache key and re-fetches.
+- [x] The indicator is not shown when results are fresh or when no results exist.
+- [x] No regressions in existing page tests.
 
 ## Implementation Notes
 
@@ -44,6 +44,10 @@ in `constants.ts`.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2025-07-16
+- Outcome: Implemented StalenessIndicator component with 30s refresh interval.
+  Added queriedAt tracking to ExploreState, RoutingState, and IsolineState.
+  Integrated into all three pages with refresh action. Added unit tests.
+  Updated flushReactUpdates in ConnectPage/IsolinePage tests to use
+  runOnlyPendingTimersAsync to avoid infinite interval loop.
+- Descoped ACs: none

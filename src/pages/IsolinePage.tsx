@@ -17,6 +17,7 @@ import DateTimeSelector from '../components/common/DateTimeSelector';
 import IsolineCard from '../components/common/IsolineCard';
 import Loader from '../components/common/Loader';
 import PageHeader from '../components/common/PageHeader';
+import StalenessIndicator from '../components/common/StalenessIndicator';
 import StopSearch from '../components/common/StopSearch';
 import MapComponent from '../components/Map';
 import QueryConfigDialog from '../components/QueryConfigDialog';
@@ -51,6 +52,7 @@ const IsolinePage: React.FC = () => {
     maxDuration,
     date,
     lastQueriedKey,
+    queriedAt,
     expandedStopId,
   } = isolineState;
 
@@ -298,9 +300,11 @@ const IsolinePage: React.FC = () => {
             updateState({
               isolines: sorted,
               lastQueriedKey: queryKey,
+              queriedAt: new Date(),
             });
         } catch (e) {
           if (!cancelled) {
+            updateState({ queriedAt: null });
             console.error(e);
             addToastRef.current({
               id: crypto.randomUUID(),
@@ -527,6 +531,12 @@ const IsolinePage: React.FC = () => {
             </div>
           </div>
           <div className="panel-content p-4">
+            <StalenessIndicator
+              queriedAt={queriedAt}
+              onRefresh={() =>
+                updateState({ lastQueriedKey: null, queriedAt: null })
+              }
+            />
             {loading ? (
               <Loader text="Calculating Reach..." />
             ) : (

@@ -6,6 +6,7 @@ import ConnectionCard from '../components/common/ConnectionCard';
 import DateTimeSelector from '../components/common/DateTimeSelector';
 import Loader from '../components/common/Loader';
 import PageHeader from '../components/common/PageHeader';
+import StalenessIndicator from '../components/common/StalenessIndicator';
 import StopSearch from '../components/common/StopSearch';
 import MapComponent from '../components/Map';
 import QueryConfigDialog from '../components/QueryConfigDialog';
@@ -39,6 +40,7 @@ const ConnectPage: React.FC = () => {
     timeType,
     maxTravelDuration,
     lastQueriedKey,
+    queriedAt,
   } = routingState;
 
   const [loading, setLoading] = useState(false);
@@ -206,11 +208,16 @@ const ConnectPage: React.FC = () => {
             updateState({
               connections: res.data,
               lastQueriedKey: queryKey,
+              queriedAt: new Date(),
             });
         } catch (e) {
           if (!cancelled) {
             console.error(e);
-            updateState({ connections: [], lastQueriedKey: null });
+            updateState({
+              connections: [],
+              lastQueriedKey: null,
+              queriedAt: null,
+            });
             addToast({
               id: crypto.randomUUID(),
               type: 'error',
@@ -362,6 +369,12 @@ const ConnectPage: React.FC = () => {
             </div>
           </div>
           <div className="panel-content p-4">
+            <StalenessIndicator
+              queriedAt={queriedAt}
+              onRefresh={() =>
+                updateState({ lastQueriedKey: null, queriedAt: null })
+              }
+            />
             {loading ? (
               <Loader text="Finding Connections..." />
             ) : (

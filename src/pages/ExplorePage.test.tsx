@@ -31,6 +31,7 @@ function makeExploreState(overrides: Partial<ExploreState> = {}): ExploreState {
     date: DATE,
     config: DEFAULT_EXPLORE_CONFIG,
     lastQueriedKey: null,
+    queriedAt: null,
     expandedTripIndex: null,
     ...overrides,
   };
