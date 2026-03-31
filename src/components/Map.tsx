@@ -60,7 +60,7 @@ function isValidCoordinate(
 }
 
 const MapComponent: React.FC<MapProps> = (props) => {
-  const { darkMode, timezone } = useSettings();
+  const { darkMode, timezone, useStationTime } = useSettings();
   const { isolineState } = useDomain();
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -176,6 +176,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
     variant: props.variant,
     darkMode,
     timezone,
+    useStationTime,
     isolineMaxDuration: isolineState.maxDuration,
     isolineColorMode: props.isolineColorMode,
     isolineTransfersMap: props.isolineTransfersMap,

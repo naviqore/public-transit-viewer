@@ -25,6 +25,7 @@ interface UseMapLayersProps {
   variant?: 'default' | 'isoline';
   darkMode: boolean;
   timezone: string;
+  useStationTime: boolean;
   isolineMaxDuration: number;
   isolineColorMode?: IsolineColorMode;
   isolineTransfersMap?: Map<string, number>;
@@ -54,6 +55,7 @@ export const useMapLayers = ({
   variant,
   darkMode,
   timezone,
+  useStationTime,
   isolineMaxDuration,
   isolineColorMode,
   isolineTransfersMap,
@@ -118,6 +120,7 @@ export const useMapLayers = ({
         currentStopId,
         darkMode,
         timezone,
+        useStationTime,
         sourceStop,
         targetStop,
         onStopClick
@@ -162,6 +165,7 @@ export const useMapLayers = ({
         currentStopId,
         darkMode,
         timezone,
+        useStationTime,
         onStopClick
       );
     }
@@ -178,6 +182,7 @@ export const useMapLayers = ({
         visConnections,
         darkMode,
         timezone,
+        useStationTime,
         highlightedStopId,
         isDimmed,
         colorResolver,
@@ -191,7 +196,8 @@ export const useMapLayers = ({
       sourceStop,
       targetStop,
       darkMode,
-      timezone
+      timezone,
+      useStationTime
     );
   }, [
     map,
@@ -205,6 +211,7 @@ export const useMapLayers = ({
     variant,
     darkMode,
     timezone,
+    useStationTime,
     isolineMaxDuration,
     isolineColorMode,
     isolineTransfersMap,
@@ -223,7 +230,8 @@ const drawSourceTargetStops = (
   source: Stop | undefined,
   target: Stop | undefined,
   isDark: boolean,
-  timezone: string
+  timezone: string,
+  useStationTime: boolean
 ) => {
   if (
     source &&
@@ -237,7 +245,12 @@ const drawSourceTargetStops = (
       }
     );
     // Remove subtitle 'Start'
-    bindRichStopPopup(marker, source, { isDark, timezone, permanent: true });
+    bindRichStopPopup(marker, source, {
+      isDark,
+      timezone,
+      useStationTime,
+      permanent: true,
+    });
     layers.addLayer(marker);
   }
   if (
@@ -253,7 +266,12 @@ const drawSourceTargetStops = (
       }
     );
     // Remove subtitle 'End'
-    bindRichStopPopup(marker, target, { isDark, timezone, permanent: true });
+    bindRichStopPopup(marker, target, {
+      isDark,
+      timezone,
+      useStationTime,
+      permanent: true,
+    });
     layers.addLayer(marker);
   }
 };
@@ -391,6 +409,7 @@ const drawTripStops = (
   currentStopId: string | undefined,
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   sourceStop: Stop | undefined,
   targetStop: Stop | undefined,
   onClick?: (s: Stop) => void
@@ -454,6 +473,7 @@ const drawTripStops = (
       isPast,
       isDark,
       timezone,
+      useStationTime,
       permanent: isCurrent,
     });
     layers.addLayer(marker);
@@ -467,6 +487,7 @@ const drawContextStops = (
   currentStopId: string | undefined,
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   onClick?: (s: Stop) => void
 ) => {
   const tripStopIds = new Set<string>();
@@ -505,6 +526,7 @@ const drawContextStops = (
       isCurrent: isFocused,
       isDark,
       timezone,
+      useStationTime,
       permanent: isFocused,
     });
     layers.addLayer(marker);
@@ -554,6 +576,7 @@ const drawIsolineStops = (
   connections: { legs: Leg[] }[],
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   highlightedStopId: string | null | undefined,
   isDimmed: boolean,
   colorResolver: (
@@ -600,6 +623,7 @@ const drawIsolineStops = (
       bindRichStopPopup(marker, stop, {
         isDark,
         timezone,
+        useStationTime,
         permanent: true,
         highlightColor: color,
         subtitle: label,
