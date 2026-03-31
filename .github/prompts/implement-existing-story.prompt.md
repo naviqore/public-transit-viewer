@@ -11,6 +11,7 @@ Follow `.github/copilot-instructions.md` for all rules. Steps:
 4. Use the story's `Type` field as the conventional commit type (e.g. `fix(scope): ...`).
 5. Run `npm run ci`, ensure output is warning-free (not only error-free), and verify formatting with `npm run format:check`.
 6. Update story file: set status to `CLOSED`, add completion date and outcome.
-7. Update `docs/stories/INDEX.md`: change status row to `CLOSED`, add completion date and short outcome note, keep formatted.
+7. **Update `docs/stories/INDEX.md`: change status row to `CLOSED`, add completion date and short outcome note, verify format is clean.**
 8. Ask: _"Do you want me to commit and close the story?"_
-9. On approval: `HUSKY=0 git commit` in a **single commit** that includes both implementation and story closure.
+9. On approval: `HUSKY=0 git commit` in a **single commit** that includes implementation, story file, and index update.
+   **After commit, verify working tree is clean (no uncommitted changes).** If index was auto-formatted after commit, amend to include it.

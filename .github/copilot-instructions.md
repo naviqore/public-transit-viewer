@@ -104,8 +104,9 @@ Examples:
     _"Do you want me to commit and close the story?"_
   - wait for explicit user approval before committing
   - on approval: update the story file to `CLOSED` with completion date and outcome, update
-    `docs/stories/INDEX.md` row to `CLOSED` with completion note and keep formatted, then
-    commit with `HUSKY=0 git commit` in a **single commit** that includes both implementation
-    and story closure
+    `docs/stories/INDEX.md` row to `CLOSED` with completion note, ensure formatting is clean,
+    then commit with `HUSKY=0 git commit` in a **single commit** that includes story file,
+    index update, and all implementation changes. **Always verify the working tree is clean
+    after commit; do not leave uncommitted index changes.**
   - a story may only be closed when every AC is either `- [x]` or `- [~]`; if any `- [ ]`
     remain, ask the user whether to satisfy, descope (`- [~]`), or block closure
