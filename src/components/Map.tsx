@@ -62,21 +62,30 @@ const MapComponent: React.FC<MapProps> = (props) => {
   const mapInstanceRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const onMapClickRef = useRef<MapProps['onMapClick']>(props.onMapClick);
+  const initialViewRef = useRef<{
+    center: [number, number];
+    zoom: number;
+  }>({
+    center: isValidCoordinate(props.center[0], props.center[1])
+      ? props.center
+      : DEFAULT_MAP_CENTER,
+    zoom: props.zoom,
+  });
   const [mapSize, setMapSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
+    onMapClickRef.current = props.onMapClick;
+  }, [props.onMapClick]);
+
+  useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
-    const initialCenter: [number, number] = isValidCoordinate(
-      props.center[0],
-      props.center[1]
-    )
-      ? props.center
-      : DEFAULT_MAP_CENTER;
+    const { center: initialCenter, zoom: initialZoom } = initialViewRef.current;
 
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
       attributionControl: false,
-    }).setView(initialCenter, props.zoom);
+    }).setView(initialCenter, initialZoom);
     tileLayerRef.current = L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
       {
@@ -85,7 +94,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
       }
     ).addTo(map);
     L.control.attribution({ position: 'bottomright' }).addTo(map);
-    map.on('click', (e) => props.onMapClick?.(e.latlng.lat, e.latlng.lng));
+    map.on('click', (e) => onMapClickRef.current?.(e.latlng.lat, e.latlng.lng));
 
     mapInstanceRef.current = map;
     layerGroupRef.current = L.layerGroup().addTo(map);
@@ -93,21 +102,38 @@ const MapComponent: React.FC<MapProps> = (props) => {
     return () => {
       mapInstanceRef.current?.remove();
       mapInstanceRef.current = null;
+      layerGroupRef.current = null;
+      tileLayerRef.current = null;
     };
-  }, [props]);
+  }, []);
 
   useEffect(() => {
-    if (!mapContainerRef.current || !mapInstanceRef.current) return;
-    const map = mapInstanceRef.current;
+    const container = mapContainerRef.current;
+    if (!container) return;
+
     const observer = new ResizeObserver(() => {
-      if (mapContainerRef.current) {
-        map.invalidateSize();
-        const w = mapContainerRef.current.offsetWidth;
-        const h = mapContainerRef.current.offsetHeight;
-        setMapSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+      const activeContainer = mapContainerRef.current;
+      const map = mapInstanceRef.current;
+      if (!activeContainer || !map) return;
+
+      const mapContainer = map.getContainer();
+      if (!mapContainer.isConnected) return;
+
+      // Leaflet may briefly have incomplete pane state during layout teardown.
+      try {
+        map.invalidateSize({
+          pan: false,
+          debounceMoveend: true,
+        });
+      } catch {
+        return;
       }
+
+      const w = activeContainer.offsetWidth;
+      const h = activeContainer.offsetHeight;
+      setMapSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
     });
-    observer.observe(mapContainerRef.current);
+    observer.observe(container);
     return () => observer.disconnect();
   }, []);
 
