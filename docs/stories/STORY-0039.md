@@ -2,7 +2,7 @@
 
 ## Status
 
-IN_PROGRESS
+CLOSED
 
 ## Type
 
@@ -39,6 +39,6 @@ The stack trace points to `invalidateSize` being triggered during a `ResizeObser
 
 ## Completion
 
-- Date:
-- Outcome:
+- Date: 2026-03-31
+- Outcome: Stabilized shared Leaflet lifecycle and resize invalidation path; map rendering now remains stable across Connect, Explore, and Isoline views, with focused lifecycle tests added.
 - Descoped ACs:
