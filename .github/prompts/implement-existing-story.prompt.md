@@ -14,4 +14,4 @@ Follow `.github/copilot-instructions.md` for all rules. Steps:
 7. **Update `docs/stories/INDEX.md`: change status row to `CLOSED`, add completion date and short outcome note, verify format is clean.**
 8. Ask: _"Do you want me to commit and close the story?"_
 9. On approval: `HUSKY=0 git commit` in a **single commit** that includes implementation, story file, and index update.
-   **After commit, verify working tree is clean (no uncommitted changes).** If index was auto-formatted after commit, amend to include it.
+   **Verify working tree is clean after commit; all files should be committed together.**

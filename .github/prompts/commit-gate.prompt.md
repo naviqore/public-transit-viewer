@@ -12,5 +12,5 @@ Before committing, provide:
 Ask: _"Do you want me to commit and close the story?"_
 
 On approval: `HUSKY=0 git commit` in a **single commit** that includes implementation, story file,
-and index update. **Verify working tree is clean after commit; if index was auto-formatted,
-amend the commit to include it.** See `.github/copilot-instructions.md` for full story closure and commit rules.
+and index update. **Verify working tree is clean after commit; all files should be included together.**
+See `.github/copilot-instructions.md` for full story closure and commit rules.
