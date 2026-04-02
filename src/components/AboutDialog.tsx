@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { LOGO_URL } from '../constants';
+import { APP_VERSION, LOGO_URL } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import ResponsiveDialog from './common/ResponsiveDialog';
 
@@ -73,7 +73,7 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
           >
             Naviqore
           </a>{' '}
-          &bull; v1.0.0
+          &bull; v{APP_VERSION}
         </p>
       </div>
 
