@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import DateTimeSelector from '../components/common/DateTimeSelector';
 import Loader from '../components/common/Loader';
 import PageHeader from '../components/common/PageHeader';
+import StalenessIndicator from '../components/common/StalenessIndicator';
 import StopSearch from '../components/common/StopSearch';
 import TransportIcon from '../components/common/TransportIcon';
 import TripTimeline from '../components/common/TripTimeline';
@@ -43,6 +44,7 @@ const ExplorePage: React.FC = () => {
     date,
     config,
     lastQueriedKey,
+    queriedAt,
     expandedTripIndex,
   } = exploreState;
 
@@ -113,11 +115,19 @@ const ExplorePage: React.FC = () => {
             config.limit
           );
           if (!cancelled)
-            updateState({ departures: res.data, lastQueriedKey: queryKey });
+            updateState({
+              departures: res.data,
+              lastQueriedKey: queryKey,
+              queriedAt: new Date(),
+            });
         } catch (e) {
           if (!cancelled) {
             console.error(e);
-            updateState({ departures: [], lastQueriedKey: null });
+            updateState({
+              departures: [],
+              lastQueriedKey: null,
+              queriedAt: null,
+            });
             addToast({
               id: crypto.randomUUID(),
               type: 'error',
@@ -339,6 +349,12 @@ const ExplorePage: React.FC = () => {
             </div>
           </div>
           <div className="panel-content space-y-4 p-4">
+            <StalenessIndicator
+              queriedAt={queriedAt}
+              onRefresh={() =>
+                updateState({ lastQueriedKey: null, queriedAt: null })
+              }
+            />
             {!selectedStop ? (
               <div className="flex flex-col items-center justify-center h-48 text-slate-400">
                 <p className="text-sm font-medium">

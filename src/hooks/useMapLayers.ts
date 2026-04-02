@@ -1,5 +1,5 @@
 import L from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { COLORS, getGradientColor, TRANSPORT_COLORS } from '../constants';
 import { Connection, Leg, Stop } from '../types';
@@ -11,6 +11,11 @@ import {
   StopMarkerType,
 } from './mapLayers/stopIcons';
 import { IsolineColorMode, getTransferColor } from '../utils/isolineColorUtils';
+import {
+  filterStopsByBounds,
+  filterIsolinePathsByBounds,
+  GeoBounds,
+} from './mapLayers/viewportCulling';
 
 /** Props for the {@link useMapLayers} hook, describing the full map state to render. */
 interface UseMapLayersProps {
@@ -19,12 +24,14 @@ interface UseMapLayersProps {
   stops?: Stop[];
   connections?: Connection[];
   selectedConnection?: Connection | null;
+  selectedLegIndex?: number | null;
   currentStopId?: string;
   isolines?: Stop[];
   visConnections?: { legs: Leg[] }[];
   variant?: 'default' | 'isoline';
   darkMode: boolean;
   timezone: string;
+  useStationTime: boolean;
   isolineMaxDuration: number;
   isolineColorMode?: IsolineColorMode;
   isolineTransfersMap?: Map<string, number>;
@@ -36,11 +43,15 @@ interface UseMapLayersProps {
 
   onStopClick?: (stop: Stop) => void;
   onConnectionClick?: (connection: Connection) => void;
+  onLegClick?: (leg: Leg, legIndex: number) => void;
 }
 
 /**
  * Clears and redraws all Leaflet layers whenever the relevant props change.
  * Handles stop markers, connection polylines, isoline colour-coding, and popup bindings.
+ *
+ * Isoline layers use a dedicated Canvas renderer and viewport culling for performance.
+ * A debounced `moveend` listener updates visible isoline elements on pan/zoom.
  */
 export const useMapLayers = ({
   map,
@@ -48,12 +59,14 @@ export const useMapLayers = ({
   stops,
   connections,
   selectedConnection,
+  selectedLegIndex,
   currentStopId,
   isolines,
   visConnections,
   variant,
   darkMode,
   timezone,
+  useStationTime,
   isolineMaxDuration,
   isolineColorMode,
   isolineTransfersMap,
@@ -62,13 +75,129 @@ export const useMapLayers = ({
   highlightedStopId,
   onStopClick,
   onConnectionClick,
+  onLegClick,
 }: UseMapLayersProps) => {
+  const canvasRef = useRef<L.Canvas | null>(null);
+  const isolineGroupRef = useRef<L.LayerGroup | null>(null);
+  const renderIsolinesRef = useRef<(() => void) | null>(null);
+
+  // --- Isoline layer group lifecycle ---
+  useEffect(() => {
+    if (!map) return;
+    canvasRef.current ??= L.canvas();
+    const group = L.layerGroup().addTo(map);
+    isolineGroupRef.current = group;
+    return () => {
+      group.remove();
+      isolineGroupRef.current = null;
+    };
+  }, [map]);
+
+  // --- Main effect: non-isoline layers ---
   useEffect(() => {
     if (!map || !layerGroup) return;
 
     layerGroup.clearLayers();
 
-    // Colour resolvers for isoline mode — encapsulate mode + transfer map lookup
+    // 1. Draw Lines
+    if (selectedConnection) {
+      drawConnection(
+        layerGroup,
+        selectedConnection,
+        true,
+        darkMode,
+        currentStopId,
+        selectedLegIndex ?? undefined,
+        undefined,
+        onLegClick
+      );
+      drawTripStops(
+        layerGroup,
+        selectedConnection,
+        currentStopId,
+        darkMode,
+        timezone,
+        useStationTime,
+        sourceStop,
+        targetStop,
+        selectedLegIndex ?? undefined,
+        onStopClick
+      );
+    } else if (connections && Array.isArray(connections)) {
+      connections.forEach((c) =>
+        drawConnection(
+          layerGroup,
+          c,
+          false,
+          darkMode,
+          undefined,
+          undefined,
+          onConnectionClick
+        )
+      );
+    }
+
+    if (visConnections && Array.isArray(visConnections)) {
+      if (variant !== 'isoline' && !selectedConnection) {
+        // Overview mode for Explore page
+        visConnections.forEach((c) =>
+          drawConnection(
+            layerGroup,
+            { legs: c.legs } as Connection,
+            false,
+            darkMode
+          )
+        );
+      }
+    }
+
+    // 2. Draw Context Stops
+    if (stops && Array.isArray(stops)) {
+      drawContextStops(
+        layerGroup,
+        stops,
+        selectedConnection || null,
+        currentStopId,
+        darkMode,
+        timezone,
+        useStationTime,
+        onStopClick
+      );
+    }
+
+    drawSourceTargetStops(
+      layerGroup,
+      sourceStop,
+      targetStop,
+      darkMode,
+      timezone,
+      useStationTime
+    );
+  }, [
+    map,
+    layerGroup,
+    stops,
+    connections,
+    selectedConnection,
+    selectedLegIndex,
+    currentStopId,
+    visConnections,
+    variant,
+    darkMode,
+    timezone,
+    useStationTime,
+    sourceStop,
+    targetStop,
+    onStopClick,
+    onConnectionClick,
+    onLegClick,
+  ]);
+
+  // --- Isoline rendering with Canvas + viewport culling ---
+  useEffect(() => {
+    const group = isolineGroupRef.current;
+    if (!map || !group) return;
+
     const mode = isolineColorMode ?? 'travelTime';
 
     const resolveTransfers = (
@@ -103,117 +232,83 @@ export const useMapLayers = ({
       return `${Math.round(durationMin)} min`;
     };
 
-    // 1. Draw Lines
-    if (selectedConnection) {
-      drawConnection(
-        layerGroup,
-        selectedConnection,
-        true,
-        darkMode,
-        currentStopId
-      );
-      drawTripStops(
-        layerGroup,
-        selectedConnection,
-        currentStopId,
-        darkMode,
-        timezone,
-        sourceStop,
-        targetStop,
-        onStopClick
-      );
-    } else if (connections && Array.isArray(connections)) {
-      connections.forEach((c) =>
-        drawConnection(
-          layerGroup,
-          c,
-          false,
+    const doRender = () => {
+      group.clearLayers();
+      if (variant !== 'isoline') return;
+
+      const canvas = canvasRef.current ?? undefined;
+      const isDimmed = !!selectedConnection;
+      const paddedBounds = map.getBounds().pad(0.2);
+      const geo: GeoBounds = {
+        south: paddedBounds.getSouth(),
+        west: paddedBounds.getWest(),
+        north: paddedBounds.getNorth(),
+        east: paddedBounds.getEast(),
+      };
+
+      if (visConnections && Array.isArray(visConnections)) {
+        const visible = filterIsolinePathsByBounds(visConnections, geo);
+        drawIsolinePaths(group, visible, isDimmed, colorResolver, canvas);
+      }
+
+      if (
+        isolines &&
+        Array.isArray(isolines) &&
+        visConnections &&
+        Array.isArray(visConnections)
+      ) {
+        const visible = filterStopsByBounds(isolines, geo);
+        drawIsolineStops(
+          group,
+          visible,
+          visConnections,
           darkMode,
-          undefined,
-          onConnectionClick
-        )
-      );
-    }
-
-    const isDimmed = !!selectedConnection;
-
-    if (visConnections && Array.isArray(visConnections)) {
-      if (variant === 'isoline') {
-        drawIsolinePaths(layerGroup, visConnections, isDimmed, colorResolver);
-      } else if (!selectedConnection) {
-        // Overview mode for Explore page
-        visConnections.forEach((c) =>
-          drawConnection(
-            layerGroup,
-            { legs: c.legs } as Connection,
-            false,
-            darkMode
-          )
+          timezone,
+          useStationTime,
+          highlightedStopId,
+          isDimmed,
+          colorResolver,
+          labelResolver,
+          onStopClick,
+          canvas
         );
       }
-    }
+    };
 
-    // 2. Draw Context Stops
-    if (stops && Array.isArray(stops)) {
-      drawContextStops(
-        layerGroup,
-        stops,
-        selectedConnection || null,
-        currentStopId,
-        darkMode,
-        timezone,
-        onStopClick
-      );
-    }
-
-    if (
-      isolines &&
-      Array.isArray(isolines) &&
-      visConnections &&
-      variant === 'isoline'
-    ) {
-      drawIsolineStops(
-        layerGroup,
-        isolines,
-        visConnections,
-        darkMode,
-        timezone,
-        highlightedStopId,
-        isDimmed,
-        colorResolver,
-        labelResolver,
-        onStopClick
-      );
-    }
-
-    drawSourceTargetStops(
-      layerGroup,
-      sourceStop,
-      targetStop,
-      darkMode,
-      timezone
-    );
+    doRender();
+    renderIsolinesRef.current = doRender;
   }, [
     map,
-    layerGroup,
-    stops,
-    connections,
-    selectedConnection,
-    currentStopId,
-    isolines,
-    visConnections,
     variant,
+    selectedConnection,
+    visConnections,
+    isolines,
     darkMode,
     timezone,
+    useStationTime,
+    highlightedStopId,
     isolineMaxDuration,
     isolineColorMode,
     isolineTransfersMap,
-    sourceStop,
-    targetStop,
-    highlightedStopId,
     onStopClick,
-    onConnectionClick,
   ]);
+
+  // --- Debounced moveend listener for isoline viewport updates ---
+  useEffect(() => {
+    if (!map || variant !== 'isoline') return;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const handler = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => renderIsolinesRef.current?.(), 150);
+    };
+
+    map.on('moveend', handler);
+    return () => {
+      map.off('moveend', handler);
+      clearTimeout(timeoutId);
+    };
+  }, [map, variant]);
 };
 
 // --- DRAWING IMPLEMENTATIONS (Private to Hook) ---
@@ -223,7 +318,8 @@ const drawSourceTargetStops = (
   source: Stop | undefined,
   target: Stop | undefined,
   isDark: boolean,
-  timezone: string
+  timezone: string,
+  useStationTime: boolean
 ) => {
   if (
     source &&
@@ -237,7 +333,12 @@ const drawSourceTargetStops = (
       }
     );
     // Remove subtitle 'Start'
-    bindRichStopPopup(marker, source, { isDark, timezone, permanent: true });
+    bindRichStopPopup(marker, source, {
+      isDark,
+      timezone,
+      useStationTime,
+      permanent: true,
+    });
     layers.addLayer(marker);
   }
   if (
@@ -253,7 +354,12 @@ const drawSourceTargetStops = (
       }
     );
     // Remove subtitle 'End'
-    bindRichStopPopup(marker, target, { isDark, timezone, permanent: true });
+    bindRichStopPopup(marker, target, {
+      isDark,
+      timezone,
+      useStationTime,
+      permanent: true,
+    });
     layers.addLayer(marker);
   }
 };
@@ -264,11 +370,13 @@ const drawConnection = (
   isSelected: boolean,
   isDark: boolean,
   currentStopId?: string,
-  onClick?: (c: Connection) => void
+  selectedLegIndex?: number,
+  onClick?: (c: Connection) => void,
+  onLegClick?: (leg: Leg, legIndex: number) => void
 ) => {
   if (!conn.legs) return;
 
-  conn.legs.forEach((leg) => {
+  conn.legs.forEach((leg, legIndex) => {
     if (
       !isValidCoordinate(leg.from.latitude, leg.from.longitude) ||
       !isValidCoordinate(leg.to.latitude, leg.to.longitude)
@@ -282,6 +390,11 @@ const drawConnection = (
         ? '#64748b'
         : '#94a3b8'
       : TRANSPORT_COLORS[mode] || COLORS.primary;
+
+    const hasLegSelection =
+      isSelected && selectedLegIndex != null && selectedLegIndex >= 0;
+    const isActiveLeg = hasLegSelection && legIndex === selectedLegIndex;
+    const isDimmedLeg = hasLegSelection && legIndex !== selectedLegIndex;
 
     const points: [number, number][] = [
       [leg.from.latitude, leg.from.longitude],
@@ -331,26 +444,21 @@ const drawConnection = (
 
           const isPast = i < splitIndex;
           const segmentColor = isPast ? COLORS.pastTrip : standardColor;
-
-          const poly = L.polyline(
+          const segCoords: [number, number][] = [
             [
-              [
-                startSt.stop.coordinates.latitude,
-                startSt.stop.coordinates.longitude,
-              ],
-              [
-                endSt.stop.coordinates.latitude,
-                endSt.stop.coordinates.longitude,
-              ],
+              startSt.stop.coordinates.latitude,
+              startSt.stop.coordinates.longitude,
             ],
-            {
-              color: segmentColor,
-              weight: isPast ? 4 : 5,
-              opacity: isPast ? 0.7 : 1, // Increased opacity for high contrast on light maps
-              lineCap: 'round',
-              lineJoin: 'round',
-            }
-          );
+            [endSt.stop.coordinates.latitude, endSt.stop.coordinates.longitude],
+          ];
+
+          const poly = L.polyline(segCoords, {
+            color: segmentColor,
+            weight: isPast ? 4 : 5,
+            opacity: isPast ? 0.7 : 1,
+            lineCap: 'round',
+            lineJoin: 'round',
+          });
           bindRichLinePopup(poly, leg, isDark, isPast);
           poly.addTo(layers);
         }
@@ -358,25 +466,40 @@ const drawConnection = (
       }
     }
 
+    // Compute opacity: active leg = full, dimmed = faded, default selected = full, unselected = faded
+    const legOpacity = isDimmedLeg ? 0.25 : isSelected ? 1 : 0.4;
+    const legWeight = isDimmedLeg ? 3 : isWalk ? 4 : isActiveLeg ? 6 : 5;
+
     const poly = L.polyline(points, {
       color: standardColor,
-      weight: isWalk ? 4 : 5,
-      opacity: isSelected ? 1 : 0.4,
+      weight: legWeight,
+      opacity: legOpacity,
       dashArray: isWalk ? '1, 8' : undefined,
       lineCap: 'round',
       lineJoin: 'round',
-      className: isSelected ? 'drop-shadow-md' : '',
     });
 
-    if (onClick) {
+    const legClickHandler = isSelected ? onLegClick : undefined;
+    if (onClick || legClickHandler) {
       const clickArea = L.polyline(points, {
-        color: 'transparent',
         weight: 20,
-        className: 'cursor-pointer',
+        opacity: 0,
+        interactive: true,
+      });
+      clickArea.on('add', () => {
+        const el = clickArea.getElement() as HTMLElement | undefined;
+        if (el) {
+          el.style.pointerEvents = 'all';
+          el.style.cursor = 'pointer';
+        }
       });
       clickArea.on('click', (e) => {
         L.DomEvent.stopPropagation(e);
-        onClick(conn);
+        if (legClickHandler) {
+          legClickHandler(leg, legIndex);
+        } else if (onClick) {
+          onClick(conn);
+        }
       });
       clickArea.addTo(layers);
     }
@@ -391,8 +514,10 @@ const drawTripStops = (
   currentStopId: string | undefined,
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   sourceStop: Stop | undefined,
   targetStop: Stop | undefined,
+  selectedLegIndex?: number,
   onClick?: (s: Stop) => void
 ) => {
   const stopsMap = new Map<
@@ -400,10 +525,16 @@ const drawTripStops = (
     { stop: Stop; time: string; isPast: boolean }
   >();
 
-  conn.legs?.forEach((leg) => {
+  const hasLegSelection = selectedLegIndex != null && selectedLegIndex >= 0;
+
+  conn.legs?.forEach((leg, legIndex) => {
     if (leg.type === 'WALK') return;
 
     const relevantStops = getLegStopTimes(leg);
+
+    // When a leg is selected, only show intermediate stops for that leg
+    // Always show first/last stops of every leg (they are transfer points)
+    const showIntermediates = !hasLegSelection || legIndex === selectedLegIndex;
 
     if (relevantStops.length > 0) {
       const splitIndex = relevantStops.findIndex(
@@ -412,6 +543,10 @@ const drawTripStops = (
       relevantStops.forEach((st, idx) => {
         if (sourceStop && st.stop.id === sourceStop.id) return;
         if (targetStop && st.stop.id === targetStop.id) return;
+
+        // Skip intermediate stops for non-selected legs
+        const isEndpoint = idx === 0 || idx === relevantStops.length - 1;
+        if (!showIntermediates && !isEndpoint) return;
 
         const isPast = currentStopId
           ? splitIndex !== -1 && idx < splitIndex
@@ -454,6 +589,7 @@ const drawTripStops = (
       isPast,
       isDark,
       timezone,
+      useStationTime,
       permanent: isCurrent,
     });
     layers.addLayer(marker);
@@ -467,6 +603,7 @@ const drawContextStops = (
   currentStopId: string | undefined,
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   onClick?: (s: Stop) => void
 ) => {
   const tripStopIds = new Set<string>();
@@ -505,6 +642,7 @@ const drawContextStops = (
       isCurrent: isFocused,
       isDark,
       timezone,
+      useStationTime,
       permanent: isFocused,
     });
     layers.addLayer(marker);
@@ -519,7 +657,8 @@ const drawIsolinePaths = (
     toId: string | undefined,
     fromId: string | undefined,
     durationMin: number
-  ) => string
+  ) => string,
+  renderer?: L.Renderer
 ) => {
   items.forEach((item) => {
     const leg = item.legs[0];
@@ -542,7 +681,8 @@ const drawIsolinePaths = (
         color: color,
         weight: 3,
         opacity: isDimmed ? 0.1 : 0.8,
-        className: 'pointer-events-none',
+        interactive: false,
+        renderer,
       }
     ).addTo(layers);
   });
@@ -554,6 +694,7 @@ const drawIsolineStops = (
   connections: { legs: Leg[] }[],
   isDark: boolean,
   timezone: string,
+  useStationTime: boolean,
   highlightedStopId: string | null | undefined,
   isDimmed: boolean,
   colorResolver: (
@@ -566,7 +707,8 @@ const drawIsolineStops = (
     fromId: string | undefined,
     durationMin: number
   ) => string,
-  onClick?: (s: Stop) => void
+  onClick?: (s: Stop) => void,
+  renderer?: L.Renderer
 ) => {
   const stopDurationMap = new Map<string, number>();
   connections.forEach((c) => {
@@ -600,6 +742,7 @@ const drawIsolineStops = (
       bindRichStopPopup(marker, stop, {
         isDark,
         timezone,
+        useStationTime,
         permanent: true,
         highlightColor: color,
         subtitle: label,
@@ -611,34 +754,40 @@ const drawIsolineStops = (
       // If mode is dimmed, make non-highlighted stops very subtle
       const opacity = isDimmed ? 0.2 : 1;
 
-      // Efficient Circle Marker for non-highlighted points
+      // Canvas-rendered circle marker for non-highlighted points
       const circle = L.circleMarker(
         [stop.coordinates.latitude, stop.coordinates.longitude],
         {
           radius: 5,
           fillColor: color,
           fillOpacity: opacity,
-          color: isDark ? '#1e293b' : '#ffffff', // Border color
+          color: isDark ? '#1e293b' : '#ffffff',
           weight: 1,
           opacity: opacity,
+          renderer,
         }
       );
 
-      // Only bind tooltip if not dimmed to avoid clutter when focusing on a path
+      // Lazy tooltip: bind on first hover instead of eagerly for every marker
       if (!isDimmed) {
-        const textColor = isDark ? '#fff' : '#0f172a';
-        circle.bindTooltip(
-          `
-                    <div class="text-center min-w-[60px] font-sans">
-                        <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
-                        <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${label}</span></div>
-                    </div>`,
-          {
-            direction: 'top',
-            offset: [0, -6],
-            className: `!bg-white/95 dark:!bg-slate-900/95 backdrop-blur-md !border-0 !shadow-xl rounded-lg px-2 py-1`,
+        circle.on('mouseover', () => {
+          if (!circle.getTooltip()) {
+            const textColor = isDark ? '#fff' : '#0f172a';
+            circle.bindTooltip(
+              `<div class="text-center min-w-[60px] font-sans">
+                <div class="font-bold text-xs" style="color:${textColor}">${stop.name}</div>
+                <div class="text-[10px] font-mono mt-0.5 font-bold flex items-center justify-center gap-1" style="color:${color}"><span>${label}</span></div>
+              </div>`,
+              {
+                direction: 'top',
+                offset: [0, -6],
+                className:
+                  '!bg-white/95 dark:!bg-slate-900/95 backdrop-blur-md !border-0 !shadow-xl rounded-lg px-2 py-1',
+              }
+            );
           }
-        );
+          circle.openTooltip();
+        });
       }
 
       if (onClick) circle.on('click', () => onClick(stop));

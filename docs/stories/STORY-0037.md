@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -27,11 +27,11 @@ user's timezone, while cards correctly show the station-embedded offset.
 
 ## Acceptance Criteria
 
-- [ ] Map popup times match sidebar card times for the same stop/departure in
+- [x] Map popup times match sidebar card times for the same stop/departure in
       all combinations of `useStationTime` (on/off) and timezone settings.
-- [ ] `PopupOptions` includes a `useStationTime` field.
-- [ ] No other visual or functional changes.
-- [ ] Existing tests pass; add a unit test to `popups` if feasible.
+- [x] `PopupOptions` includes a `useStationTime` field.
+- [x] No other visual or functional changes.
+- [~] Existing tests pass; add a unit test to `popups` if feasible.
 
 ## Implementation Notes
 
@@ -42,6 +42,6 @@ keep data flow explicit via props.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Replaced toLocaleTimeString with formatDisplayTime in popups.ts; threaded useStationTime through PopupOptions, useMapLayers, and MapComponent.
+- Descoped ACs: Popup unit test descoped — popups.ts generates HTML strings for Leaflet tooltips which are not straightforward to unit test without DOM integration; behaviour is covered by the existing page-level tests.

@@ -21,7 +21,6 @@ import {
   Cpu,
   HelpCircle,
   Play,
-  RefreshCw,
   Server,
   Shuffle,
   Square,
@@ -32,7 +31,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useMonitoring } from '../contexts/MonitoringContext';
+import { useBenchmark } from '../hooks/useBenchmark';
 import { BenchmarkScenario } from '../types';
 
 const MAX_HISTORY = 60;
@@ -100,6 +99,15 @@ const ScenarioTooltip: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
+const SCENARIO_ACTIVE_STYLES: Record<BenchmarkScenario, string> = {
+  real_life:
+    'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 shadow-sm',
+  fixed:
+    'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 shadow-sm',
+  random:
+    'bg-fuchsia-50 dark:bg-fuchsia-900/30 border-fuchsia-200 dark:border-fuchsia-800 text-fuchsia-600 dark:text-fuchsia-400 shadow-sm',
+};
+
 const ScenarioButton: React.FC<{
   label: string;
   value: BenchmarkScenario;
@@ -115,11 +123,11 @@ const ScenarioButton: React.FC<{
       onClick={() => onClick(value)}
       className={`flex items-center px-2 py-1 text-[10px] md:px-3 md:py-1.5 md:text-xs font-bold rounded-lg transition-all border ${
         isSelected
-          ? `${color.replace('text-', 'bg-').replace('600', '50').replace('400', '900/30')} border-${color.split('-')[1]}-200 dark:border-${color.split('-')[1]}-800 ${color} shadow-sm`
+          ? SCENARIO_ACTIVE_STYLES[value]
           : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
       }`}
     >
-      <Icon size={12} className="mr-1 md:mr-1.5" />
+      <Icon size={12} className={`mr-1 md:mr-1.5 ${isSelected ? '' : color}`} />
       {label}
       <ScenarioTooltip text={description} />
     </button>
@@ -223,10 +231,9 @@ const BenchmarkTab: React.FC = () => {
     setBenchmarkConfig,
     toggleBenchmark,
     clearBenchmarkLogs,
-  } = useMonitoring();
+  } = useBenchmark();
 
-  const { isRunning, isPreloading, config, stats, logs, latencyHistory } =
-    benchmarkState;
+  const { isRunning, config, stats, logs, latencyHistory } = benchmarkState;
 
   // Console State
   const [autoScroll, setAutoScroll] = useState(true);
@@ -252,23 +259,14 @@ const BenchmarkTab: React.FC = () => {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <button
               onClick={toggleBenchmark}
-              disabled={isPreloading}
               className={`h-12 w-12 rounded-full flex items-center justify-center transition-all shadow-md flex-shrink-0 ${
                 isRunning
                   ? 'bg-brand-500 hover:bg-brand-600 text-white animate-pulse ring-4 ring-brand-100 dark:ring-brand-900/20'
                   : 'bg-indigo-600 hover:bg-indigo-700 text-white ring-4 ring-indigo-100 dark:ring-indigo-900/20'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={
-                isPreloading
-                  ? 'Preloading...'
-                  : isRunning
-                    ? 'Stop Benchmark'
-                    : 'Start Benchmark'
-              }
+              }`}
+              title={isRunning ? 'Stop Benchmark' : 'Start Benchmark'}
             >
-              {isPreloading ? (
-                <RefreshCw className="animate-spin" size={24} />
-              ) : isRunning ? (
+              {isRunning ? (
                 <Square fill="currentColor" size={20} />
               ) : (
                 <Play fill="currentColor" size={24} className="ml-1" />

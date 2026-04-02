@@ -104,4 +104,34 @@ describe('RealDataProvider', () => {
       });
     }
   });
+
+  it('returns empty array silently for autocomplete 404', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('Not Found', { status: 404 })
+    );
+
+    const provider = new RealDataProvider('http://localhost:8080');
+    const response = await provider.autocompleteStops('xyz');
+
+    expect(response.ok).toBe(true);
+    if (response.ok) {
+      expect(response.data).toEqual([]);
+      expect(response.status).toBe(200);
+    }
+  });
+
+  it('surfaces non-404 autocomplete errors as failures', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('Internal Server Error', {
+        status: 500,
+        statusText: 'Internal Server Error',
+      })
+    );
+
+    const provider = new RealDataProvider('http://localhost:8080');
+    const response = await provider.autocompleteStops('test');
+
+    expect(response.ok).toBe(false);
+    expect(response.status).toBe(500);
+  });
 });

@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -26,11 +26,11 @@ about. A misconfigured backend or authentication failure becomes invisible.
 
 ## Acceptance Criteria
 
-- [ ] A 404 from the autocomplete endpoint still yields an empty result array
+- [x] A 404 from the autocomplete endpoint still yields an empty result array
       with no error toast.
-- [ ] A 500 or 401 from the autocomplete endpoint surfaces as an error (toasted
+- [x] A 500 or 401 from the autocomplete endpoint surfaces as an error (toasted
       or logged) rather than an empty result.
-- [ ] `RealDataProvider.test.ts` covers the 404 (silent) and 500 (error) cases.
+- [x] `RealDataProvider.test.ts` covers the 404 (silent) and 500 (error) cases.
 
 ## Implementation Notes
 
@@ -40,6 +40,6 @@ the fake success payload.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Narrowed autocomplete silent-success path to HTTP 404 only; added tests for 404 and 500 cases.
+- Descoped ACs: none

@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -29,11 +29,11 @@ zero-stop pool and rendering the benchmark useless without any error message.
 
 ## Acceptance Criteria
 
-- [ ] Benchmark preloading does not rely solely on hardcoded Swiss city names.
-- [ ] When the stop pool is empty after preloading, the benchmark UI displays
+- [x] Benchmark preloading does not rely solely on hardcoded Swiss city names.
+- [x] When the stop pool is empty after preloading, the benchmark UI displays
       a visible warning and does not silently start with 0 stops.
-- [ ] A non-Swiss backend with valid stops can run the benchmark successfully.
-- [ ] Existing tests pass.
+- [x] A non-Swiss backend with valid stops can run the benchmark successfully.
+- [x] Existing tests pass.
 
 ## Implementation Notes
 
@@ -43,6 +43,6 @@ Start button. A follow-up can add configurable seed inputs.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Added nearest-stops fallback from default map center when autocomplete seed cities return no stops; clear error message when pool remains empty.
+- Descoped ACs: none

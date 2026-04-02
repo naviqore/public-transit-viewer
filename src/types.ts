@@ -143,6 +143,7 @@ export interface ExploreState {
   date: string;
   config: ExploreQueryConfig;
   lastQueriedKey: string | null;
+  queriedAt: Date | null;
   expandedTripIndex: number | null;
 }
 
@@ -155,6 +156,7 @@ export interface RoutingState {
   timeType: TimeType;
   maxTravelDuration?: number;
   lastQueriedKey: string | null;
+  queriedAt: Date | null;
 }
 
 export interface IsolineState {
@@ -163,6 +165,7 @@ export interface IsolineState {
   maxDuration: number;
   date: string;
   lastQueriedKey: string | null;
+  queriedAt: Date | null;
   expandedStopId: string | null;
 }
 

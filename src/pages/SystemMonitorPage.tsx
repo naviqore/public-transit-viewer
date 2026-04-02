@@ -5,10 +5,12 @@ import PageHeader from '../components/common/PageHeader';
 import SystemMonitorPanel from '../components/SystemMonitorPanel';
 import { DISABLE_BENCHMARK } from '../constants';
 import { useMonitoring } from '../contexts/MonitoringContext';
+import { useBenchmark } from '../hooks/useBenchmark';
 import './PageStyles.css';
 
 const SystemMonitorPage: React.FC = () => {
-  const { logs, clearLogs, clearBenchmarkLogs } = useMonitoring();
+  const { logs, clearLogs } = useMonitoring();
+  const { clearBenchmarkLogs } = useBenchmark();
   const [activeTab, setActiveTab] = useState<
     'logs' | 'performance' | 'benchmark'
   >('performance');

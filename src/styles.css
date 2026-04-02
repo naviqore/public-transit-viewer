@@ -42,6 +42,10 @@ textarea {
   background-color: #e2e8f0;
 }
 
+.leaflet-interactive:focus {
+  outline: none;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;

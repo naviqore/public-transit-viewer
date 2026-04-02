@@ -2,13 +2,13 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import BenchmarkTab from './BenchmarkTab';
-import { useMonitoring } from '../contexts/MonitoringContext';
+import { useBenchmark } from '../hooks/useBenchmark';
 
-vi.mock('../contexts/MonitoringContext', () => ({
-  useMonitoring: vi.fn(),
+vi.mock('../hooks/useBenchmark', () => ({
+  useBenchmark: vi.fn(),
 }));
 
-const mockedUseMonitoring = vi.mocked(useMonitoring);
+const mockedUseBenchmark = vi.mocked(useBenchmark);
 
 beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
@@ -16,14 +16,9 @@ beforeEach(() => {
     value: vi.fn(),
   });
 
-  mockedUseMonitoring.mockReturnValue({
-    lastResponseTime: 0,
-    logs: [],
-    clearLogs: vi.fn(),
-    addToast: vi.fn(),
+  mockedUseBenchmark.mockReturnValue({
     benchmarkState: {
       isRunning: false,
-      isPreloading: false,
       config: {
         concurrency: 5,
         delayMs: 100,

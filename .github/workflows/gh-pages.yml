@@ -1,0 +1,54 @@
+name: Deploy demo to GitHub Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build with mock data enabled
+        run: npm run build -- --base /public-transit-viewer/
+
+      - name: Write runtime env.js for mock mode
+        run: |
+          cat > dist/env.js << 'EOF'
+          window.__ENV__ = {
+            VITE_ENABLE_MOCK_DATA: "true",
+            VITE_DISABLE_BENCHMARK: "true"
+          };
+          EOF
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

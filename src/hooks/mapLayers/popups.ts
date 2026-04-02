@@ -1,6 +1,7 @@
 import L from 'leaflet';
 
 import { Leg, Stop } from '../../types';
+import { formatDisplayTime } from '../../utils/dateUtils';
 
 export interface PopupOptions {
   time?: string;
@@ -8,6 +9,7 @@ export interface PopupOptions {
   isPast?: boolean;
   isDark: boolean;
   timezone: string;
+  useStationTime: boolean;
   permanent?: boolean;
   highlightColor?: string;
   subtitle?: string;
@@ -29,6 +31,7 @@ export function bindRichStopPopup(
     permanent,
     time,
     timezone,
+    useStationTime,
   } = options;
 
   const bg = isDark
@@ -48,13 +51,7 @@ export function bindRichStopPopup(
 
   let subtitleHtml = '';
   if (time) {
-    const date = new Date(time);
-    const timeStr = date.toLocaleTimeString('en-GB', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: timezone,
-    });
+    const timeStr = formatDisplayTime(time, timezone, useStationTime);
     subtitleHtml = `<div class="text-[10px] font-mono font-bold mt-0.5 ${isPast ? 'text-slate-400 line-through decoration-slate-400/50' : 'text-slate-600 dark:text-slate-300'}">${timeStr}</div>`;
   } else if (subtitle) {
     subtitleHtml = `<div class="text-[10px] font-mono font-bold mt-0.5" style="color:${highlightColor || 'inherit'}">${subtitle}</div>`;

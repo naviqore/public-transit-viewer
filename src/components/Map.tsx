@@ -1,7 +1,12 @@
 import L from 'leaflet';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { DEFAULT_MAP_CENTER } from '../constants';
+import {
+  DEFAULT_MAP_CENTER,
+  MAP_TILE_ATTRIBUTION,
+  MAP_TILE_URL_DARK,
+  MAP_TILE_URL_LIGHT,
+} from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { Connection, Leg, Stop } from '../types';
@@ -22,6 +27,7 @@ interface MapProps {
   stops?: Stop[];
   connections?: Connection[];
   selectedConnection?: Connection | null;
+  selectedLegIndex?: number | null;
   currentStopId?: string;
   isolines?: Stop[];
   visConnections?: { legs: Leg[] }[];
@@ -40,6 +46,7 @@ interface MapProps {
   onStopClick?: (stop: Stop) => void;
   onMapClick?: (lat: number, lon: number) => void;
   onConnectionClick?: (connection: Connection) => void;
+  onLegClick?: (leg: Leg, legIndex: number) => void;
 }
 
 function isValidCoordinate(
@@ -55,7 +62,7 @@ function isValidCoordinate(
 }
 
 const MapComponent: React.FC<MapProps> = (props) => {
-  const { darkMode, timezone } = useSettings();
+  const { darkMode, timezone, useStationTime } = useSettings();
   const { isolineState } = useDomain();
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -86,13 +93,10 @@ const MapComponent: React.FC<MapProps> = (props) => {
       zoomControl: false,
       attributionControl: false,
     }).setView(initialCenter, initialZoom);
-    tileLayerRef.current = L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-      {
-        attribution: '&copy; CARTO',
-        maxZoom: 20,
-      }
-    ).addTo(map);
+    tileLayerRef.current = L.tileLayer(MAP_TILE_URL_LIGHT, {
+      attribution: MAP_TILE_ATTRIBUTION,
+      maxZoom: 20,
+    }).addTo(map);
     L.control.attribution({ position: 'bottomright' }).addTo(map);
     map.on('click', (e) => onMapClickRef.current?.(e.latlng.lat, e.latlng.lng));
 
@@ -139,11 +143,9 @@ const MapComponent: React.FC<MapProps> = (props) => {
 
   useEffect(() => {
     if (!tileLayerRef.current) return;
-    const lightUrl =
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    const darkUrl =
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    tileLayerRef.current.setUrl(darkMode ? darkUrl : lightUrl);
+    tileLayerRef.current.setUrl(
+      darkMode ? MAP_TILE_URL_DARK : MAP_TILE_URL_LIGHT
+    );
   }, [darkMode]);
 
   useEffect(() => {
@@ -170,12 +172,14 @@ const MapComponent: React.FC<MapProps> = (props) => {
     stops: props.stops,
     connections: props.connections,
     selectedConnection: props.selectedConnection,
+    selectedLegIndex: props.selectedLegIndex,
     currentStopId: props.currentStopId,
     isolines: props.isolines,
     visConnections: props.visConnections,
     variant: props.variant,
     darkMode,
     timezone,
+    useStationTime,
     isolineMaxDuration: isolineState.maxDuration,
     isolineColorMode: props.isolineColorMode,
     isolineTransfersMap: props.isolineTransfersMap,
@@ -187,6 +191,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
 
     onStopClick: props.onStopClick,
     onConnectionClick: props.onConnectionClick,
+    onLegClick: props.onLegClick,
   });
 
   useEffect(() => {

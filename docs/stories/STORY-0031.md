@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -33,13 +33,13 @@ consumer of `useMonitoring()` gets the full benchmark API surfaced in its type.
 
 ## Acceptance Criteria
 
-- [ ] `MonitoringContext.tsx` no longer contains benchmark worker/stats logic.
-- [ ] A `useBenchmark` hook (or equivalent) owns benchmark state and is used
+- [x] `MonitoringContext.tsx` no longer contains benchmark worker/stats logic.
+- [x] A `useBenchmark` hook (or equivalent) owns benchmark state and is used
       by `BenchmarkTab`.
-- [ ] `useMonitoring()` type no longer exposes `benchmarkState`,
+- [x] `useMonitoring()` type no longer exposes `benchmarkState`,
       `setBenchmarkConfig`, `toggleBenchmark`, `clearBenchmarkLogs`.
-- [ ] `BenchmarkTab.test.tsx` and `MonitoringContext.test.ts` tests pass.
-- [ ] No user-visible behaviour changes.
+- [x] `BenchmarkTab.test.tsx` and `MonitoringContext.test.ts` tests pass.
+- [x] No user-visible behaviour changes.
 
 ## Implementation Notes
 
@@ -50,6 +50,6 @@ from `useDomain()`).
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Extracted all benchmark state, logic, and types into useBenchmark hook. MonitoringContext now only owns logs, toasts, and lastResponseTime.
+- Descoped ACs: none

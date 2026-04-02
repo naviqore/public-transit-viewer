@@ -30,6 +30,7 @@ function makeIsolineState(overrides: Partial<IsolineState> = {}): IsolineState {
     maxDuration: 30,
     date: DATE,
     lastQueriedKey: null,
+    queriedAt: null,
     expandedStopId: null,
     ...overrides,
   };
@@ -51,7 +52,7 @@ const makeDomainValue = (
 
 async function flushReactUpdates(): Promise<void> {
   await act(async () => {
-    await vi.runAllTimersAsync();
+    await vi.runOnlyPendingTimersAsync();
   });
   await act(async () => {
     await Promise.resolve();

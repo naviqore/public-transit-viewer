@@ -2,7 +2,7 @@
 
 ## Status
 
-OPEN
+CLOSED
 
 ## Type
 
@@ -30,10 +30,10 @@ fix
 
 ## Acceptance Criteria
 
-- [ ] The fallback UI shows the error message (not just a generic string).
-- [ ] A "Try again" button resets the boundary and re-renders children.
-- [ ] The redundant `this.props` assignment is removed.
-- [ ] `ErrorBoundary.test.tsx` covers: (a) renders children normally,
+- [x] The fallback UI shows the error message (not just a generic string).
+- [x] A "Try again" button resets the boundary and re-renders children.
+- [x] The redundant `this.props` assignment is removed.
+- [x] `ErrorBoundary.test.tsx` covers: (a) renders children normally,
       (b) shows fallback with error message on throw,
       (c) "Try again" resets and re-renders children.
 
@@ -45,6 +45,6 @@ The `componentDidCatch` can keep its `console.error` call.
 
 ## Completion
 
-- Date:
-- Outcome:
-- Descoped ACs:
+- Date: 2026-03-31
+- Outcome: Added error state with message display in details section; added Try again button; removed redundant this.props assignment; added full test coverage.
+- Descoped ACs: none
