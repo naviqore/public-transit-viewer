@@ -46,6 +46,11 @@ export class MockDataProvider implements IDataProvider {
     return this.delay(stops);
   }
 
+  async getRandomStop(): Promise<ProviderResult<Stop>> {
+    const stop = MOCK_STOPS[Math.floor(Math.random() * MOCK_STOPS.length)];
+    return this.delay(stop);
+  }
+
   async getStopDepartures(
     stopId: string,
     from: string,

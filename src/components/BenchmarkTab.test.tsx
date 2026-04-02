@@ -19,7 +19,6 @@ beforeEach(() => {
   mockedUseBenchmark.mockReturnValue({
     benchmarkState: {
       isRunning: false,
-      isPreloading: false,
       config: {
         concurrency: 5,
         delayMs: 100,

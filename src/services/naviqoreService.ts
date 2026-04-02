@@ -157,6 +157,12 @@ class NaviqoreService {
     );
   }
 
+  async getRandomStop(): Promise<ApiResponse<Stop>> {
+    return this.execute('schedule/stops/random', () =>
+      this.provider.getRandomStop()
+    );
+  }
+
   async getStopDepartures(
     stopId: string,
     from: string,

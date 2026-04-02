@@ -21,7 +21,6 @@ import {
   Cpu,
   HelpCircle,
   Play,
-  RefreshCw,
   Server,
   Shuffle,
   Square,
@@ -234,8 +233,7 @@ const BenchmarkTab: React.FC = () => {
     clearBenchmarkLogs,
   } = useBenchmark();
 
-  const { isRunning, isPreloading, config, stats, logs, latencyHistory } =
-    benchmarkState;
+  const { isRunning, config, stats, logs, latencyHistory } = benchmarkState;
 
   // Console State
   const [autoScroll, setAutoScroll] = useState(true);
@@ -261,23 +259,14 @@ const BenchmarkTab: React.FC = () => {
           <div className="flex items-center gap-3 w-full md:w-auto">
             <button
               onClick={toggleBenchmark}
-              disabled={isPreloading}
               className={`h-12 w-12 rounded-full flex items-center justify-center transition-all shadow-md flex-shrink-0 ${
                 isRunning
                   ? 'bg-brand-500 hover:bg-brand-600 text-white animate-pulse ring-4 ring-brand-100 dark:ring-brand-900/20'
                   : 'bg-indigo-600 hover:bg-indigo-700 text-white ring-4 ring-indigo-100 dark:ring-indigo-900/20'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-              title={
-                isPreloading
-                  ? 'Preloading...'
-                  : isRunning
-                    ? 'Stop Benchmark'
-                    : 'Start Benchmark'
-              }
+              }`}
+              title={isRunning ? 'Stop Benchmark' : 'Start Benchmark'}
             >
-              {isPreloading ? (
-                <RefreshCw className="animate-spin" size={24} />
-              ) : isRunning ? (
+              {isRunning ? (
                 <Square fill="currentColor" size={20} />
               ) : (
                 <Play fill="currentColor" size={24} className="ml-1" />

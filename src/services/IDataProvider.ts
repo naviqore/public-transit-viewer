@@ -74,6 +74,8 @@ export interface IDataProvider {
     config: QueryConfig
   ): Promise<ProviderResult<Connection[]>>;
 
+  getRandomStop(): Promise<ProviderResult<Stop>>;
+
   getIsolines(
     sourceStopId: string,
     dateTime: string,

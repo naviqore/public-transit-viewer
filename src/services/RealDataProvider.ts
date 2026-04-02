@@ -90,6 +90,10 @@ export class RealDataProvider implements IDataProvider {
     });
   }
 
+  async getRandomStop(): Promise<ProviderResult<Stop>> {
+    return this.fetch<Stop>('/schedule/stops/random');
+  }
+
   async getStopDepartures(
     stopId: string,
     from: string,
