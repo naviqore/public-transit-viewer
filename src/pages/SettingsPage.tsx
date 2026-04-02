@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import PageHeader from '../components/common/PageHeader';
-import { IS_API_URL_CONFIGURED } from '../constants';
+import { ENABLE_MOCK_DATA, IS_API_URL_CONFIGURED } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getAllTimezones } from '../utils/dateUtils';
@@ -281,14 +281,16 @@ const SettingsPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {IS_API_URL_CONFIGURED ? (
+                  {IS_API_URL_CONFIGURED || mockMode ? (
                     <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
                       <Lock size={14} className="text-emerald-500" />
                       <code className="text-xs font-mono flex-1">
                         {apiBaseUrl}
                       </code>
                       <span className="text-[10px] font-bold uppercase text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                        ENV Configured
+                        {IS_API_URL_CONFIGURED
+                          ? 'ENV Configured'
+                          : 'Mock Active'}
                       </span>
                     </div>
                   ) : (
@@ -304,10 +306,15 @@ const SettingsPage: React.FC = () => {
                   )}
                 </div>
 
-                {!IS_API_URL_CONFIGURED && (
+                {(!IS_API_URL_CONFIGURED || ENABLE_MOCK_DATA) && (
                   <div
-                    className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
-                    onClick={() => setMockMode(!mockMode)}
+                    className={`p-4 flex items-center justify-between transition-colors ${ENABLE_MOCK_DATA ? 'opacity-60' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer'}`}
+                    onClick={
+                      ENABLE_MOCK_DATA
+                        ? undefined
+                        : () => setMockMode(!mockMode)
+                    }
+                    aria-disabled={ENABLE_MOCK_DATA}
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -320,17 +327,26 @@ const SettingsPage: React.FC = () => {
                           Mock Data Mode
                         </div>
                         <div className="text-sm text-slate-500 dark:text-slate-400">
-                          Use simulated data
+                          {ENABLE_MOCK_DATA
+                            ? 'Fixed by environment'
+                            : 'Use simulated data'}
                         </div>
                       </div>
                     </div>
-                    <div
-                      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out flex-shrink-0 ${mockMode ? 'bg-indigo-600' : 'bg-slate-300'}`}
-                    >
-                      <div
-                        className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ease-in-out ${mockMode ? 'left-[22px]' : 'left-[2px]'}`}
+                    {ENABLE_MOCK_DATA ? (
+                      <Lock
+                        size={16}
+                        className="text-emerald-500 flex-shrink-0"
                       />
-                    </div>
+                    ) : (
+                      <div
+                        className={`relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out flex-shrink-0 ${mockMode ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                      >
+                        <div
+                          className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-all duration-200 ease-in-out ${mockMode ? 'left-[22px]' : 'left-[2px]'}`}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
