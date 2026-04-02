@@ -30,6 +30,8 @@ export const IS_API_URL_CONFIGURED = !!ENV_API_URL;
 export const DISABLE_BENCHMARK = getEnv('VITE_DISABLE_BENCHMARK') === 'true';
 export const ENABLE_MOCK_DATA = getEnv('VITE_ENABLE_MOCK_DATA') === 'true';
 
+export const LOGO_URL = `${import.meta.env.BASE_URL}logo.png`;
+
 export const DEFAULT_MAP_CENTER: [number, number] = [47.3769, 8.5417]; // Zurich default
 export const DEFAULT_ZOOM = 13;
 export const STALENESS_THRESHOLD_MS = 5 * 60 * 1000;

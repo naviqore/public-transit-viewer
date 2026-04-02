@@ -13,7 +13,11 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import PageHeader from '../components/common/PageHeader';
-import { ENABLE_MOCK_DATA, IS_API_URL_CONFIGURED } from '../constants';
+import {
+  ENABLE_MOCK_DATA,
+  IS_API_URL_CONFIGURED,
+  LOGO_URL,
+} from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { getAllTimezones } from '../utils/dateUtils';
@@ -78,7 +82,7 @@ const SettingsPage: React.FC = () => {
                   <div className="relative w-10 h-10 flex-shrink-0">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm overflow-hidden bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                       <img
-                        src="/logo.png"
+                        src={LOGO_URL}
                         alt="Naviqore"
                         className="w-full h-full object-contain"
                         onError={(e) => {

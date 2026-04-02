@@ -11,6 +11,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 import AboutDialog from './AboutDialog';
+import { LOGO_URL } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import { useMonitoring } from '../contexts/MonitoringContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -73,7 +74,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             <span className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center">
               <img
-                src="/logo.png"
+                src={LOGO_URL}
                 alt="Naviqore"
                 className="w-full h-full object-contain"
                 onError={(e) => {

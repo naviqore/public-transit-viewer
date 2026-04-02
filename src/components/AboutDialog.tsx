@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { LOGO_URL } from '../constants';
 import { useDomain } from '../contexts/DomainContext';
 import ResponsiveDialog from './common/ResponsiveDialog';
 
@@ -49,7 +50,7 @@ const AboutDialog: React.FC<AboutDialogProps> = ({ onClose }) => {
         >
           {!logoError ? (
             <img
-              src="/logo.png"
+              src={LOGO_URL}
               alt="Naviqore"
               className="w-full h-full object-contain"
               onError={() => setLogoError(true)}
