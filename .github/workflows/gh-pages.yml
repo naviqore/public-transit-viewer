@@ -1,8 +1,10 @@
 name: Deploy demo to GitHub Pages
 
 on:
+  # Production deploy on published releases.
   release:
     types: [published]
+  # Kept intentionally for bootstrap, retries, and backfills.
   workflow_dispatch:
 
 permissions:
@@ -19,6 +21,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Verify GitHub Pages is enabled for this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pages_status="$(curl -sS -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")"
+
+          if [ "${pages_status}" != "200" ]; then
+            echo "::error title=GitHub Pages is not enabled::Enable Pages in Settings > Pages and set Source to GitHub Actions, then rerun this workflow."
+            exit 1
+          fi
 
       - uses: actions/setup-node@v4
         with:
