@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/naviqore/public-transit-viewer/compare/v2.0.1...v2.0.2) (2026-04-02)
+
+
+### Bug Fixes
+
+* **release:** trigger patch release for recent UI fixes ([ff2bada](https://github.com/naviqore/public-transit-viewer/commit/ff2bada3fdfeda595bbe78549fd0748d01799a03))
+
 ## [2.0.1](https://github.com/naviqore/public-transit-viewer/compare/v2.0.0...v2.0.1) (2026-04-02)
 
 
