@@ -1,6 +1,6 @@
 {
   "name": "public-transit-viewer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A viewer for the Naviqore public transit service and routing engine.",
   "type": "module",
   "scripts": {
