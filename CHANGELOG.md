@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/naviqore/public-transit-viewer/compare/v2.0.0...v2.0.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* **settings:** lock mock settings when controlled by mode or environment ([744bfc3](https://github.com/naviqore/public-transit-viewer/commit/744bfc3415ae1171c3e59863424e9774ef787095))
+* **ui:** use base-path-aware logo URL for GitHub Pages deployment ([e5aec07](https://github.com/naviqore/public-transit-viewer/commit/e5aec070d95f4021664dec2b9a45e3dad5d587ae))
+
 ## [2.0.0](https://github.com/naviqore/public-transit-viewer/compare/v1.0.0...v2.0.0) (2026-04-02)
 
 
