@@ -24,6 +24,7 @@ interface UseMapLayersProps {
   stops?: Stop[];
   connections?: Connection[];
   selectedConnection?: Connection | null;
+  selectedLegIndex?: number | null;
   currentStopId?: string;
   isolines?: Stop[];
   visConnections?: { legs: Leg[] }[];
@@ -42,6 +43,7 @@ interface UseMapLayersProps {
 
   onStopClick?: (stop: Stop) => void;
   onConnectionClick?: (connection: Connection) => void;
+  onLegClick?: (leg: Leg, legIndex: number) => void;
 }
 
 /**
@@ -57,6 +59,7 @@ export const useMapLayers = ({
   stops,
   connections,
   selectedConnection,
+  selectedLegIndex,
   currentStopId,
   isolines,
   visConnections,
@@ -72,6 +75,7 @@ export const useMapLayers = ({
   highlightedStopId,
   onStopClick,
   onConnectionClick,
+  onLegClick,
 }: UseMapLayersProps) => {
   const canvasRef = useRef<L.Canvas | null>(null);
   const isolineGroupRef = useRef<L.LayerGroup | null>(null);
@@ -102,7 +106,10 @@ export const useMapLayers = ({
         selectedConnection,
         true,
         darkMode,
-        currentStopId
+        currentStopId,
+        selectedLegIndex ?? undefined,
+        undefined,
+        onLegClick
       );
       drawTripStops(
         layerGroup,
@@ -113,6 +120,7 @@ export const useMapLayers = ({
         useStationTime,
         sourceStop,
         targetStop,
+        selectedLegIndex ?? undefined,
         onStopClick
       );
     } else if (connections && Array.isArray(connections)) {
@@ -122,6 +130,7 @@ export const useMapLayers = ({
           c,
           false,
           darkMode,
+          undefined,
           undefined,
           onConnectionClick
         )
@@ -170,6 +179,7 @@ export const useMapLayers = ({
     stops,
     connections,
     selectedConnection,
+    selectedLegIndex,
     currentStopId,
     visConnections,
     variant,
@@ -180,6 +190,7 @@ export const useMapLayers = ({
     targetStop,
     onStopClick,
     onConnectionClick,
+    onLegClick,
   ]);
 
   // --- Isoline rendering with Canvas + viewport culling ---
@@ -359,11 +370,13 @@ const drawConnection = (
   isSelected: boolean,
   isDark: boolean,
   currentStopId?: string,
-  onClick?: (c: Connection) => void
+  selectedLegIndex?: number,
+  onClick?: (c: Connection) => void,
+  onLegClick?: (leg: Leg, legIndex: number) => void
 ) => {
   if (!conn.legs) return;
 
-  conn.legs.forEach((leg) => {
+  conn.legs.forEach((leg, legIndex) => {
     if (
       !isValidCoordinate(leg.from.latitude, leg.from.longitude) ||
       !isValidCoordinate(leg.to.latitude, leg.to.longitude)
@@ -377,6 +390,11 @@ const drawConnection = (
         ? '#64748b'
         : '#94a3b8'
       : TRANSPORT_COLORS[mode] || COLORS.primary;
+
+    const hasLegSelection =
+      isSelected && selectedLegIndex != null && selectedLegIndex >= 0;
+    const isActiveLeg = hasLegSelection && legIndex === selectedLegIndex;
+    const isDimmedLeg = hasLegSelection && legIndex !== selectedLegIndex;
 
     const points: [number, number][] = [
       [leg.from.latitude, leg.from.longitude],
@@ -426,26 +444,21 @@ const drawConnection = (
 
           const isPast = i < splitIndex;
           const segmentColor = isPast ? COLORS.pastTrip : standardColor;
-
-          const poly = L.polyline(
+          const segCoords: [number, number][] = [
             [
-              [
-                startSt.stop.coordinates.latitude,
-                startSt.stop.coordinates.longitude,
-              ],
-              [
-                endSt.stop.coordinates.latitude,
-                endSt.stop.coordinates.longitude,
-              ],
+              startSt.stop.coordinates.latitude,
+              startSt.stop.coordinates.longitude,
             ],
-            {
-              color: segmentColor,
-              weight: isPast ? 4 : 5,
-              opacity: isPast ? 0.7 : 1, // Increased opacity for high contrast on light maps
-              lineCap: 'round',
-              lineJoin: 'round',
-            }
-          );
+            [endSt.stop.coordinates.latitude, endSt.stop.coordinates.longitude],
+          ];
+
+          const poly = L.polyline(segCoords, {
+            color: segmentColor,
+            weight: isPast ? 4 : 5,
+            opacity: isPast ? 0.7 : 1,
+            lineCap: 'round',
+            lineJoin: 'round',
+          });
           bindRichLinePopup(poly, leg, isDark, isPast);
           poly.addTo(layers);
         }
@@ -453,25 +466,40 @@ const drawConnection = (
       }
     }
 
+    // Compute opacity: active leg = full, dimmed = faded, default selected = full, unselected = faded
+    const legOpacity = isDimmedLeg ? 0.25 : isSelected ? 1 : 0.4;
+    const legWeight = isDimmedLeg ? 3 : isWalk ? 4 : isActiveLeg ? 6 : 5;
+
     const poly = L.polyline(points, {
       color: standardColor,
-      weight: isWalk ? 4 : 5,
-      opacity: isSelected ? 1 : 0.4,
+      weight: legWeight,
+      opacity: legOpacity,
       dashArray: isWalk ? '1, 8' : undefined,
       lineCap: 'round',
       lineJoin: 'round',
-      className: isSelected ? 'drop-shadow-md' : '',
     });
 
-    if (onClick) {
+    const legClickHandler = isSelected ? onLegClick : undefined;
+    if (onClick || legClickHandler) {
       const clickArea = L.polyline(points, {
-        color: 'transparent',
         weight: 20,
-        className: 'cursor-pointer',
+        opacity: 0,
+        interactive: true,
+      });
+      clickArea.on('add', () => {
+        const el = clickArea.getElement() as HTMLElement | undefined;
+        if (el) {
+          el.style.pointerEvents = 'all';
+          el.style.cursor = 'pointer';
+        }
       });
       clickArea.on('click', (e) => {
         L.DomEvent.stopPropagation(e);
-        onClick(conn);
+        if (legClickHandler) {
+          legClickHandler(leg, legIndex);
+        } else if (onClick) {
+          onClick(conn);
+        }
       });
       clickArea.addTo(layers);
     }
@@ -489,6 +517,7 @@ const drawTripStops = (
   useStationTime: boolean,
   sourceStop: Stop | undefined,
   targetStop: Stop | undefined,
+  selectedLegIndex?: number,
   onClick?: (s: Stop) => void
 ) => {
   const stopsMap = new Map<
@@ -496,10 +525,16 @@ const drawTripStops = (
     { stop: Stop; time: string; isPast: boolean }
   >();
 
-  conn.legs?.forEach((leg) => {
+  const hasLegSelection = selectedLegIndex != null && selectedLegIndex >= 0;
+
+  conn.legs?.forEach((leg, legIndex) => {
     if (leg.type === 'WALK') return;
 
     const relevantStops = getLegStopTimes(leg);
+
+    // When a leg is selected, only show intermediate stops for that leg
+    // Always show first/last stops of every leg (they are transfer points)
+    const showIntermediates = !hasLegSelection || legIndex === selectedLegIndex;
 
     if (relevantStops.length > 0) {
       const splitIndex = relevantStops.findIndex(
@@ -508,6 +543,10 @@ const drawTripStops = (
       relevantStops.forEach((st, idx) => {
         if (sourceStop && st.stop.id === sourceStop.id) return;
         if (targetStop && st.stop.id === targetStop.id) return;
+
+        // Skip intermediate stops for non-selected legs
+        const isEndpoint = idx === 0 || idx === relevantStops.length - 1;
+        if (!showIntermediates && !isEndpoint) return;
 
         const isPast = currentStopId
           ? splitIndex !== -1 && idx < splitIndex

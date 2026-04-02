@@ -27,6 +27,7 @@ interface MapProps {
   stops?: Stop[];
   connections?: Connection[];
   selectedConnection?: Connection | null;
+  selectedLegIndex?: number | null;
   currentStopId?: string;
   isolines?: Stop[];
   visConnections?: { legs: Leg[] }[];
@@ -45,6 +46,7 @@ interface MapProps {
   onStopClick?: (stop: Stop) => void;
   onMapClick?: (lat: number, lon: number) => void;
   onConnectionClick?: (connection: Connection) => void;
+  onLegClick?: (leg: Leg, legIndex: number) => void;
 }
 
 function isValidCoordinate(
@@ -170,6 +172,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
     stops: props.stops,
     connections: props.connections,
     selectedConnection: props.selectedConnection,
+    selectedLegIndex: props.selectedLegIndex,
     currentStopId: props.currentStopId,
     isolines: props.isolines,
     visConnections: props.visConnections,
@@ -188,6 +191,7 @@ const MapComponent: React.FC<MapProps> = (props) => {
 
     onStopClick: props.onStopClick,
     onConnectionClick: props.onConnectionClick,
+    onLegClick: props.onLegClick,
   });
 
   useEffect(() => {

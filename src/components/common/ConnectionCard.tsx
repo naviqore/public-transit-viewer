@@ -12,8 +12,9 @@ interface ConnectionCardProps {
   id?: string;
   connection: Connection;
   isSelected: boolean;
+  selectedLegIndex?: number | null;
   onClick: () => void;
-  onLegClick?: (leg: Leg) => void;
+  onLegClick?: (leg: Leg, legIndex: number) => void;
   formatTime: (iso: string) => string;
 }
 
@@ -21,6 +22,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   id,
   connection,
   isSelected,
+  selectedLegIndex: externalLegIndex,
   onClick,
   onLegClick,
   formatTime,
@@ -36,6 +38,14 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
       setExpandedLegIndex(null);
     }
   }, [isSelected]);
+
+  // Sync leg expansion with external selection (e.g. map click)
+  useEffect(() => {
+    if (isSelected && externalLegIndex != null) {
+      setExpanded(true);
+      setExpandedLegIndex(externalLegIndex);
+    }
+  }, [isSelected, externalLegIndex]);
 
   const { totalDurationMs, dominantMode, transferCount } = useMemo(() => {
     let total = 0;
@@ -95,7 +105,7 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
   };
 
   const handleLegClickInternal = (leg: Leg, idx: number) => {
-    onLegClick?.(leg);
+    onLegClick?.(leg, idx);
     setExpandedLegIndex((prev) => (prev === idx ? null : idx));
   };
 

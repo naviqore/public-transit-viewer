@@ -58,6 +58,7 @@ const ConnectPage: React.FC = () => {
     return DEFAULT_MAP_CENTER;
   });
   const [customBounds, setCustomBounds] = useState<L.LatLngBounds | null>(null);
+  const [selectedLegIndex, setSelectedLegIndex] = useState<number | null>(null);
   const [showConfig, setShowConfig] = useState(false);
 
   // Initialize date if empty
@@ -259,9 +260,14 @@ const ConnectPage: React.FC = () => {
     const isDeselecting = selectedConnection === conn;
     updateState({ selectedConnection: isDeselecting ? null : conn });
     setCustomBounds(null);
+    setSelectedLegIndex(null);
   };
 
-  const handleLegClick = (leg: Leg) => {
+  const handleLegClick = (leg: Leg, legIndex: number) => {
+    // Toggle leg selection: clicking the same leg deselects it
+    const isDeselecting = selectedLegIndex === legIndex;
+    setSelectedLegIndex(isDeselecting ? null : legIndex);
+
     const bounds = L.latLngBounds(
       [leg.from.latitude, leg.from.longitude],
       [leg.to.latitude, leg.to.longitude]
@@ -276,7 +282,7 @@ const ConnectPage: React.FC = () => {
         ]);
       });
     }
-    setCustomBounds(bounds);
+    setCustomBounds(isDeselecting ? null : bounds);
   };
 
   // Scroll to selected connection on restore or when a new connection is selected
@@ -398,6 +404,9 @@ const ConnectPage: React.FC = () => {
                       id={`conn-${idx}`}
                       connection={conn}
                       isSelected={selectedConnection === conn}
+                      selectedLegIndex={
+                        selectedConnection === conn ? selectedLegIndex : null
+                      }
                       onClick={() => handleConnectionClick(conn)}
                       onLegClick={handleLegClick}
                       formatTime={formatTime}
@@ -415,8 +424,10 @@ const ConnectPage: React.FC = () => {
           zoom={DEFAULT_ZOOM}
           connections={connections}
           selectedConnection={selectedConnection}
+          selectedLegIndex={selectedLegIndex}
           customBounds={customBounds}
           onConnectionClick={handleConnectionClick}
+          onLegClick={handleLegClick}
           sourceStop={fromStop || undefined}
           targetStop={toStop || undefined}
         />
