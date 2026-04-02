@@ -1,10 +1,59 @@
-# Naviqore Public Transit Viewer
+# Public Transit Viewer
 
-A web frontend for the [Naviqore](https://github.com/naviqore) public transit routing engine. Connect to a live backend or explore with built-in mock data.
+Web frontend for the [Naviqore](https://github.com/naviqore) public transit routing engine.
 
-**Features:** stop/schedule explorer · connection routing · isoline (reachability) map · system monitor & benchmark
+## Features
 
-**Stack:** React 19 · TypeScript · Vite · Tailwind CSS · Leaflet · React Router v7
+- **Stop & Schedule Explorer:** Browse stops, view departures and route details on an interactive
+  map.
+- **Connection Routing:** Query point-to-point transit connections with detailed leg-by-leg
+  results.
+- **Isoline Map:** Visualise reachability areas by travel time or number of transfers from a given
+  stop.
+- **System Monitor & Benchmark:** Monitor backend health and benchmark routing performance.
+- **Mock Data Mode:** Explore the app without a backend using built-in Swiss transit sample data.
+
+## Running Locally
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/naviqore/public-transit-viewer.git
+   cd public-transit-viewer
+   ```
+
+2. Install dependencies and start the dev server:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+3. Run the full quality gate:
+
+   ```bash
+   npm run ci
+   ```
+
+## Agent-First Development Workflow
+
+This repository follows a story-first workflow for all intentional changes.
+
+1. Create a story (feature, bugfix, test, etc.):
+
+```text
+#file:new-story.prompt.md <what you want to change>
+```
+
+2. Review and approve the generated story in `docs/stories/`.
+
+3. Let the agent implement the story:
+
+```text
+#file:implement-existing-story.prompt.md <story-id>
+```
+
+4. Review the implementation and confirm; the agent commits and closes the story.
 
 ## Configuration
 
@@ -16,34 +65,27 @@ Environment variables (prefix `VITE_` as required by Vite):
 | `VITE_ENABLE_MOCK_DATA`  | `false`                 | Start in mock-data mode automatically.                       |
 | `VITE_DISABLE_BENCHMARK` | `false`                 | Hide the Benchmark tab (recommended for public deployments). |
 
-## Running Locally
+## Deployment
+
+### Docker
 
 ```bash
-npm install       # install dependencies
-npm run dev       # start dev server
-npm run ci        # full quality gate: typecheck → lint → format → tests → build → coverage
+docker run -p 80:80 \
+  -e VITE_API_BASE_URL=https://api.your-naviqore-instance.com \
+  -e VITE_DISABLE_BENCHMARK=true \
+  ghcr.io/naviqore/public-transit-viewer:latest
 ```
 
-Other useful scripts: `npm run test:run`, `npm run build`, `npm run lint:fix`.
+### GitHub Pages
 
-## Docker
+A live demo with mock data is deployed automatically on every release to
+[GitHub Pages](https://naviqore.github.io/public-transit-viewer/).
 
-Since Vite bakes env vars into the static bundle, pass them as build args:
+## Contributing
 
-```bash
-docker build \
-  --build-arg VITE_API_BASE_URL=https://api.your-naviqore-instance.com \
-  --build-arg VITE_DISABLE_BENCHMARK=true \
-  -t naviqore-viewer .
+Contributions are welcome! Please open an issue or pull request on
+[GitHub](https://github.com/naviqore/public-transit-viewer).
 
-docker run -p 80:80 naviqore-viewer
-```
+## License
 
-## AI-Assisted Development
-
-This repo uses a story-first workflow with GitHub Copilot.
-
-- New features require a story doc approved before implementation starts.
-- Copilot instructions: `.github/copilot-instructions.md` and `.github/instructions/frontend.instructions.md`
-- Prompt templates: `.github/prompts/`
-- Story backlog: `docs/stories/INDEX.md`
+This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for details.
