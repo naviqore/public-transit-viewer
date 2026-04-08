@@ -12,7 +12,7 @@ COPY . .
 RUN npm run build
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
-FROM nginx:1.29-alpine AS runtime
+FROM nginx:1.29.8-alpine AS runtime
 
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
